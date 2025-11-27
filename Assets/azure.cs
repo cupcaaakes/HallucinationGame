@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using Microsoft.Azure.Kinect.Sensor;
 using Microsoft.Azure.Kinect.BodyTracking;
+
 
 public class AzureKinectManager : MonoBehaviour
 {
@@ -9,29 +11,59 @@ public class AzureKinectManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Kinect initialisieren...");
+        Debug.Log("Init Kinect…");
 
-        kinect = Device.Open(0);
-        kinect.StartCameras(new DeviceConfiguration()
+        try
         {
-            ColorFormat = ImageFormat.ColorBGRA32,
-            ColorResolution = ColorResolution.R720p,
-            DepthMode = DepthMode.NFOV_Unbinned,
-            SynchronizedImagesOnly = true
-        });
+            kinect = Device.Open(0);
 
-        tracker = Tracker.Create(kinect.GetCalibration(), new TrackerConfiguration()
+          /*  kinect.StartCameras(new DeviceConfiguration
+            {
+                ColorFormat = ImageFormat.ColorBGRA32,
+                ColorResolution = ColorResolution.R720p,
+                DepthMode = DepthMode.NFOV_Unbinned,
+                SynchronizedImagesOnly = true
+            });
+
+            */
+
+            tracker = Tracker.Create(kinect.GetCalibration(), new TrackerConfiguration
+            {
+                ProcessingMode = TrackerProcessingMode.Gpu,
+                SensorOrientation = SensorOrientation.Default
+            });
+
+            Debug.Log(tracker);
+
+
+            var config = new DeviceConfiguration
+            {
+                ColorFormat = ImageFormat.ColorBGRA32,
+                ColorResolution = ColorResolution.R720p,
+                DepthMode = DepthMode.NFOV_2x2Binned,
+                SynchronizedImagesOnly = true
+            };
+
+            kinect.StartCameras(config);
+
+            Debug.Log("Kinect Started ");
+        }
+        catch (Exception ex)
         {
-            ProcessingMode = TrackerProcessingMode.Gpu
-        });
-
-        Debug.Log("Kinect + BodyTracking läuft!");
+            Debug.LogError("Kinect Start FAILED: " + ex.Message);
+            Debug.LogError("Tipp: In k4aviewer vorher schließen + USB neu verbinden!");
+        }
     }
+
 
     void Update()
     {
+        Debug.Log(tracker + ", " + kinect);
         if (tracker != null && kinect != null)
         {
+
+
+           
             var capture = kinect.GetCapture();
 
          
