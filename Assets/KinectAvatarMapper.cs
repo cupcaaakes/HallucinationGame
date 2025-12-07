@@ -19,7 +19,6 @@ public class KinectAvatarMapper : MonoBehaviour
     {
         if (bone == null) return;
 
-        // Azure Kinect → Unity rotation fix
         Quaternion rot = new Quaternion(
             joint.Quaternion.X,
             -joint.Quaternion.Y,
