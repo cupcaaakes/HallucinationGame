@@ -5,6 +5,9 @@ using Microsoft.Azure.Kinect.BodyTracking;
 
 public class KinectManager : MonoBehaviour
 {
+
+
+    public KinectAvatarMapper avatar;
     private Device kinect;
     private Tracker tracker;
 
@@ -86,7 +89,26 @@ public class KinectManager : MonoBehaviour
                     uint bodies = frame.NumberOfBodies;
                     bool hasBody = bodies > 0;
 
-                    // log at most once per second while a body is present
+                    if (!hasBody)
+                        return;  
+
+                    var body = frame.GetBody(0);
+                    var skel = body.Skeleton;
+
+                    // Head
+                    avatar.ApplyJointRotation(avatar.head, skel.GetJoint(JointId.Head));
+
+                    // Left arm
+                    avatar.ApplyJointRotation(avatar.shoulderLeft, skel.GetJoint(JointId.ShoulderLeft));
+                    avatar.ApplyJointRotation(avatar.elbowLeft, skel.GetJoint(JointId.ElbowLeft));
+                    avatar.ApplyJointRotation(avatar.wristLeft, skel.GetJoint(JointId.WristLeft));
+
+                    // Right arm
+                    avatar.ApplyJointRotation(avatar.shoulderRight, skel.GetJoint(JointId.ShoulderRight));
+                    avatar.ApplyJointRotation(avatar.elbowRight, skel.GetJoint(JointId.ElbowRight));
+                    avatar.ApplyJointRotation(avatar.wristRight, skel.GetJoint(JointId.WristRight));
+
+                    // Logging
                     if (hasBody && Time.time - lastBodyLogTime > 1f)
                     {
                         lastBodyLogTime = Time.time;
