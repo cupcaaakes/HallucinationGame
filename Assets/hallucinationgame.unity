@@ -217,12 +217,14 @@ MonoBehaviour:
   kinect: {fileID: 1264200777}
   sensorOrigin: {fileID: 1264200776}
   rootOffset: {x: 0, y: 0, z: 0}
-  handPosWeight: 1
-  elbowHintWeight: 1
+  handPosWeight: 2
+  elbowHintWeight: 0.5
   lookWeight: 0.6
   mirror: 0
-  flipZ: 0
-  flipX: 1
+  flipZ: 1
+  flipX: 0
+  rootSmooth: 12
+  yawSmooth: 10
 --- !u!1 &1191718250
 GameObject:
   m_ObjectHideFlags: 0

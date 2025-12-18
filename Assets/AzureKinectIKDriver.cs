@@ -36,17 +36,15 @@ public class AzureKinectIKDriver : MonoBehaviour
             ? sensorOrigin.TransformPoint(pelvisLocal)
             : pelvisLocal;
 
-        //  NUR X von Kinect übernehmen
-        Vector3 pos = transform.position;
-        pos.x = pelvisWorld.x + rootOffset.x;
+        // ONLY position follow. No rotation.
+        Vector3 targetPos = pelvisWorld + rootOffset;
 
         transform.position = Vector3.Lerp(
             transform.position,
-            pos,
+            targetPos,
             1f - Mathf.Exp(-rootSmooth * Time.deltaTime)
         );
     }
-
 
 
 
