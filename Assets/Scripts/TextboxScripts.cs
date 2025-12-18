@@ -1,0 +1,23 @@
+using System.Collections.Generic;
+
+public static class TextboxScripts
+{
+    public struct Line
+    {
+        public string text;
+        public float fontSize;
+        public Line(string text, float fontSize)
+        {
+            this.text = text;
+            this.fontSize = fontSize;
+        }
+    }
+
+    public static readonly List<Line> Lines = new()
+    {
+        new Line(
+            "After what felt like eternity, you finally end up in front of two doors. The one on the left has the calm sounds of waves behind it, while the one on the right sounds like plenty of voices talking over one another.",
+            21.6f
+        )
+    };
+}
