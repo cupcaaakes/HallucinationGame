@@ -75,6 +75,7 @@ public class AzureKinectIKDriver : MonoBehaviour
         Vector3 pelvisWorld = (sensorOrigin != null)
             ? sensorOrigin.TransformPoint(pelvisLocal)
             : pelvisLocal;
+        pelvisWorld = transform.position - rootOffset;
 
         // HAND TARGETS
         Vector3 handL = WorldJointPos(skel, JointId.HandLeft, pelvisLocal, pelvisWorld);
@@ -102,12 +103,23 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         // HEAD LOOK TARGET
         Vector3 head = WorldJointPos(skel, JointId.Head, pelvisLocal, pelvisWorld);
-        Vector3 neck = WorldJointPos(skel, JointId.Neck, pelvisLocal, pelvisWorld);
 
-        Vector3 lookDir = (head - neck).normalized;
-        Vector3 lookTarget = head + lookDir * 2f;
+        Vector3 shoulderL = WorldJointPos(skel, JointId.ShoulderLeft, pelvisLocal, pelvisWorld);
+        Vector3 shoulderR = WorldJointPos(skel, JointId.ShoulderRight, pelvisLocal, pelvisWorld);
+        if (mirror) (shoulderL, shoulderR) = (shoulderR, shoulderL);
 
-        anim.SetLookAtWeight(lookWeight);
+        Vector3 spine = WorldJointPos(skel, JointId.SpineChest, pelvisLocal, pelvisWorld);
+
+        Vector3 right = (shoulderR - shoulderL).normalized;
+        Vector3 up = (head - spine).normalized;
+        Vector3 forward = Vector3.Cross(right, up).normalized;
+
+        // keep it consistent with your character's facing direction
+        if (Vector3.Dot(forward, transform.forward) < 0f) forward = -forward;
+
+        Vector3 lookTarget = head + forward * 2f;
+
+        anim.SetLookAtWeight(lookWeight, 0f, 1f, 0f, 0.5f);
         anim.SetLookAtPosition(lookTarget);
     }
 
