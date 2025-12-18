@@ -106,12 +106,12 @@ public class KinectManager : MonoBehaviour
                     if (hasBody && Time.time - lastBodyLogTime > 1f)
                     {
                         lastBodyLogTime = Time.time;
-                        Debug.Log($"[Kinect] Bodies detected: {bodies}");
+                        //Debug.Log($"[Kinect] Bodies detected: {bodies}");
                     }
 
                     if (!hasBody && hadBodyLastFrame)
                     {
-                        Debug.Log("[Kinect] Lost all bodies.");
+                        //Debug.Log("[Kinect] Lost all bodies.");
                     }
 
                     hadBodyLastFrame = hasBody;
