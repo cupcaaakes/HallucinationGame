@@ -22,9 +22,25 @@ public class AzureKinectIKDriver : MonoBehaviour
     public float rootSmooth = 12f;
     public float yawSmooth = 10f;
 
+    [Header("Root Axis Lock (unlock X, lock others)")]
+    public bool lockY = true;
+    public bool lockZ = true;
+
+    float _lockedY;
+    float _lockedZ;
+    bool _lockInit;
+
+
     Animator anim;
 
-    void Awake() => anim = GetComponent<Animator>();
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+        _lockedY = transform.position.y;
+        _lockedZ = transform.position.z;
+        _lockInit = true;
+    }
+
 
     void Update()
     {
@@ -35,9 +51,9 @@ public class AzureKinectIKDriver : MonoBehaviour
         Vector3 pelvisWorld = (sensorOrigin != null)
             ? sensorOrigin.TransformPoint(pelvisLocal)
             : pelvisLocal;
+        pelvisWorld = LockRootAxes(pelvisWorld + rootOffset) - rootOffset;
 
-        // ONLY position follow. No rotation.
-        Vector3 targetPos = pelvisWorld + rootOffset;
+        Vector3 targetPos = LockRootAxes(pelvisWorld + rootOffset);
 
         transform.position = Vector3.Lerp(
             transform.position,
@@ -115,5 +131,19 @@ public class AzureKinectIKDriver : MonoBehaviour
             : relLocal;
 
         return pelvisWorld + relWorld;
+    }
+
+    Vector3 LockRootAxes(Vector3 p)
+    {
+        if (!_lockInit)
+        {
+            _lockedY = transform.position.y;
+            _lockedZ = transform.position.z;
+            _lockInit = true;
+        }
+
+        if (lockY) p.y = _lockedY;
+        if (lockZ) p.z = _lockedZ;
+        return p;
     }
 }
