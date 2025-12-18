@@ -380,6 +380,7 @@ MonoBehaviour:
   flipX: 1
   rootSmooth: 12
   yawSmooth: 10
+  lockX: 0
   lockY: 1
   lockZ: 1
 --- !u!54 &569873639
@@ -432,6 +433,37 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!1 &622681273
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 622681274}
+  m_Layer: 0
+  m_Name: Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &622681274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622681273}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.16867, y: 0.11807, z: 0.16867}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1019721242
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,3 +763,4 @@ SceneRoots:
   - {fileID: 1873598961}
   - {fileID: 2139949041}
   - {fileID: 272697875}
+  - {fileID: 622681274}
