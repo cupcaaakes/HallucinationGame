@@ -22,7 +22,8 @@ public class AzureKinectIKDriver : MonoBehaviour
     public float rootSmooth = 12f;
     public float yawSmooth = 10f;
 
-    [Header("Root Axis Lock (unlock X, lock others)")]
+    [Header("Root Axis Lock")]
+    public bool lockX = false;
     public bool lockY = true;
     public bool lockZ = true;
 
