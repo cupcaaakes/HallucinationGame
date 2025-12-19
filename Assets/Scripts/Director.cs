@@ -3,27 +3,64 @@ using UnityEngine;
 using static TextboxScripts;
 using UnityEngine.UI;
 
+// -----------------------------------------------------------------------------
+// Director.cs
+//
+// What this script does (high level):
+// 1) Starts with a full-white screen, while the "DemoScene" starts moving behind it.
+// 2) Fades the white away so the player sees two doors (left/right).
+// 3) When you hover a door "decision box", it shows a UI text label + a hold-to-confirm ring.
+// 4) While hovering, it previews ambience for that side at low volume (~33%).
+// 5) If you keep hovering long enough, it "chooses" that side, fades to white,
+//    ramps ambience for the chosen side to 100%, then reveals that ending scene.
+//
+// Important Unity basics for Tom:
+// - Start() runs once when the scene starts.
+// - Update() runs every frame.
+// - Coroutines (IEnumerator + StartCoroutine) let you do timed sequences with "yield return".
+// - GameObject: a thing in the scene (door, UI, etc.).
+// - Component: a piece attached to a GameObject (AudioSource, Collider, etc.).
+// - "SerializedField" means you can drag stuff into the field in the Unity Inspector.
+// -----------------------------------------------------------------------------
 public class Director : MonoBehaviour
 {
+    // -------------------------------------------------------------------------
+    // Scene objects used as "hover zones" / choices
+    // (These should have Colliders so hover/trigger detection works.)
+    // -------------------------------------------------------------------------
     [Header("Decision Boxes")]
     public GameObject decisionL;
     public GameObject decisionR;
 
+    // -------------------------------------------------------------------------
+    // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
+    // -------------------------------------------------------------------------
     [Header("Textboxes")]
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+
+    // Canvas + UI camera:
+    // - If Canvas is Screen Space Overlay: uiCamera can be null.
+    // - If Canvas is Screen Space Camera: uiCamera should be set to the UI camera.
     [SerializeField] private Canvas canvas;              // drag your Canvas here (or auto-find)
     [SerializeField] private Camera uiCamera;            // leave null for Screen Space Overlay
+
+    // How the choice UI text is positioned (between the door and center)
     [SerializeField] private float choiceTowardCenter = 0.25f; // 0..1
     [SerializeField] private Vector2 choiceOffsetPx = new(0f, 120f);
     [SerializeField] private float choiceAnimSeconds = 0.2f;
+
+    // Hold-to-confirm ring around/near the choice text
     [SerializeField] private Image choiceRing;
     [SerializeField] private float choiceHoldSeconds = 1.25f; // how long to hold to confirm
     [SerializeField] private float choiceRingGapPx = 12f;
+
+    // Transition timing between white fade + scene start
     [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
     [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
 
+    // Cached UI transforms + coroutines so we can stop animations mid-way
     RectTransform _ringRt;
     Coroutine _ringScaleCo;
 
@@ -32,8 +69,14 @@ public class Director : MonoBehaviour
     TMP_Text _choiceTmp;
     RectTransform _choiceRt;
     Coroutine _choiceMoveCo, _choiceScaleCo;
-    int _activeChoice = -1; // -1 none, 0 left, 1 right
 
+    // Active hovered choice:
+    // -1 = none, 0 = left, 1 = right
+    int _activeChoice = -1;
+
+    // -------------------------------------------------------------------------
+    // Audio: SFX + typing sound
+    // -------------------------------------------------------------------------
     [Header("Audio")]
     [SerializeField] private AudioSource sfx;      // UI / transitions / confirms (NO pitch jitter)
     [SerializeField] private AudioSource typeSfx;  // typing clicks (pitch jitter)
@@ -47,12 +90,24 @@ public class Director : MonoBehaviour
     [SerializeField] private float confirmVolume = 1f;
     [SerializeField] private float transitionVolume = 1f;
 
+    // Typing sound: throttle so it doesn’t spam too many clicks
     [SerializeField] private float typeMinInterval = 0.03f;   // seconds between type clicks
     [SerializeField] private float typePitchJitter = 0.1f;   // small pitch variation
 
     float _nextTypeSfxAt;
     bool _choiceWasOpen;
 
+    // -------------------------------------------------------------------------
+    // Ambience:
+    // We have TWO ambience tracks: one for ending 1 and one for ending 2.
+    //
+    // While hovering a choice:
+    // - we play ONLY that side at low volume (ambPreviewVolume).
+    //
+    // Once selection is confirmed:
+    // - chosen side ramps to 100%
+    // - other side ramps to 0 and stops
+    // -------------------------------------------------------------------------
     [Header("Ambience")]
     [SerializeField] private AudioSource amb1;     // ending 1 ambience source
     [SerializeField] private AudioSource amb2;     // ending 2 ambience source
@@ -69,6 +124,11 @@ public class Director : MonoBehaviour
     bool _ambCommitted;
     int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
 
+    // -------------------------------------------------------------------------
+    // Whiteout overlay:
+    // An Image that fades from white -> transparent -> white again.
+    // It can also block clicks while visible (raycastTarget).
+    // -------------------------------------------------------------------------
     [Header("Whiteout Loading Screen")]
     [SerializeField] private Image whiteout;
     [SerializeField] private float whiteoutFadeSeconds = 0.5f;
@@ -77,11 +137,18 @@ public class Director : MonoBehaviour
     Coroutine _whiteoutCo;
     bool _ending;
 
-
+    // -------------------------------------------------------------------------
+    // Scene parenting:
+    // You have a "sceneParent" which contains children scenes.
+    // ActivateOnlyScene() turns on only the child scene you want.
+    // -------------------------------------------------------------------------
     [Header("Scene Parent")]
     [SerializeField]
     private GameObject sceneParent;
 
+    // -------------------------------------------------------------------------
+    // Demo Scene: doors slide in
+    // -------------------------------------------------------------------------
     [Header("Demo Scene")]
     [SerializeField]
     private GameObject demoSceneParent;
@@ -90,6 +157,9 @@ public class Director : MonoBehaviour
     [SerializeField]
     private GameObject doorR;
 
+    // -------------------------------------------------------------------------
+    // Ending 1: island + boat drift
+    // -------------------------------------------------------------------------
     [Header("Demo Ending 1")]
     [SerializeField] private GameObject demoEnding1Parent;
     [SerializeField] private GameObject island;
@@ -102,24 +172,34 @@ public class Director : MonoBehaviour
     [SerializeField] private float boatRollEaseOutSeconds = 2.0f; // how long until sway reaches full strength
     [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
 
+    // -------------------------------------------------------------------------
+    // Ending 2: full-screen object fade
+    // -------------------------------------------------------------------------
     [Header("Demo Ending 2")]
     [SerializeField] private GameObject demoEnding2Parent;
     [SerializeField] private GameObject ending2FullScreenObject;
 
     Coroutine _boatCo;
 
-
+    // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
 
+    // -------------------------------------------------------------------------
+    // Start(): one-time setup
+    // - Disables scenes
+    // - Prepares audio sources
+    // - Prepares UI (textbox/choice text/ring)
+    // - Starts white screen and starts the main flow coroutine
+    // -------------------------------------------------------------------------
     void Start()
     {
         if (sceneParent) sceneParent.SetActive(true);
         if (decisionL && decisionR) ToggleDecisionBoxes(false);
         else Debug.LogError("FATAL ERROR: No decision boxes found!");
-            foreach (Transform child in sceneParent.transform)
-            {
-                child.gameObject.SetActive(false);
-            }
+        foreach (Transform child in sceneParent.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
         if (!sfx) sfx = GetComponent<AudioSource>();
         if (!typeSfx)
         {
@@ -176,11 +256,18 @@ public class Director : MonoBehaviour
             SetWhiteoutAlpha(1f); // start fully white
         }
 
-
-
+        // Main flow begins here
         StartCoroutine(RunGame());
     }
 
+    // -------------------------------------------------------------------------
+    // Update(): every frame
+    //
+    // This is ONLY used for the "hold to confirm" timer:
+    // - While you're hovering a choice, _activeChoice is 0 or 1
+    // - We fill the ring over time
+    // - Once time is reached, we confirm that choice
+    // -------------------------------------------------------------------------
     void Update()
     {
         if (!decisionL || !decisionR) return;
@@ -188,13 +275,16 @@ public class Director : MonoBehaviour
         // don’t progress if decision boxes are disabled
         if (!decisionL.activeInHierarchy || !decisionR.activeInHierarchy) return;
 
+        // no active hover = no hold progress
         if (_activeChoice < 0) return;
 
         _choiceHold += Time.deltaTime;
 
+        // fill ring from 0..1 over choiceHoldSeconds
         if (choiceRing)
             choiceRing.fillAmount = Mathf.Clamp01(_choiceHold / Mathf.Max(0.0001f, choiceHoldSeconds));
 
+        // reached hold time: confirm choice exactly once
         if (_choiceHold >= choiceHoldSeconds && !_ending)
         {
             _ending = true;
@@ -208,6 +298,12 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // RunGame(): master sequence at start
+    // 1) Start demo scene logic immediately (doors begin moving "under white")
+    // 2) Wait a short preroll time
+    // 3) Fade white away so scene is visible
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
         // 1) Start the scene immediately (doors start moving right away under white)
@@ -225,6 +321,13 @@ public class Director : MonoBehaviour
         yield return fadeCo;
     }
 
+    // -------------------------------------------------------------------------
+    // EndAfterChoice(): what happens after you confirm a choice
+    // 1) Fade to white
+    // 2) Disable decision boxes and UI
+    // 3) Stop boat coroutine (if it was running)
+    // 4) Reveal the selected ending scene
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator EndAfterChoice()
     {
         int chosen = _activeChoice; // 0 left, 1 right
@@ -250,8 +353,10 @@ public class Director : MonoBehaviour
             yield return RevealScene(DemoEnding2());
     }
 
-
-
+    // -------------------------------------------------------------------------
+    // Fade(): fades a 3D object's material alpha
+    // - Works for either Standard shader (_Color) or URP (_BaseColor)
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator Fade(GameObject go, float toAlpha, float seconds)
     {
         var r = go.GetComponentInChildren<Renderer>();
@@ -285,6 +390,9 @@ public class Director : MonoBehaviour
         if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
     }
 
+    // -------------------------------------------------------------------------
+    // MoveTo(): moves a GameObject to a position over time with smooth easing
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator MoveTo(GameObject go, Vector3 toPos, float seconds)
     {
         if (!go) yield break;
@@ -307,12 +415,19 @@ public class Director : MonoBehaviour
         go.transform.position = toPos;
     }
 
+    // -------------------------------------------------------------------------
+    // Decision boxes ON/OFF (these are the hover zones)
+    // -------------------------------------------------------------------------
     private void ToggleDecisionBoxes(bool active)
     {
         if (decisionL) decisionL.SetActive(active);
         if (decisionR) decisionR.SetActive(active);
     }
 
+    // -------------------------------------------------------------------------
+    // ToggleTextbox(): small helper to animate open/close + play SFX
+    // (calls the coroutine overload below)
+    // -------------------------------------------------------------------------
     private void ToggleTextbox(bool open, int? textBoxLine)
     {
         if (!textbox) return;
@@ -321,6 +436,11 @@ public class Director : MonoBehaviour
         StartCoroutine(ToggleTextbox(open, textBoxLine, 0.35f));
     }
 
+    // -------------------------------------------------------------------------
+    // ToggleTextbox coroutine:
+    // - scales textbox from 0 to 1 (open) or 1 to 0 (close)
+    // - then optionally types out a line of text from TextboxScripts.Lines[]
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator ToggleTextbox(bool open, int? textBoxLine, float seconds)
     {
         if (!textbox) yield break;
@@ -348,6 +468,7 @@ public class Director : MonoBehaviour
             yield return null;
         }
 
+        // After opening, type the requested line
         if (textBoxLine.HasValue)
         {
             var line = TextboxScripts.Lines[textBoxLine.Value];
@@ -363,6 +484,10 @@ public class Director : MonoBehaviour
         // "display whatever Text (TMP) contains" happens automatically once it's visible
     }
 
+    // -------------------------------------------------------------------------
+    // TypeText(): types one character at a time into textboxText
+    // - Also plays typing clicks (not for spaces)
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator TypeText(string s, float cps = 40f)
     {
         textboxText.text = "";
@@ -384,6 +509,12 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Ambience setup:
+    // - Ensures amb1/amb2 AudioSources exist, loop, and are 2D
+    // - Assigns ambEnding1/2 clips to them
+    // - Starts volumes at 0 (silent)
+    // -------------------------------------------------------------------------
     void SetupAmbienceSources()
     {
         // Create sources if missing
@@ -409,6 +540,7 @@ public class Director : MonoBehaviour
         amb2.volume = 0f;
     }
 
+    // Applies "good defaults" for ambience sources
     void ConfigureAmbSource(AudioSource a)
     {
         a.playOnAwake = false;
@@ -417,18 +549,21 @@ public class Director : MonoBehaviour
         a.pitch = 1f;
     }
 
+    // Ensures they are actually playing (so fades work immediately)
     void EnsureAmbiencePlaying()
     {
         if (amb1 && amb1.clip && !amb1.isPlaying) amb1.Play();
         if (amb2 && amb2.clip && !amb2.isPlaying) amb2.Play();
     }
 
+    // Starts a crossfade coroutine to set amb1/amb2 target volumes
     void FadeAmbienceTo(float v1, float v2, float seconds, bool stopWhenSilent)
     {
         if (_ambCo != null) StopCoroutine(_ambCo);
         _ambCo = StartCoroutine(FadeAmbienceRoutine(v1, v2, seconds, stopWhenSilent));
     }
 
+    // Actually performs the crossfade (frame-by-frame volume changes)
     System.Collections.IEnumerator FadeAmbienceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
     {
         if (!amb1 && !amb2) yield break;
@@ -454,6 +589,7 @@ public class Director : MonoBehaviour
             if (amb2) amb2.volume = to2;
         }
 
+        // Optional: stop the AudioSource when it’s basically silent
         if (stopWhenSilent)
         {
             if (amb1 && amb1.volume <= 0.001f) amb1.Stop();
@@ -461,6 +597,11 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // StartAmbiencePreview(side):
+    // - side=0 -> play amb1 at preview volume, amb2 at 0
+    // - side=1 -> play amb2 at preview volume, amb1 at 0
+    // -------------------------------------------------------------------------
     void StartAmbiencePreview(int side) // 0 = left, 1 = right
     {
         if (_ambCommitted) return;
@@ -479,6 +620,7 @@ public class Director : MonoBehaviour
         FadeAmbienceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
     }
 
+    // Stops any preview (fades both to 0 and stops them)
     void StopAmbiencePreview()
     {
         if (_ambCommitted) return;
@@ -489,8 +631,12 @@ public class Director : MonoBehaviour
         FadeAmbienceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
     }
 
-
-
+    // -------------------------------------------------------------------------
+    // CommitAmbience(chosenSide):
+    // After the player confirms the choice:
+    // - chosen side fades to 1.0 volume
+    // - the other fades to 0 and stops
+    // -------------------------------------------------------------------------
     void CommitAmbience(int chosenSide) // 0 = left, 1 = right
     {
         if (_ambCommitted) return;
@@ -504,7 +650,11 @@ public class Director : MonoBehaviour
         FadeAmbienceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
     }
 
-
+    // -------------------------------------------------------------------------
+    // WorldToCanvasLocal():
+    // Converts a 3D world position into a 2D position inside the UI Canvas
+    // so the choiceText can "follow" something in the 3D world.
+    // -------------------------------------------------------------------------
     Vector2 WorldToCanvasLocal(Vector3 world)
     {
         var cam = Camera.main; // the camera that sees your world
@@ -519,6 +669,7 @@ public class Director : MonoBehaviour
         return local;
     }
 
+    // Moves a UI RectTransform smoothly to a target anchoredPosition
     System.Collections.IEnumerator MoveToUI(RectTransform rt, Vector2 toPos, float seconds)
     {
         if (!rt) yield break;
@@ -541,6 +692,22 @@ public class Director : MonoBehaviour
         rt.anchoredPosition = toPos;
     }
 
+    // -------------------------------------------------------------------------
+    // SetChoiceHover(isLeft, open)
+    //
+    // This is meant to be called by some trigger/hover script on the door colliders.
+    // - open=true: cursor entered / started hovering this decision collider
+    // - open=false: cursor exited / stopped hovering
+    //
+    // When open=true:
+    // - sets _activeChoice to 0 or 1
+    // - starts ambience preview for that side
+    // - shows choiceText and ring, and positions them nicely
+    //
+    // When open=false:
+    // - resets hold timer and hides UI
+    // - stops ambience preview
+    // -------------------------------------------------------------------------
     public void SetChoiceHover(bool isLeft, bool open)
     {
         if (!decisionL || !decisionR || !choiceText || !canvas) return;
@@ -552,7 +719,7 @@ public class Director : MonoBehaviour
 
         int side = isLeft ? 0 : 1;
 
-        // CLOSE
+        // CLOSE (hover exit)
         if (!open)
         {
             if (_activeChoice != side) return; // ignore exit from the other box
@@ -580,11 +747,14 @@ public class Director : MonoBehaviour
             return;
         }
 
-        // OPEN
+        // OPEN (hover enter / hover stay)
         if (_activeChoice != side) _choiceHold = 0f; // switching sides resets hold
         _activeChoice = side;
+
+        // Start / switch ambience preview
         StartAmbiencePreview(side);
 
+        // play the "choice open" sfx once when we first show the UI
         if (!_choiceWasOpen)
         {
             PlaySfx(sfxChoiceOpen);
@@ -603,7 +773,7 @@ public class Director : MonoBehaviour
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;
 
-        // set the text FIRST
+        // set the text FIRST (from your ChoiceTextScripts)
         var line = ChoiceTextScripts.Lines[side];
         _choiceTmp.text = line.text;
         _choiceTmp.fontSize = line.fontSize;
@@ -642,7 +812,10 @@ public class Director : MonoBehaviour
         }
     }
 
-
+    // -------------------------------------------------------------------------
+    // ScaleTo(): scales a GameObject smoothly (used for UI pop-in/pop-out)
+    // disableAtEnd=true + scale=0 means we also deactivate the object at the end
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator ScaleTo(GameObject go, Vector3 toScale, float seconds, bool disableAtEnd)
     {
         if (!go) yield break;
@@ -667,6 +840,11 @@ public class Director : MonoBehaviour
         if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
     }
 
+    // -------------------------------------------------------------------------
+    // Whiteout helpers:
+    // SetWhiteoutAlpha() directly sets the Image alpha.
+    // FadeWhiteoutTo() smoothly fades it over time.
+    // -------------------------------------------------------------------------
     void SetWhiteoutAlpha(float a)
     {
         if (!whiteout) return;
@@ -713,6 +891,10 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // SceneTransition(): generic helper for "fade to white, then fade out"
+    // (Not currently used in the main flow, but handy.)
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator SceneTransition()
     {
         // fade IN fully (usually you want this to finish before swapping visuals)
@@ -730,6 +912,10 @@ public class Director : MonoBehaviour
         yield return fadeOut;
     }
 
+    // -------------------------------------------------------------------------
+    // ActivateOnlyScene(active):
+    // Turns on exactly one child under sceneParent, and turns the others off.
+    // -------------------------------------------------------------------------
     void ActivateOnlyScene(GameObject active)
     {
         if (!sceneParent)
@@ -742,6 +928,7 @@ public class Director : MonoBehaviour
             child.gameObject.SetActive(child.gameObject == active);
     }
 
+    // Enables/disables the colliders on the decision boxes
     void SetDecisionColliders(bool enabled)
     {
         if (decisionL)
@@ -756,6 +943,11 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // ViewportToWorldOnZPlane():
+    // Converts a screen-space viewport coordinate (0..1) to a 3D world position on a Z plane.
+    // Example: vx=1 means right edge of screen, vy=0.5 means middle vertically.
+    // -------------------------------------------------------------------------
     Vector3 ViewportToWorldOnZPlane(float vx, float vy, float z)
     {
         var cam = Camera.main;
@@ -769,6 +961,9 @@ public class Director : MonoBehaviour
             : new Vector3(0f, 0f, z);
     }
 
+    // -------------------------------------------------------------------------
+    // PlaySfx(): plays a one-shot sound (simple UI sounds)
+    // -------------------------------------------------------------------------
     void PlaySfx(AudioClip clip, float volume = 1f)
     {
         if (!clip || !sfx) return;
@@ -776,6 +971,10 @@ public class Director : MonoBehaviour
         sfx.PlayOneShot(clip, volume);
     }
 
+    // -------------------------------------------------------------------------
+    // PlayTypeSfx(): plays typing click sound with slight pitch randomness
+    // - throttled by typeMinInterval
+    // -------------------------------------------------------------------------
     void PlayTypeSfx()
     {
         if (!typeSfx || !sfxTypeChar) return;
@@ -787,7 +986,9 @@ public class Director : MonoBehaviour
         typeSfx.PlayOneShot(sfxTypeChar, 1f);
     }
 
-
+    // -------------------------------------------------------------------------
+    // BoatDriftForever(): moves boat to the right and adds gentle sway forever
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator BoatDriftForever(Transform t)
     {
         if (!t) yield break;
@@ -824,6 +1025,13 @@ public class Director : MonoBehaviour
         }
     }
 
+    // -------------------------------------------------------------------------
+    // RevealScene(sceneRoutine):
+    // - Starts the scene routine (activate + setup)
+    // - waits preroll
+    // - fades white out
+    // - waits for scene routine AND fade to finish
+    // -------------------------------------------------------------------------
     System.Collections.IEnumerator RevealScene(System.Collections.IEnumerator sceneRoutine)
     {
         var sceneCo = StartCoroutine(sceneRoutine);
@@ -837,7 +1045,11 @@ public class Director : MonoBehaviour
         yield return fadeCo;
     }
 
-
+    // -------------------------------------------------------------------------
+    // DemoScene():
+    // - Moves and fades doors into place
+    // - Then shows textbox line 0 and enables decision boxes
+    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoScene()
     {
         if (demoSceneParent) demoSceneParent.SetActive(true);
@@ -862,6 +1074,12 @@ public class Director : MonoBehaviour
         ToggleDecisionBoxes(true);
     }
 
+    // -------------------------------------------------------------------------
+    // DemoEnding1():
+    // - Activates ending 1 scene
+    // - Starts boat drift coroutine
+    // - Shows textbox line 1 after reveal timing
+    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding1()
     {
         ActivateOnlyScene(demoEnding1Parent);
@@ -884,6 +1102,11 @@ public class Director : MonoBehaviour
         ToggleTextbox(true, 1);
     }
 
+    // -------------------------------------------------------------------------
+    // DemoEnding2():
+    // - Activates ending 2 scene
+    // - Shows textbox line 2, then line 3 later
+    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding2()
     {
         ActivateOnlyScene(demoEnding2Parent);
@@ -902,6 +1125,4 @@ public class Director : MonoBehaviour
         yield return new WaitForSeconds(7.5f);
         ToggleTextbox(true, 3);
     }
-
-
 }
