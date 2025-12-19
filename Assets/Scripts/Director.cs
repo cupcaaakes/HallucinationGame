@@ -61,8 +61,11 @@ public class Director : MonoBehaviour
     [SerializeField] private GameObject boat;
     [SerializeField] private GameObject woodenOverpass;
     [SerializeField] private float endingPlaneZ = 0f;
-    [SerializeField] private float boatBelowIslandY = 50f;
-    [SerializeField] private float boatLerpSpeed = 0.08f; // smaller = slower
+    [SerializeField] private float boatSpeedUnitsPerSec = 0.05f;
+    [SerializeField] private float boatRollDegrees = 4f;          // max roll angle
+    [SerializeField] private float boatRollHz = 0.20f;            // cycles per second (0.2 = 5s per cycle)
+    [SerializeField] private float boatRollEaseOutSeconds = 2.0f; // how long until sway reaches full strength
+    [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
 
     [Header("Demo Ending 2")]
     [SerializeField] private GameObject demoEnding2Parent;
@@ -568,11 +571,34 @@ public class Director : MonoBehaviour
     {
         if (!t) yield break;
 
+        // remember whatever rotation you spawned the boat with
+        Quaternion baseRot = t.rotation;
+
+        float elapsed = 0f;
+        float smoothRoll = 0f;
+
         while (t && t.gameObject.activeInHierarchy)
         {
-            // “Lerp forever to the right” (target updates every frame)
-            Vector3 target = t.position + Vector3.right * 1000f;
-            t.position = Vector3.Lerp(t.position, target, Time.deltaTime * boatLerpSpeed);
+            float dt = Time.deltaTime;
+            elapsed += dt;
+
+            // drift right at constant speed
+            t.position += Vector3.right * (boatSpeedUnitsPerSec * dt);
+
+            // amplitude eases in (0 -> 1). Clamp so it stays 1 after the ease time.
+            float amp = (boatRollEaseOutSeconds <= 0f)
+                ? 1f
+                : Mathf.Clamp01(elapsed / boatRollEaseOutSeconds);
+
+            // target roll is a sine wave in degrees
+            float targetRoll = Mathf.Sin(elapsed * (Mathf.PI * 2f) * boatRollHz) * boatRollDegrees * amp;
+
+            // damp/smooth the roll so it feels gentle
+            float k = 1f - Mathf.Exp(-boatRollDamping * dt); // framerate-independent smoothing factor
+            smoothRoll = Mathf.Lerp(smoothRoll, targetRoll, k);
+
+            t.rotation = baseRot * Quaternion.Euler(0f, smoothRoll, 0f);
+
             yield return null;
         }
     }
@@ -623,32 +649,8 @@ public class Director : MonoBehaviour
         Vector3 rightEdge = ViewportToWorldOnZPlane(1f, 0.5f, endingPlaneZ);
         Vector3 bottomEdge = ViewportToWorldOnZPlane(0.5f, 0f, endingPlaneZ);
 
-        // island: Y = 0, at right edge
-        if (island)
-        {
-            island.transform.position = new Vector3(rightEdge.x, 0f, endingPlaneZ);
-            island.transform.rotation = defaultBillboardRotation;
-            StartCoroutine(Fade(island, 1f, 0f));
-        }
-
-        // overpass: X = 0, at bottom edge
-        if (woodenOverpass)
-        {
-            woodenOverpass.transform.position = new Vector3(0f, bottomEdge.y, endingPlaneZ);
-            woodenOverpass.transform.rotation = defaultBillboardRotation;
-            StartCoroutine(Fade(woodenOverpass, 1f, 0f));
-        }
-
-        // boat: X = left choice box X, Y = island Y - 50
         if (boat)
         {
-            float islandY = island ? island.transform.position.y : 0f;
-            float x = decisionL ? decisionL.transform.position.x : 0f;
-
-            boat.transform.position = new Vector3(x, islandY - boatBelowIslandY, endingPlaneZ);
-            boat.transform.rotation = defaultBillboardRotation;
-            StartCoroutine(Fade(boat, 1f, 0f));
-
             _boatCo = StartCoroutine(BoatDriftForever(boat.transform));
         }
 
