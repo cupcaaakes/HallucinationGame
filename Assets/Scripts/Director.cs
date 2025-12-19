@@ -21,6 +21,8 @@ public class Director : MonoBehaviour
     [SerializeField] private Image choiceRing;
     [SerializeField] private float choiceHoldSeconds = 1.25f; // how long to hold to confirm
     [SerializeField] private float choiceRingGapPx = 12f;
+    [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
+    [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
 
     RectTransform _ringRt;
     Coroutine _ringScaleCo;
@@ -31,6 +33,14 @@ public class Director : MonoBehaviour
     RectTransform _choiceRt;
     Coroutine _choiceMoveCo, _choiceScaleCo;
     int _activeChoice = -1; // -1 none, 0 left, 1 right
+
+    [Header("Whiteout Loading Screen")]
+    [SerializeField] private Image whiteout;
+    [SerializeField] private float whiteoutFadeSeconds = 0.5f;
+    [SerializeField] private bool whiteoutBlocksInput = true;
+
+    Coroutine _whiteoutCo;
+    bool _ending;
 
 
     [Header("Scene Parent")]
@@ -86,19 +96,70 @@ public class Director : MonoBehaviour
             choiceRing.gameObject.SetActive(false);
             _ringRt.localScale = Vector3.zero;
         }
+        if (whiteout)
+        {
+            whiteout.gameObject.SetActive(true);
+            if (whiteoutBlocksInput) whiteout.raycastTarget = true;
+            SetWhiteoutAlpha(1f); // start fully white
+        }
 
 
 
         StartCoroutine(RunGame());
     }
 
+    void Update()
+    {
+        if (!decisionL || !decisionR) return;
+
+        // don’t progress if decision boxes are disabled
+        if (!decisionL.activeInHierarchy || !decisionR.activeInHierarchy) return;
+
+        if (_activeChoice < 0) return;
+
+        _choiceHold += Time.deltaTime;
+
+        if (choiceRing)
+            choiceRing.fillAmount = Mathf.Clamp01(_choiceHold / Mathf.Max(0.0001f, choiceHoldSeconds));
+
+        if (_choiceHold >= choiceHoldSeconds && !_ending)
+        {
+            _ending = true;
+            StartCoroutine(EndAfterChoice());
+        }
+    }
+
     System.Collections.IEnumerator RunGame()
     {
-        yield return DemoScene();
-        // later:
-        // yield return Scene2();
-        // yield return Scene3();
+        // 1) Start the scene immediately (doors start moving right away under white)
+        var sceneCo = StartCoroutine(DemoScene());
+
+        // 2) Optional: keep full white for a tiny bit so stuff is already in motion
+        if (scenePrerollSeconds > 0f)
+            yield return new WaitForSeconds(scenePrerollSeconds);
+
+        // 3) Now fade out to reveal the already-moving scene
+        var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
+
+        // 4) Wait for both to finish (order doesn't matter)
+        yield return sceneCo;
+        yield return fadeCo;
     }
+
+
+    System.Collections.IEnumerator EndAfterChoice()
+    {
+        yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
+
+        Debug.Log(_activeChoice == 0 ? "CHOSE LEFT" : "CHOSE RIGHT");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
+    }
+
 
     System.Collections.IEnumerator Fade(GameObject go, float toAlpha, float seconds)
     {
@@ -373,6 +434,71 @@ public class Director : MonoBehaviour
         if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
     }
 
+    void SetWhiteoutAlpha(float a)
+    {
+        if (!whiteout) return;
+        var c = whiteout.color;
+        c.a = a;
+        whiteout.color = c;
+    }
+
+    System.Collections.IEnumerator FadeWhiteoutTo(float toAlpha, float seconds)
+    {
+        if (!whiteout) yield break;
+
+        // make sure it's visible while fading
+        whiteout.gameObject.SetActive(true);
+        if (whiteoutBlocksInput) whiteout.raycastTarget = true;
+
+        float fromAlpha = whiteout.color.a;
+
+        if (seconds <= 0f)
+        {
+            SetWhiteoutAlpha(toAlpha);
+        }
+        else
+        {
+            for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+            {
+                float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+                SetWhiteoutAlpha(Mathf.Lerp(fromAlpha, toAlpha, ease));
+                yield return null;
+            }
+            SetWhiteoutAlpha(toAlpha);
+        }
+
+        // once fully faded out, you can disable it (and stop blocking input)
+        if (toAlpha <= 0.001f)
+        {
+            if (whiteoutBlocksInput) whiteout.raycastTarget = false;
+            whiteout.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (whiteoutBlocksInput) whiteout.raycastTarget = true;
+            whiteout.gameObject.SetActive(true);
+        }
+    }
+
+    System.Collections.IEnumerator SceneTransition()
+    {
+        // fade IN fully (usually you want this to finish before swapping visuals)
+        yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
+
+        // start fading OUT, but start the next scene slightly before it's fully gone
+        var fadeOut = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
+
+        float wait = Mathf.Max(0f, whiteoutFadeSeconds - sceneStartLeadSeconds);
+        if (wait > 0f) yield return new WaitForSeconds(wait);
+
+        // then your next scene method runs here, e.g.:
+        // yield return Scene2();
+
+        yield return fadeOut;
+    }
+
+
+
     public System.Collections.IEnumerator DemoScene()
     {
         if (demoSceneParent) demoSceneParent.SetActive(true);
@@ -397,30 +523,6 @@ public class Director : MonoBehaviour
         ToggleDecisionBoxes(true);
     }
 
-    void Update()
-    {
-        if (!decisionL || !decisionR) return;
 
-        // don’t progress if decision boxes are disabled
-        if (!decisionL.activeInHierarchy || !decisionR.activeInHierarchy) return;
-
-        if (_activeChoice < 0) return;
-
-        _choiceHold += Time.deltaTime;
-
-        if (choiceRing)
-            choiceRing.fillAmount = Mathf.Clamp01(_choiceHold / Mathf.Max(0.0001f, choiceHoldSeconds));
-
-        if (_choiceHold >= choiceHoldSeconds)
-        {
-            Debug.Log(_activeChoice == 0 ? "CHOSE LEFT" : "CHOSE RIGHT");
-
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
-        }
-    }
 
 }
