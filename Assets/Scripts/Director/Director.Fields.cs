@@ -29,6 +29,9 @@ public partial class Director
     [SerializeField] private Canvas canvas;              // drag your Canvas here (or auto-find)
     [SerializeField] private Camera uiCamera;            // leave null for Screen Space Overlay
 
+    // General textbox timing
+    [SerializeField] private float textboxDuration = 0.75f; // seconds for textbox to stay open after the text finished typing
+
     // How the choice UI text is positioned (between the door and center)
     [SerializeField] private float choiceTowardCenter = 0.25f; // 0..1
     [SerializeField] private Vector2 choiceOffsetPx = new(0f, 120f);
@@ -42,6 +45,7 @@ public partial class Director
     // Transition timing between white fade + scene start
     [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
     [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
+
 
     // Cached UI transforms + coroutines so we can stop animations mid-way
     RectTransform _ringRt;
