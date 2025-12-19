@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using static TextboxScripts;
+using UnityEngine.UI;
 
 public class Director : MonoBehaviour
 {
@@ -17,6 +18,14 @@ public class Director : MonoBehaviour
     [SerializeField] private float choiceTowardCenter = 0.25f; // 0..1
     [SerializeField] private Vector2 choiceOffsetPx = new(0f, 120f);
     [SerializeField] private float choiceAnimSeconds = 0.2f;
+    [SerializeField] private Image choiceRing;
+    [SerializeField] private float choiceHoldSeconds = 1.25f; // how long to hold to confirm
+    [SerializeField] private float choiceRingGapPx = 12f;
+
+    RectTransform _ringRt;
+    Coroutine _ringScaleCo;
+
+    float _choiceHold;
 
     TMP_Text _choiceTmp;
     RectTransform _choiceRt;
@@ -63,6 +72,21 @@ public class Director : MonoBehaviour
             choiceText.SetActive(false);
             _choiceRt.localScale = Vector3.zero;
         }
+        if (choiceRing)
+        {
+            _ringRt = choiceRing.rectTransform;
+            // ring should be positioned in ChoiceText-local space
+            if (_choiceRt) _ringRt.SetParent(_choiceRt, worldPositionStays: false);
+
+            // make anchoredPosition behave predictably
+            _ringRt.anchorMin = _ringRt.anchorMax = new Vector2(0.5f, 0.5f);
+            _ringRt.pivot = new Vector2(0.5f, 0.5f);
+
+            choiceRing.fillAmount = 0f;
+            choiceRing.gameObject.SetActive(false);
+            _ringRt.localScale = Vector3.zero;
+        }
+
 
 
         StartCoroutine(RunGame());
@@ -238,13 +262,42 @@ public class Director : MonoBehaviour
 
     public void SetChoiceHover(bool isLeft, bool open)
     {
-        if (!choiceText || !decisionL || !decisionR || !canvas) return;
+        if (!decisionL || !decisionR || !choiceText || !canvas) return;
+        if (!decisionL.activeInHierarchy || !decisionR.activeInHierarchy) return;
+
+        var go = isLeft ? decisionL : decisionR;
+        var col = go ? go.GetComponent<Collider>() : null;
+        if (!go || !go.activeInHierarchy || !col || !col.enabled) return;
 
         int side = isLeft ? 0 : 1;
 
-        if (open) _activeChoice = side;
-        else if (_activeChoice != side) return; // ignore exit from the other box
+        // CLOSE
+        if (!open)
+        {
+            if (_activeChoice != side) return; // ignore exit from the other box
 
+            _activeChoice = -1;
+            _choiceHold = 0f;
+
+            if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
+            if (_choiceScaleCo != null) StopCoroutine(_choiceScaleCo);
+            _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.zero, choiceAnimSeconds, true));
+
+            if (choiceRing)
+            {
+                if (_ringScaleCo != null) StopCoroutine(_ringScaleCo);
+                choiceRing.fillAmount = 0f;
+                _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.zero, choiceAnimSeconds, true));
+            }
+
+            return;
+        }
+
+        // OPEN
+        if (_activeChoice != side) _choiceHold = 0f; // switching sides resets hold
+        _activeChoice = side;
+
+        // compute target for ChoiceText (canvas space)
         Vector3 leftW = decisionL.transform.position;
         Vector3 rightW = decisionR.transform.position;
         Vector3 centerW = (leftW + rightW) * 0.5f;
@@ -256,32 +309,42 @@ public class Director : MonoBehaviour
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;
 
+        // set the text FIRST
+        var line = ChoiceTextScripts.Lines[side];
+        _choiceTmp.text = line.text;
+        _choiceTmp.fontSize = line.fontSize;
+
+        choiceText.SetActive(true);
+
         if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
         if (_choiceScaleCo != null) StopCoroutine(_choiceScaleCo);
+        _choiceMoveCo = StartCoroutine(MoveToUI(_choiceRt, targetCanvas, choiceAnimSeconds));
+        _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.one, choiceAnimSeconds, false));
 
-        if (open)
+        // place ring in ChoiceText-local space (because it’s a child)
+        if (choiceRing && _ringRt)
         {
-            // we only want the choice text if the decision box is active and enabled
-            var go = isLeft ? decisionL : decisionR;
-            var col = go ? go.GetComponent<Collider>() : null;
-            if (!go || !go.activeInHierarchy || !col || !col.enabled) return;
+            choiceRing.gameObject.SetActive(true);
+            choiceRing.fillAmount = 0f;
 
-            if (_choiceTmp)
-            {
-                var line = ChoiceTextScripts.Lines[side];
-                _choiceTmp.text = line.text;
-                _choiceTmp.fontSize = line.fontSize;
-            }
+            _choiceTmp.ForceMeshUpdate();
+            Canvas.ForceUpdateCanvases();
 
-            choiceText.SetActive(true);
+            float textH = _choiceTmp.preferredHeight;
+            float ringH = _ringRt.rect.height;
+            float ringW = _ringRt.rect.width;
 
-            _choiceMoveCo = StartCoroutine(MoveToUI(_choiceRt, targetCanvas, choiceAnimSeconds));
-            _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.one, choiceAnimSeconds, false));
-        }
-        else
-        {
-            _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.zero, choiceAnimSeconds, true));
-            _activeChoice = -1;
+            // inside edge toward the screen center
+            float inside = (_choiceRt.rect.width * 0.5f) - (ringW * 0.5f) - 8f;
+            float xLocal = isLeft ? +inside : -inside;
+            float yLocalOffset = 50f; // it just looks better slightly higher up. Sue me.
+            // directly below the rendered text
+            float yLocal = -(textH * 0.5f + ringH * 0.5f + choiceRingGapPx) + yLocalOffset;
+
+            _ringRt.anchoredPosition = new Vector2(xLocal, yLocal);
+
+            if (_ringScaleCo != null) StopCoroutine(_ringScaleCo);
+            _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.one, choiceAnimSeconds, false));
         }
     }
 
@@ -332,6 +395,32 @@ public class Director : MonoBehaviour
 
         ToggleTextbox(true, 0);
         ToggleDecisionBoxes(true);
+    }
+
+    void Update()
+    {
+        if (!decisionL || !decisionR) return;
+
+        // don’t progress if decision boxes are disabled
+        if (!decisionL.activeInHierarchy || !decisionR.activeInHierarchy) return;
+
+        if (_activeChoice < 0) return;
+
+        _choiceHold += Time.deltaTime;
+
+        if (choiceRing)
+            choiceRing.fillAmount = Mathf.Clamp01(_choiceHold / Mathf.Max(0.0001f, choiceHoldSeconds));
+
+        if (_choiceHold >= choiceHoldSeconds)
+        {
+            Debug.Log(_activeChoice == 0 ? "CHOSE LEFT" : "CHOSE RIGHT");
+
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+        }
     }
 
 }
