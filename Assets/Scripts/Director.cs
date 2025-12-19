@@ -34,6 +34,41 @@ public class Director : MonoBehaviour
     Coroutine _choiceMoveCo, _choiceScaleCo;
     int _activeChoice = -1; // -1 none, 0 left, 1 right
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource sfx;      // UI / transitions / confirms (NO pitch jitter)
+    [SerializeField] private AudioSource typeSfx;  // typing clicks (pitch jitter)
+    [SerializeField] private AudioClip sfxTypeChar;
+    [SerializeField] private AudioClip sfxTextboxOpen;
+    [SerializeField] private AudioClip sfxTextboxClose;
+    [SerializeField] private AudioClip sfxChoiceOpen;
+    [SerializeField] private AudioClip sfxChoiceConfirm;
+    [SerializeField] private AudioClip sfxTransition;
+
+    [SerializeField] private float confirmVolume = 1f;
+    [SerializeField] private float transitionVolume = 1f;
+
+    [SerializeField] private float typeMinInterval = 0.03f;   // seconds between type clicks
+    [SerializeField] private float typePitchJitter = 0.1f;   // small pitch variation
+
+    float _nextTypeSfxAt;
+    bool _choiceWasOpen;
+
+    [Header("Ambience")]
+    [SerializeField] private AudioSource amb1;     // ending 1 ambience source
+    [SerializeField] private AudioSource amb2;     // ending 2 ambience source
+    [SerializeField] private AudioClip ambEnding1;
+    [SerializeField] private AudioClip ambEnding2;
+
+    [SerializeField, Range(0f, 1f)] private float ambPreviewVolume = 0.33f;
+    [SerializeField] private float ambPreviewFadeSeconds = 0.25f;
+    [SerializeField] private float ambCommitFadeSeconds = 1.25f;
+    [SerializeField] private float ambStopFadeSeconds = 0.25f;
+
+    Coroutine _ambCo;
+    bool _ambPreviewActive;
+    bool _ambCommitted;
+    int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
+
     [Header("Whiteout Loading Screen")]
     [SerializeField] private Image whiteout;
     [SerializeField] private float whiteoutFadeSeconds = 0.5f;
@@ -85,6 +120,25 @@ public class Director : MonoBehaviour
             {
                 child.gameObject.SetActive(false);
             }
+        if (!sfx) sfx = GetComponent<AudioSource>();
+        if (!typeSfx)
+        {
+            var sources = GetComponents<AudioSource>();
+            if (sources.Length >= 2)
+            {
+                // pick the one that's NOT sfx
+                typeSfx = (sources[0] == sfx) ? sources[1] : sources[0];
+            }
+            else
+            {
+                // create a second one automatically (safe fallback)
+                typeSfx = gameObject.AddComponent<AudioSource>();
+                typeSfx.playOnAwake = false;
+                typeSfx.spatialBlend = 0f; // 2D
+            }
+        }
+        SetupAmbienceSources();
+
         if (textbox)
         {
             textbox.localScale = Vector3.zero;
@@ -144,7 +198,13 @@ public class Director : MonoBehaviour
         if (_choiceHold >= choiceHoldSeconds && !_ending)
         {
             _ending = true;
+
+            // lock in ambience to the chosen side (ramps chosen to 100%, other to 0)
+            CommitAmbience(_activeChoice);
+
+            PlaySfx(sfxChoiceConfirm, confirmVolume);
             StartCoroutine(EndAfterChoice());
+
         }
     }
 
@@ -168,7 +228,7 @@ public class Director : MonoBehaviour
     System.Collections.IEnumerator EndAfterChoice()
     {
         int chosen = _activeChoice; // 0 left, 1 right
-
+        PlaySfx(sfxTransition, transitionVolume);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
         ToggleDecisionBoxes(false);
@@ -256,7 +316,7 @@ public class Director : MonoBehaviour
     private void ToggleTextbox(bool open, int? textBoxLine)
     {
         if (!textbox) return;
-
+        PlaySfx(open ? sfxTextboxOpen : sfxTextboxClose);
         StopCoroutine(nameof(ToggleTextbox)); // prevents stacking calls
         StartCoroutine(ToggleTextbox(open, textBoxLine, 0.35f));
     }
@@ -312,9 +372,138 @@ public class Director : MonoBehaviour
         for (int i = 0; i <= s.Length; i++)
         {
             textboxText.text = s.Substring(0, i);
+
+            if (i > 0) // don't play for the 0th frame
+            {
+                char ch = s[i - 1];
+                if (!char.IsWhiteSpace(ch))
+                    PlayTypeSfx();
+            }
+
             yield return new WaitForSeconds(delay);
         }
     }
+
+    void SetupAmbienceSources()
+    {
+        // Create sources if missing
+        if (!amb1)
+        {
+            amb1 = gameObject.AddComponent<AudioSource>();
+            ConfigureAmbSource(amb1);
+        }
+        else ConfigureAmbSource(amb1);
+
+        if (!amb2)
+        {
+            amb2 = gameObject.AddComponent<AudioSource>();
+            ConfigureAmbSource(amb2);
+        }
+        else ConfigureAmbSource(amb2);
+
+        amb1.clip = ambEnding1;
+        amb2.clip = ambEnding2;
+
+        // start silent
+        amb1.volume = 0f;
+        amb2.volume = 0f;
+    }
+
+    void ConfigureAmbSource(AudioSource a)
+    {
+        a.playOnAwake = false;
+        a.loop = true;
+        a.spatialBlend = 0f; // 2D
+        a.pitch = 1f;
+    }
+
+    void EnsureAmbiencePlaying()
+    {
+        if (amb1 && amb1.clip && !amb1.isPlaying) amb1.Play();
+        if (amb2 && amb2.clip && !amb2.isPlaying) amb2.Play();
+    }
+
+    void FadeAmbienceTo(float v1, float v2, float seconds, bool stopWhenSilent)
+    {
+        if (_ambCo != null) StopCoroutine(_ambCo);
+        _ambCo = StartCoroutine(FadeAmbienceRoutine(v1, v2, seconds, stopWhenSilent));
+    }
+
+    System.Collections.IEnumerator FadeAmbienceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
+    {
+        if (!amb1 && !amb2) yield break;
+
+        float from1 = amb1 ? amb1.volume : 0f;
+        float from2 = amb2 ? amb2.volume : 0f;
+
+        if (seconds <= 0f)
+        {
+            if (amb1) amb1.volume = to1;
+            if (amb2) amb2.volume = to2;
+        }
+        else
+        {
+            for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+            {
+                float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+                if (amb1) amb1.volume = Mathf.Lerp(from1, to1, ease);
+                if (amb2) amb2.volume = Mathf.Lerp(from2, to2, ease);
+                yield return null;
+            }
+            if (amb1) amb1.volume = to1;
+            if (amb2) amb2.volume = to2;
+        }
+
+        if (stopWhenSilent)
+        {
+            if (amb1 && amb1.volume <= 0.001f) amb1.Stop();
+            if (amb2 && amb2.volume <= 0.001f) amb2.Stop();
+        }
+    }
+
+    void StartAmbiencePreview(int side) // 0 = left, 1 = right
+    {
+        if (_ambCommitted) return;
+
+        // already previewing this side
+        if (_ambPreviewActive && _ambPreviewSide == side) return;
+
+        _ambPreviewActive = true;
+        _ambPreviewSide = side;
+
+        EnsureAmbiencePlaying();
+
+        float v1 = (side == 0) ? ambPreviewVolume : 0f;
+        float v2 = (side == 1) ? ambPreviewVolume : 0f;
+
+        FadeAmbienceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
+    }
+
+    void StopAmbiencePreview()
+    {
+        if (_ambCommitted) return;
+
+        _ambPreviewActive = false;
+        _ambPreviewSide = -1;
+
+        FadeAmbienceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
+    }
+
+
+
+    void CommitAmbience(int chosenSide) // 0 = left, 1 = right
+    {
+        if (_ambCommitted) return;
+        _ambCommitted = true;
+
+        EnsureAmbiencePlaying();
+
+        float v1 = (chosenSide == 0) ? 1f : 0f;
+        float v2 = (chosenSide == 1) ? 1f : 0f;
+
+        FadeAmbienceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
+    }
+
 
     Vector2 WorldToCanvasLocal(Vector3 world)
     {
@@ -370,6 +559,12 @@ public class Director : MonoBehaviour
 
             _activeChoice = -1;
             _choiceHold = 0f;
+            _choiceWasOpen = false;
+            if (_ambPreviewActive)
+            {
+                _ambPreviewActive = false;
+                StopAmbiencePreview();
+            }
 
             if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
             if (_choiceScaleCo != null) StopCoroutine(_choiceScaleCo);
@@ -388,6 +583,13 @@ public class Director : MonoBehaviour
         // OPEN
         if (_activeChoice != side) _choiceHold = 0f; // switching sides resets hold
         _activeChoice = side;
+        StartAmbiencePreview(side);
+
+        if (!_choiceWasOpen)
+        {
+            PlaySfx(sfxChoiceOpen);
+            _choiceWasOpen = true;
+        }
 
         // compute target for ChoiceText (canvas space)
         Vector3 leftW = decisionL.transform.position;
@@ -567,6 +769,25 @@ public class Director : MonoBehaviour
             : new Vector3(0f, 0f, z);
     }
 
+    void PlaySfx(AudioClip clip, float volume = 1f)
+    {
+        if (!clip || !sfx) return;
+        sfx.pitch = 1f;
+        sfx.PlayOneShot(clip, volume);
+    }
+
+    void PlayTypeSfx()
+    {
+        if (!typeSfx || !sfxTypeChar) return;
+
+        if (Time.unscaledTime < _nextTypeSfxAt) return; // throttle
+        _nextTypeSfxAt = Time.unscaledTime + typeMinInterval;
+
+        typeSfx.pitch = 1f + Random.Range(-typePitchJitter, typePitchJitter);
+        typeSfx.PlayOneShot(sfxTypeChar, 1f);
+    }
+
+
     System.Collections.IEnumerator BoatDriftForever(Transform t)
     {
         if (!t) yield break;
@@ -678,6 +899,8 @@ public class Director : MonoBehaviour
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 2);
+        yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 3);
     }
 
 
