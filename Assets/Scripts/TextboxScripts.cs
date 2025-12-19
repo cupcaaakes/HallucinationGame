@@ -16,7 +16,7 @@ public static class TextboxScripts
     public static readonly List<Line> Lines = new()
     {
         new Line(
-            "After what felt like eternity, you finally end up in front of two doors. The one on the left has the calm sounds of waves behind it, while the one on the right sounds like plenty of voices talking over one another.",
+            "After what felt like an eternity, you end up in front of two doors. The one on the left has the calm sounds of waves behind it, while the one on the right sounds like a bunch of voices talking over one another.",
             21.6f
         )
     };

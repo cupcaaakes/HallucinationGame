@@ -20,7 +20,7 @@ public static class ChoiceTextScripts
             21.6f
         ),
         new Line(
-            "See what all the commotion is about?",
+            "See what all the commotion is all about?",
             21.6f
         )
     };
