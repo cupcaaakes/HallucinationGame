@@ -11,6 +11,18 @@ public class Director : MonoBehaviour
     [Header("Textboxes")]
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
+    [SerializeField] private GameObject choiceText;
+    [SerializeField] private Canvas canvas;              // drag your Canvas here (or auto-find)
+    [SerializeField] private Camera uiCamera;            // leave null for Screen Space Overlay
+    [SerializeField] private float choiceTowardCenter = 0.25f; // 0..1
+    [SerializeField] private Vector2 choiceOffsetPx = new(0f, 120f);
+    [SerializeField] private float choiceAnimSeconds = 0.2f;
+
+    TMP_Text _choiceTmp;
+    RectTransform _choiceRt;
+    Coroutine _choiceMoveCo, _choiceScaleCo;
+    int _activeChoice = -1; // -1 none, 0 left, 1 right
+
 
     [Header("Scene Parent")]
     [SerializeField]
@@ -29,14 +41,27 @@ public class Director : MonoBehaviour
     void Start()
     {
         if (sceneParent) sceneParent.SetActive(true);
-        foreach (Transform child in sceneParent.transform)
-        {
-            child.gameObject.SetActive(false);
-        }
+        if (decisionL && decisionR) ToggleDecisionBoxes(false);
+        else Debug.LogError("FATAL ERROR: No decision boxes found!");
+            foreach (Transform child in sceneParent.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
         if (textbox)
         {
             textbox.localScale = Vector3.zero;
             textbox.gameObject.SetActive(false);
+        }
+        if (choiceText)
+        {
+            _choiceTmp = choiceText.GetComponent<TMP_Text>();
+            _choiceRt = choiceText.GetComponent<RectTransform>();
+
+            if (!canvas) canvas = choiceText.GetComponentInParent<Canvas>();
+            // uiCamera stays null for Screen Space Overlay. If your canvas is Screen Space - Camera, assign the camera.
+
+            choiceText.SetActive(false);
+            _choiceRt.localScale = Vector3.zero;
         }
 
 
@@ -175,7 +200,115 @@ public class Director : MonoBehaviour
         }
     }
 
+    Vector2 WorldToCanvasLocal(Vector3 world)
+    {
+        var cam = Camera.main; // the camera that sees your world
+        Vector2 screen = cam.WorldToScreenPoint(world);
 
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvas.transform as RectTransform,
+            screen,
+            canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : uiCamera,
+            out var local);
+
+        return local;
+    }
+
+    System.Collections.IEnumerator MoveToUI(RectTransform rt, Vector2 toPos, float seconds)
+    {
+        if (!rt) yield break;
+
+        Vector2 from = rt.anchoredPosition;
+
+        if (seconds <= 0f)
+        {
+            rt.anchoredPosition = toPos;
+            yield break;
+        }
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+        {
+            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+            rt.anchoredPosition = Vector2.Lerp(from, toPos, ease);
+            yield return null;
+        }
+
+        rt.anchoredPosition = toPos;
+    }
+
+    public void SetChoiceHover(bool isLeft, bool open)
+    {
+        if (!choiceText || !decisionL || !decisionR || !canvas) return;
+
+        int side = isLeft ? 0 : 1;
+
+        if (open) _activeChoice = side;
+        else if (_activeChoice != side) return; // ignore exit from the other box
+
+        Vector3 leftW = decisionL.transform.position;
+        Vector3 rightW = decisionR.transform.position;
+        Vector3 centerW = (leftW + rightW) * 0.5f;
+
+        Vector3 pickW = isLeft
+            ? Vector3.Lerp(leftW, centerW, choiceTowardCenter)
+            : Vector3.Lerp(rightW, centerW, choiceTowardCenter);
+
+        Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
+        targetCanvas.y = 0f;
+
+        if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
+        if (_choiceScaleCo != null) StopCoroutine(_choiceScaleCo);
+
+        if (open)
+        {
+            // we only want the choice text if the decision box is active and enabled
+            var go = isLeft ? decisionL : decisionR;
+            var col = go ? go.GetComponent<Collider>() : null;
+            if (!go || !go.activeInHierarchy || !col || !col.enabled) return;
+
+            if (_choiceTmp)
+            {
+                var line = ChoiceTextScripts.Lines[side];
+                _choiceTmp.text = line.text;
+                _choiceTmp.fontSize = line.fontSize;
+            }
+
+            choiceText.SetActive(true);
+
+            _choiceMoveCo = StartCoroutine(MoveToUI(_choiceRt, targetCanvas, choiceAnimSeconds));
+            _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.one, choiceAnimSeconds, false));
+        }
+        else
+        {
+            _choiceScaleCo = StartCoroutine(ScaleTo(choiceText, Vector3.zero, choiceAnimSeconds, true));
+            _activeChoice = -1;
+        }
+    }
+
+
+    System.Collections.IEnumerator ScaleTo(GameObject go, Vector3 toScale, float seconds, bool disableAtEnd)
+    {
+        if (!go) yield break;
+
+        Vector3 from = go.transform.localScale;
+
+        if (seconds <= 0f)
+        {
+            go.transform.localScale = toScale;
+            if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+            yield break;
+        }
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+        {
+            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+            go.transform.localScale = Vector3.Lerp(from, toScale, ease);
+            yield return null;
+        }
+
+        go.transform.localScale = toScale;
+        if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+    }
 
     public System.Collections.IEnumerator DemoScene()
     {

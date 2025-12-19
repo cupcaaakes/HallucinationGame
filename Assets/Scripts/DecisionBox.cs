@@ -2,20 +2,23 @@ using UnityEngine;
 
 public class DecisionBox : MonoBehaviour
 {
-    [SerializeField]
-    private bool isLeft;
+    [SerializeField] private bool isLeft;
+    [SerializeField] private Director director;
 
-    private void OnTriggerEnter(Collider other)
+    void Awake()
     {
-        if (!other.CompareTag("Player")) return;
-
-        Debug.Log(isLeft ? "Entered LEFT box" : "Entered RIGHT box", this);
+        if (!director) director = FindFirstObjectByType<Director>();
     }
 
-    private void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+        director?.SetChoiceHover(isLeft, true);
+    }
 
-        Debug.Log(isLeft ? "In LEFT box" : "In RIGHT box", this);
+    void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        director?.SetChoiceHover(isLeft, false);
     }
 }
