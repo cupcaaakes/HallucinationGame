@@ -6,6 +6,17 @@ using UnityEngine.UI;
 // -----------------------------------------------------------------------------
 // Director.cs
 //
+// QUICK MAP (for Tom):
+// - "Unity Lifecyle"        -> Start(), Update()
+// - "Main Flow"             -> RunGame(), EndAfterChoice(), RevealScene()
+// - "Choice Hover UI"       -> SetChoiceHover() + UI positioning helpers
+// - "Textbox"               -> ToggleTextbox(), TypeText()
+// - "Ambience"              -> preview + commit fade logic for 2 different endings
+// - "Whiteout"              -> fade screen to/from white
+// - "Generic Anim Helpers"  -> Fade(), MoveTo(), ScaleTo()
+// - "Scene Helpers"         -> ActivateOnlyScene(), SetDecisionColliders(), ViewportToWorldOnZPlane()
+// - "Demo Scenes"           -> DemoScene(), DemoEnding1(), DemoEnding2()
+//
 // What this script does (high level):
 // 1) Starts with a full-white screen, while the "DemoScene" starts moving behind it.
 // 2) Fades the white away so the player sees two doors (left/right).
@@ -24,6 +35,8 @@ using UnityEngine.UI;
 // -----------------------------------------------------------------------------
 public class Director : MonoBehaviour
 {
+    #region Inspector Fields (Stuff you drag in via Unity Inspector)
+
     // -------------------------------------------------------------------------
     // Scene objects used as "hover zones" / choices
     // (These should have Colliders so hover/trigger detection works.)
@@ -60,20 +73,6 @@ public class Director : MonoBehaviour
     [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
     [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
 
-    // Cached UI transforms + coroutines so we can stop animations mid-way
-    RectTransform _ringRt;
-    Coroutine _ringScaleCo;
-
-    float _choiceHold;
-
-    TMP_Text _choiceTmp;
-    RectTransform _choiceRt;
-    Coroutine _choiceMoveCo, _choiceScaleCo;
-
-    // Active hovered choice:
-    // -1 = none, 0 = left, 1 = right
-    int _activeChoice = -1;
-
     // -------------------------------------------------------------------------
     // Audio: SFX + typing sound
     // -------------------------------------------------------------------------
@@ -93,9 +92,6 @@ public class Director : MonoBehaviour
     // Typing sound: throttle so it doesn’t spam too many clicks
     [SerializeField] private float typeMinInterval = 0.03f;   // seconds between type clicks
     [SerializeField] private float typePitchJitter = 0.1f;   // small pitch variation
-
-    float _nextTypeSfxAt;
-    bool _choiceWasOpen;
 
     // -------------------------------------------------------------------------
     // Ambience:
@@ -119,11 +115,6 @@ public class Director : MonoBehaviour
     [SerializeField] private float ambCommitFadeSeconds = 1.25f;
     [SerializeField] private float ambStopFadeSeconds = 0.25f;
 
-    Coroutine _ambCo;
-    bool _ambPreviewActive;
-    bool _ambCommitted;
-    int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
-
     // -------------------------------------------------------------------------
     // Whiteout overlay:
     // An Image that fades from white -> transparent -> white again.
@@ -133,9 +124,6 @@ public class Director : MonoBehaviour
     [SerializeField] private Image whiteout;
     [SerializeField] private float whiteoutFadeSeconds = 0.5f;
     [SerializeField] private bool whiteoutBlocksInput = true;
-
-    Coroutine _whiteoutCo;
-    bool _ending;
 
     // -------------------------------------------------------------------------
     // Scene parenting:
@@ -179,10 +167,45 @@ public class Director : MonoBehaviour
     [SerializeField] private GameObject demoEnding2Parent;
     [SerializeField] private GameObject ending2FullScreenObject;
 
+    #endregion
+
+
+    #region Runtime State (Private variables used while the game runs)
+
+    // Cached UI transforms + coroutines so we can stop animations mid-way
+    RectTransform _ringRt;
+    Coroutine _ringScaleCo;
+
+    float _choiceHold;
+
+    TMP_Text _choiceTmp;
+    RectTransform _choiceRt;
+    Coroutine _choiceMoveCo, _choiceScaleCo;
+
+    // Active hovered choice:
+    // -1 = none, 0 = left, 1 = right
+    int _activeChoice = -1;
+
+    float _nextTypeSfxAt;
+    bool _choiceWasOpen;
+
+    Coroutine _ambCo;
+    bool _ambPreviewActive;
+    bool _ambCommitted;
+    int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
+
+    Coroutine _whiteoutCo;
+    bool _ending;
+
     Coroutine _boatCo;
 
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
+
+    #endregion
+
+
+    #region Unity Lifecycle (Start / Update)
 
     // -------------------------------------------------------------------------
     // Start(): one-time setup
@@ -298,6 +321,11 @@ public class Director : MonoBehaviour
         }
     }
 
+    #endregion
+
+
+    #region Main Flow (Start -> Choose -> Ending)
+
     // -------------------------------------------------------------------------
     // RunGame(): master sequence at start
     // 1) Start demo scene logic immediately (doors begin moving "under white")
@@ -354,301 +382,29 @@ public class Director : MonoBehaviour
     }
 
     // -------------------------------------------------------------------------
-    // Fade(): fades a 3D object's material alpha
-    // - Works for either Standard shader (_Color) or URP (_BaseColor)
+    // RevealScene(sceneRoutine):
+    // - Starts the scene routine (activate + setup)
+    // - waits preroll
+    // - fades white out
+    // - waits for scene routine AND fade to finish
     // -------------------------------------------------------------------------
-    System.Collections.IEnumerator Fade(GameObject go, float toAlpha, float seconds)
+    System.Collections.IEnumerator RevealScene(System.Collections.IEnumerator sceneRoutine)
     {
-        var r = go.GetComponentInChildren<Renderer>();
-        if (!r) yield break;
+        var sceneCo = StartCoroutine(sceneRoutine);
 
-        var m = r.material;
+        if (scenePrerollSeconds > 0f)
+            yield return new WaitForSeconds(scenePrerollSeconds);
 
-        // pick whichever color property exists
-        bool isStd = m.HasProperty("_Color");
-        bool isUrp = !isStd && m.HasProperty("_BaseColor");
-        if (!isStd && !isUrp) yield break;
+        var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
 
-        Color c = isStd ? m.color : m.GetColor("_BaseColor");
-        float from = c.a;
-
-        if (seconds <= 0f) // if set to instant, just set the alpha to the target value.
-        {
-            c.a = toAlpha;
-            if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
-            yield break;
-        }
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
-        {
-            c.a = Mathf.Lerp(from, toAlpha, t);
-            if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
-            yield return null;
-        }
-
-        c.a = toAlpha;
-        if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
+        yield return sceneCo;
+        yield return fadeCo;
     }
 
-    // -------------------------------------------------------------------------
-    // MoveTo(): moves a GameObject to a position over time with smooth easing
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator MoveTo(GameObject go, Vector3 toPos, float seconds)
-    {
-        if (!go) yield break;
+    #endregion
 
-        Vector3 from = go.transform.position;
 
-        if (seconds <= 0f)
-        {
-            go.transform.position = toPos;
-            yield break;
-        }
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
-        {
-            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI); // ease in/out (sine-ish)
-            go.transform.position = Vector3.Lerp(from, toPos, ease);
-            yield return null;
-        }
-
-        go.transform.position = toPos;
-    }
-
-    // -------------------------------------------------------------------------
-    // Decision boxes ON/OFF (these are the hover zones)
-    // -------------------------------------------------------------------------
-    private void ToggleDecisionBoxes(bool active)
-    {
-        if (decisionL) decisionL.SetActive(active);
-        if (decisionR) decisionR.SetActive(active);
-    }
-
-    // -------------------------------------------------------------------------
-    // ToggleTextbox(): small helper to animate open/close + play SFX
-    // (calls the coroutine overload below)
-    // -------------------------------------------------------------------------
-    private void ToggleTextbox(bool open, int? textBoxLine)
-    {
-        if (!textbox) return;
-        PlaySfx(open ? sfxTextboxOpen : sfxTextboxClose);
-        StopCoroutine(nameof(ToggleTextbox)); // prevents stacking calls
-        StartCoroutine(ToggleTextbox(open, textBoxLine, 0.35f));
-    }
-
-    // -------------------------------------------------------------------------
-    // ToggleTextbox coroutine:
-    // - scales textbox from 0 to 1 (open) or 1 to 0 (close)
-    // - then optionally types out a line of text from TextboxScripts.Lines[]
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator ToggleTextbox(bool open, int? textBoxLine, float seconds)
-    {
-        if (!textbox) yield break;
-
-        Vector3 from = textbox.localScale;
-        Vector3 to = open ? Vector3.one : Vector3.zero;
-
-        if (seconds <= 0f)
-        {
-            textbox.localScale = to;
-            if (open) textbox.gameObject.SetActive(true);
-            else textbox.gameObject.SetActive(false);
-            yield break;
-        }
-
-        textboxText.text = "";
-
-        // make sure it's active while animating open
-        if (open) textbox.gameObject.SetActive(true);
-
-        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
-        {
-            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
-            textbox.localScale = Vector3.Lerp(from, to, ease);
-            yield return null;
-        }
-
-        // After opening, type the requested line
-        if (textBoxLine.HasValue)
-        {
-            var line = TextboxScripts.Lines[textBoxLine.Value];
-            textboxText.fontSize = line.fontSize;
-            yield return TypeText(line.text, 45f);
-        }
-
-        textbox.localScale = to;
-
-        // hide after closing so it doesn't block clicks etc.
-        if (!open) textbox.gameObject.SetActive(false);
-
-        // "display whatever Text (TMP) contains" happens automatically once it's visible
-    }
-
-    // -------------------------------------------------------------------------
-    // TypeText(): types one character at a time into textboxText
-    // - Also plays typing clicks (not for spaces)
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator TypeText(string s, float cps = 40f)
-    {
-        textboxText.text = "";
-        if (string.IsNullOrEmpty(s)) yield break;
-
-        float delay = 1f / Mathf.Max(1f, cps);
-        for (int i = 0; i <= s.Length; i++)
-        {
-            textboxText.text = s.Substring(0, i);
-
-            if (i > 0) // don't play for the 0th frame
-            {
-                char ch = s[i - 1];
-                if (!char.IsWhiteSpace(ch))
-                    PlayTypeSfx();
-            }
-
-            yield return new WaitForSeconds(delay);
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // Ambience setup:
-    // - Ensures amb1/amb2 AudioSources exist, loop, and are 2D
-    // - Assigns ambEnding1/2 clips to them
-    // - Starts volumes at 0 (silent)
-    // -------------------------------------------------------------------------
-    void SetupAmbienceSources()
-    {
-        // Create sources if missing
-        if (!amb1)
-        {
-            amb1 = gameObject.AddComponent<AudioSource>();
-            ConfigureAmbSource(amb1);
-        }
-        else ConfigureAmbSource(amb1);
-
-        if (!amb2)
-        {
-            amb2 = gameObject.AddComponent<AudioSource>();
-            ConfigureAmbSource(amb2);
-        }
-        else ConfigureAmbSource(amb2);
-
-        amb1.clip = ambEnding1;
-        amb2.clip = ambEnding2;
-
-        // start silent
-        amb1.volume = 0f;
-        amb2.volume = 0f;
-    }
-
-    // Applies "good defaults" for ambience sources
-    void ConfigureAmbSource(AudioSource a)
-    {
-        a.playOnAwake = false;
-        a.loop = true;
-        a.spatialBlend = 0f; // 2D
-        a.pitch = 1f;
-    }
-
-    // Ensures they are actually playing (so fades work immediately)
-    void EnsureAmbiencePlaying()
-    {
-        if (amb1 && amb1.clip && !amb1.isPlaying) amb1.Play();
-        if (amb2 && amb2.clip && !amb2.isPlaying) amb2.Play();
-    }
-
-    // Starts a crossfade coroutine to set amb1/amb2 target volumes
-    void FadeAmbienceTo(float v1, float v2, float seconds, bool stopWhenSilent)
-    {
-        if (_ambCo != null) StopCoroutine(_ambCo);
-        _ambCo = StartCoroutine(FadeAmbienceRoutine(v1, v2, seconds, stopWhenSilent));
-    }
-
-    // Actually performs the crossfade (frame-by-frame volume changes)
-    System.Collections.IEnumerator FadeAmbienceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
-    {
-        if (!amb1 && !amb2) yield break;
-
-        float from1 = amb1 ? amb1.volume : 0f;
-        float from2 = amb2 ? amb2.volume : 0f;
-
-        if (seconds <= 0f)
-        {
-            if (amb1) amb1.volume = to1;
-            if (amb2) amb2.volume = to2;
-        }
-        else
-        {
-            for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
-            {
-                float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
-                if (amb1) amb1.volume = Mathf.Lerp(from1, to1, ease);
-                if (amb2) amb2.volume = Mathf.Lerp(from2, to2, ease);
-                yield return null;
-            }
-            if (amb1) amb1.volume = to1;
-            if (amb2) amb2.volume = to2;
-        }
-
-        // Optional: stop the AudioSource when it’s basically silent
-        if (stopWhenSilent)
-        {
-            if (amb1 && amb1.volume <= 0.001f) amb1.Stop();
-            if (amb2 && amb2.volume <= 0.001f) amb2.Stop();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-    // StartAmbiencePreview(side):
-    // - side=0 -> play amb1 at preview volume, amb2 at 0
-    // - side=1 -> play amb2 at preview volume, amb1 at 0
-    // -------------------------------------------------------------------------
-    void StartAmbiencePreview(int side) // 0 = left, 1 = right
-    {
-        if (_ambCommitted) return;
-
-        // already previewing this side
-        if (_ambPreviewActive && _ambPreviewSide == side) return;
-
-        _ambPreviewActive = true;
-        _ambPreviewSide = side;
-
-        EnsureAmbiencePlaying();
-
-        float v1 = (side == 0) ? ambPreviewVolume : 0f;
-        float v2 = (side == 1) ? ambPreviewVolume : 0f;
-
-        FadeAmbienceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
-    }
-
-    // Stops any preview (fades both to 0 and stops them)
-    void StopAmbiencePreview()
-    {
-        if (_ambCommitted) return;
-
-        _ambPreviewActive = false;
-        _ambPreviewSide = -1;
-
-        FadeAmbienceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
-    }
-
-    // -------------------------------------------------------------------------
-    // CommitAmbience(chosenSide):
-    // After the player confirms the choice:
-    // - chosen side fades to 1.0 volume
-    // - the other fades to 0 and stops
-    // -------------------------------------------------------------------------
-    void CommitAmbience(int chosenSide) // 0 = left, 1 = right
-    {
-        if (_ambCommitted) return;
-        _ambCommitted = true;
-
-        EnsureAmbiencePlaying();
-
-        float v1 = (chosenSide == 0) ? 1f : 0f;
-        float v2 = (chosenSide == 1) ? 1f : 0f;
-
-        FadeAmbienceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
-    }
+    #region Choice Hover UI (Hover text + ring + ambience preview)
 
     // -------------------------------------------------------------------------
     // WorldToCanvasLocal():
@@ -812,39 +568,247 @@ public class Director : MonoBehaviour
         }
     }
 
-    // -------------------------------------------------------------------------
-    // ScaleTo(): scales a GameObject smoothly (used for UI pop-in/pop-out)
-    // disableAtEnd=true + scale=0 means we also deactivate the object at the end
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator ScaleTo(GameObject go, Vector3 toScale, float seconds, bool disableAtEnd)
-    {
-        if (!go) yield break;
+    #endregion
 
-        Vector3 from = go.transform.localScale;
+
+    #region Textbox (Open/Close + Typewriter)
+
+    // -------------------------------------------------------------------------
+    // ToggleTextbox(): small helper to animate open/close + play SFX
+    // (calls the coroutine overload below)
+    // -------------------------------------------------------------------------
+    private void ToggleTextbox(bool open, int? textBoxLine)
+    {
+        if (!textbox) return;
+        PlaySfx(open ? sfxTextboxOpen : sfxTextboxClose);
+        StopCoroutine(nameof(ToggleTextbox)); // prevents stacking calls
+        StartCoroutine(ToggleTextbox(open, textBoxLine, 0.35f));
+    }
+
+    // -------------------------------------------------------------------------
+    // ToggleTextbox coroutine:
+    // - scales textbox from 0 to 1 (open) or 1 to 0 (close)
+    // - then optionally types out a line of text from TextboxScripts.Lines[]
+    // -------------------------------------------------------------------------
+    System.Collections.IEnumerator ToggleTextbox(bool open, int? textBoxLine, float seconds)
+    {
+        if (!textbox) yield break;
+
+        Vector3 from = textbox.localScale;
+        Vector3 to = open ? Vector3.one : Vector3.zero;
 
         if (seconds <= 0f)
         {
-            go.transform.localScale = toScale;
-            if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+            textbox.localScale = to;
+            if (open) textbox.gameObject.SetActive(true);
+            else textbox.gameObject.SetActive(false);
             yield break;
         }
+
+        textboxText.text = "";
+
+        // make sure it's active while animating open
+        if (open) textbox.gameObject.SetActive(true);
 
         for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
         {
             float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
-            go.transform.localScale = Vector3.Lerp(from, toScale, ease);
+            textbox.localScale = Vector3.Lerp(from, to, ease);
             yield return null;
         }
 
-        go.transform.localScale = toScale;
-        if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+        // After opening, type the requested line
+        if (textBoxLine.HasValue)
+        {
+            var line = TextboxScripts.Lines[textBoxLine.Value];
+            textboxText.fontSize = line.fontSize;
+            yield return TypeText(line.text, 45f);
+        }
+
+        textbox.localScale = to;
+
+        // hide after closing so it doesn't block clicks etc.
+        if (!open) textbox.gameObject.SetActive(false);
+
+        // "display whatever Text (TMP) contains" happens automatically once it's visible
     }
 
     // -------------------------------------------------------------------------
-    // Whiteout helpers:
-    // SetWhiteoutAlpha() directly sets the Image alpha.
-    // FadeWhiteoutTo() smoothly fades it over time.
+    // TypeText(): types one character at a time into textboxText
+    // - Also plays typing clicks (not for spaces)
     // -------------------------------------------------------------------------
+    System.Collections.IEnumerator TypeText(string s, float cps = 40f)
+    {
+        textboxText.text = "";
+        if (string.IsNullOrEmpty(s)) yield break;
+
+        float delay = 1f / Mathf.Max(1f, cps);
+        for (int i = 0; i <= s.Length; i++)
+        {
+            textboxText.text = s.Substring(0, i);
+
+            if (i > 0) // don't play for the 0th frame
+            {
+                char ch = s[i - 1];
+                if (!char.IsWhiteSpace(ch))
+                    PlayTypeSfx();
+            }
+
+            yield return new WaitForSeconds(delay);
+        }
+    }
+
+    #endregion
+
+
+    #region Ambience (Preview + Commit)
+
+    // -------------------------------------------------------------------------
+    // Ambience setup:
+    // - Ensures amb1/amb2 AudioSources exist, loop, and are 2D
+    // - Assigns ambEnding1/2 clips to them
+    // - Starts volumes at 0 (silent)
+    // -------------------------------------------------------------------------
+    void SetupAmbienceSources()
+    {
+        // Create sources if missing
+        if (!amb1)
+        {
+            amb1 = gameObject.AddComponent<AudioSource>();
+            ConfigureAmbSource(amb1);
+        }
+        else ConfigureAmbSource(amb1);
+
+        if (!amb2)
+        {
+            amb2 = gameObject.AddComponent<AudioSource>();
+            ConfigureAmbSource(amb2);
+        }
+        else ConfigureAmbSource(amb2);
+
+        amb1.clip = ambEnding1;
+        amb2.clip = ambEnding2;
+
+        // start silent
+        amb1.volume = 0f;
+        amb2.volume = 0f;
+    }
+
+    // Applies "good defaults" for ambience sources
+    void ConfigureAmbSource(AudioSource a)
+    {
+        a.playOnAwake = false;
+        a.loop = true;
+        a.spatialBlend = 0f; // 2D
+        a.pitch = 1f;
+    }
+
+    // Ensures they are actually playing (so fades work immediately)
+    void EnsureAmbiencePlaying()
+    {
+        if (amb1 && amb1.clip && !amb1.isPlaying) amb1.Play();
+        if (amb2 && amb2.clip && !amb2.isPlaying) amb2.Play();
+    }
+
+    // Starts a crossfade coroutine to set amb1/amb2 target volumes
+    void FadeAmbienceTo(float v1, float v2, float seconds, bool stopWhenSilent)
+    {
+        if (_ambCo != null) StopCoroutine(_ambCo);
+        _ambCo = StartCoroutine(FadeAmbienceRoutine(v1, v2, seconds, stopWhenSilent));
+    }
+
+    // Actually performs the crossfade (frame-by-frame volume changes)
+    System.Collections.IEnumerator FadeAmbienceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
+    {
+        if (!amb1 && !amb2) yield break;
+
+        float from1 = amb1 ? amb1.volume : 0f;
+        float from2 = amb2 ? amb2.volume : 0f;
+
+        if (seconds <= 0f)
+        {
+            if (amb1) amb1.volume = to1;
+            if (amb2) amb2.volume = to2;
+        }
+        else
+        {
+            for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+            {
+                float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+                if (amb1) amb1.volume = Mathf.Lerp(from1, to1, ease);
+                if (amb2) amb2.volume = Mathf.Lerp(from2, to2, ease);
+                yield return null;
+            }
+            if (amb1) amb1.volume = to1;
+            if (amb2) amb2.volume = to2;
+        }
+
+        // Optional: stop the AudioSource when it’s basically silent
+        if (stopWhenSilent)
+        {
+            if (amb1 && amb1.volume <= 0.001f) amb1.Stop();
+            if (amb2 && amb2.volume <= 0.001f) amb2.Stop();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // StartAmbiencePreview(side):
+    // - side=0 -> play amb1 at preview volume, amb2 at 0
+    // - side=1 -> play amb2 at preview volume, amb1 at 0
+    // -------------------------------------------------------------------------
+    void StartAmbiencePreview(int side) // 0 = left, 1 = right
+    {
+        if (_ambCommitted) return;
+
+        // already previewing this side
+        if (_ambPreviewActive && _ambPreviewSide == side) return;
+
+        _ambPreviewActive = true;
+        _ambPreviewSide = side;
+
+        EnsureAmbiencePlaying();
+
+        float v1 = (side == 0) ? ambPreviewVolume : 0f;
+        float v2 = (side == 1) ? ambPreviewVolume : 0f;
+
+        FadeAmbienceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
+    }
+
+    // Stops any preview (fades both to 0 and stops them)
+    void StopAmbiencePreview()
+    {
+        if (_ambCommitted) return;
+
+        _ambPreviewActive = false;
+        _ambPreviewSide = -1;
+
+        FadeAmbienceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
+    }
+
+    // -------------------------------------------------------------------------
+    // CommitAmbience(chosenSide):
+    // After the player confirms the choice:
+    // - chosen side fades to 1.0 volume
+    // - the other fades to 0 and stops
+    // -------------------------------------------------------------------------
+    void CommitAmbience(int chosenSide) // 0 = left, 1 = right
+    {
+        if (_ambCommitted) return;
+        _ambCommitted = true;
+
+        EnsureAmbiencePlaying();
+
+        float v1 = (chosenSide == 0) ? 1f : 0f;
+        float v2 = (chosenSide == 1) ? 1f : 0f;
+
+        FadeAmbienceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
+    }
+
+    #endregion
+
+
+    #region Whiteout (Fade Screen In/Out)
+
     void SetWhiteoutAlpha(float a)
     {
         if (!whiteout) return;
@@ -912,20 +876,111 @@ public class Director : MonoBehaviour
         yield return fadeOut;
     }
 
+    #endregion
+
+
+    #region Generic Anim Helpers (Fade/Move/Scale)
+
     // -------------------------------------------------------------------------
-    // ActivateOnlyScene(active):
-    // Turns on exactly one child under sceneParent, and turns the others off.
+    // Fade(): fades a 3D object's material alpha
+    // - Works for either Standard shader (_Color) or URP (_BaseColor)
     // -------------------------------------------------------------------------
-    void ActivateOnlyScene(GameObject active)
+    System.Collections.IEnumerator Fade(GameObject go, float toAlpha, float seconds)
     {
-        if (!sceneParent)
+        var r = go.GetComponentInChildren<Renderer>();
+        if (!r) yield break;
+
+        var m = r.material;
+
+        // pick whichever color property exists
+        bool isStd = m.HasProperty("_Color");
+        bool isUrp = !isStd && m.HasProperty("_BaseColor");
+        if (!isStd && !isUrp) yield break;
+
+        Color c = isStd ? m.color : m.GetColor("_BaseColor");
+        float from = c.a;
+
+        if (seconds <= 0f) // if set to instant, just set the alpha to the target value.
         {
-            if (active) active.SetActive(true);
-            return;
+            c.a = toAlpha;
+            if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
+            yield break;
         }
 
-        foreach (Transform child in sceneParent.transform)
-            child.gameObject.SetActive(child.gameObject == active);
+        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+        {
+            c.a = Mathf.Lerp(from, toAlpha, t);
+            if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
+            yield return null;
+        }
+
+        c.a = toAlpha;
+        if (isStd) m.color = c; else m.SetColor("_BaseColor", c);
+    }
+
+    // -------------------------------------------------------------------------
+    // MoveTo(): moves a GameObject to a position over time with smooth easing
+    // -------------------------------------------------------------------------
+    System.Collections.IEnumerator MoveTo(GameObject go, Vector3 toPos, float seconds)
+    {
+        if (!go) yield break;
+
+        Vector3 from = go.transform.position;
+
+        if (seconds <= 0f)
+        {
+            go.transform.position = toPos;
+            yield break;
+        }
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+        {
+            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI); // ease in/out (sine-ish)
+            go.transform.position = Vector3.Lerp(from, toPos, ease);
+            yield return null;
+        }
+
+        go.transform.position = toPos;
+    }
+
+    // -------------------------------------------------------------------------
+    // ScaleTo(): scales a GameObject smoothly (used for UI pop-in/pop-out)
+    // disableAtEnd=true + scale=0 means we also deactivate the object at the end
+    // -------------------------------------------------------------------------
+    System.Collections.IEnumerator ScaleTo(GameObject go, Vector3 toScale, float seconds, bool disableAtEnd)
+    {
+        if (!go) yield break;
+
+        Vector3 from = go.transform.localScale;
+
+        if (seconds <= 0f)
+        {
+            go.transform.localScale = toScale;
+            if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+            yield break;
+        }
+
+        for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
+        {
+            float ease = 0.5f - 0.5f * Mathf.Cos(t * Mathf.PI);
+            go.transform.localScale = Vector3.Lerp(from, toScale, ease);
+            yield return null;
+        }
+
+        go.transform.localScale = toScale;
+        if (disableAtEnd && toScale == Vector3.zero) go.SetActive(false);
+    }
+
+    #endregion
+
+
+    #region Scene Helpers (Enable/Disable + Coordinate Helpers)
+
+    // Decision boxes ON/OFF (these are the hover zones)
+    private void ToggleDecisionBoxes(bool active)
+    {
+        if (decisionL) decisionL.SetActive(active);
+        if (decisionR) decisionR.SetActive(active);
     }
 
     // Enables/disables the colliders on the decision boxes
@@ -943,11 +998,20 @@ public class Director : MonoBehaviour
         }
     }
 
-    // -------------------------------------------------------------------------
-    // ViewportToWorldOnZPlane():
-    // Converts a screen-space viewport coordinate (0..1) to a 3D world position on a Z plane.
-    // Example: vx=1 means right edge of screen, vy=0.5 means middle vertically.
-    // -------------------------------------------------------------------------
+    // Turns on exactly one child under sceneParent, and turns the others off.
+    void ActivateOnlyScene(GameObject active)
+    {
+        if (!sceneParent)
+        {
+            if (active) active.SetActive(true);
+            return;
+        }
+
+        foreach (Transform child in sceneParent.transform)
+            child.gameObject.SetActive(child.gameObject == active);
+    }
+
+    // Converts viewport (0..1) coords to a world position on a Z plane.
     Vector3 ViewportToWorldOnZPlane(float vx, float vy, float z)
     {
         var cam = Camera.main;
@@ -961,9 +1025,11 @@ public class Director : MonoBehaviour
             : new Vector3(0f, 0f, z);
     }
 
-    // -------------------------------------------------------------------------
-    // PlaySfx(): plays a one-shot sound (simple UI sounds)
-    // -------------------------------------------------------------------------
+    #endregion
+
+
+    #region Audio Helpers (One-shots + typing clicks)
+
     void PlaySfx(AudioClip clip, float volume = 1f)
     {
         if (!clip || !sfx) return;
@@ -971,10 +1037,6 @@ public class Director : MonoBehaviour
         sfx.PlayOneShot(clip, volume);
     }
 
-    // -------------------------------------------------------------------------
-    // PlayTypeSfx(): plays typing click sound with slight pitch randomness
-    // - throttled by typeMinInterval
-    // -------------------------------------------------------------------------
     void PlayTypeSfx()
     {
         if (!typeSfx || !sfxTypeChar) return;
@@ -986,9 +1048,11 @@ public class Director : MonoBehaviour
         typeSfx.PlayOneShot(sfxTypeChar, 1f);
     }
 
-    // -------------------------------------------------------------------------
-    // BoatDriftForever(): moves boat to the right and adds gentle sway forever
-    // -------------------------------------------------------------------------
+    #endregion
+
+
+    #region Boat (Ending 1 motion)
+
     System.Collections.IEnumerator BoatDriftForever(Transform t)
     {
         if (!t) yield break;
@@ -1025,31 +1089,11 @@ public class Director : MonoBehaviour
         }
     }
 
-    // -------------------------------------------------------------------------
-    // RevealScene(sceneRoutine):
-    // - Starts the scene routine (activate + setup)
-    // - waits preroll
-    // - fades white out
-    // - waits for scene routine AND fade to finish
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator RevealScene(System.Collections.IEnumerator sceneRoutine)
-    {
-        var sceneCo = StartCoroutine(sceneRoutine);
+    #endregion
 
-        if (scenePrerollSeconds > 0f)
-            yield return new WaitForSeconds(scenePrerollSeconds);
 
-        var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
+    #region Demo Scenes (DemoScene + Endings)
 
-        yield return sceneCo;
-        yield return fadeCo;
-    }
-
-    // -------------------------------------------------------------------------
-    // DemoScene():
-    // - Moves and fades doors into place
-    // - Then shows textbox line 0 and enables decision boxes
-    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoScene()
     {
         if (demoSceneParent) demoSceneParent.SetActive(true);
@@ -1074,12 +1118,6 @@ public class Director : MonoBehaviour
         ToggleDecisionBoxes(true);
     }
 
-    // -------------------------------------------------------------------------
-    // DemoEnding1():
-    // - Activates ending 1 scene
-    // - Starts boat drift coroutine
-    // - Shows textbox line 1 after reveal timing
-    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding1()
     {
         ActivateOnlyScene(demoEnding1Parent);
@@ -1102,11 +1140,6 @@ public class Director : MonoBehaviour
         ToggleTextbox(true, 1);
     }
 
-    // -------------------------------------------------------------------------
-    // DemoEnding2():
-    // - Activates ending 2 scene
-    // - Shows textbox line 2, then line 3 later
-    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding2()
     {
         ActivateOnlyScene(demoEnding2Parent);
@@ -1125,4 +1158,6 @@ public class Director : MonoBehaviour
         yield return new WaitForSeconds(7.5f);
         ToggleTextbox(true, 3);
     }
+
+    #endregion
 }
