@@ -16,7 +16,7 @@ public static class ChoiceTextScripts
     public static readonly List<Line> Lines = new()
     {
         new Line(
-            "Follow the calm waves?",
+            "Follow the sound of calm waves?",
             21.6f
         ),
         new Line(

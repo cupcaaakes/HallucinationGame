@@ -55,6 +55,22 @@ public class Director : MonoBehaviour
     [SerializeField]
     private GameObject doorR;
 
+    [Header("Demo Ending 1")]
+    [SerializeField] private GameObject demoEnding1Parent;
+    [SerializeField] private GameObject island;
+    [SerializeField] private GameObject boat;
+    [SerializeField] private GameObject woodenOverpass;
+    [SerializeField] private float endingPlaneZ = 0f;
+    [SerializeField] private float boatBelowIslandY = 50f;
+    [SerializeField] private float boatLerpSpeed = 0.08f; // smaller = slower
+
+    [Header("Demo Ending 2")]
+    [SerializeField] private GameObject demoEnding2Parent;
+    [SerializeField] private GameObject ending2FullScreenObject;
+
+    Coroutine _boatCo;
+
+
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
 
     void Start()
@@ -146,19 +162,31 @@ public class Director : MonoBehaviour
         yield return fadeCo;
     }
 
-
     System.Collections.IEnumerator EndAfterChoice()
     {
+        int chosen = _activeChoice; // 0 left, 1 right
+
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
-        Debug.Log(_activeChoice == 0 ? "CHOSE LEFT" : "CHOSE RIGHT");
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
 
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-    Application.Quit();
-#endif
+        // hide choice UI
+        _activeChoice = -1;   // now it's safe to reset
+        _choiceHold = 0f;
+
+        if (choiceText) { choiceText.SetActive(false); if (_choiceRt) _choiceRt.localScale = Vector3.zero; }
+        if (choiceRing) { choiceRing.fillAmount = 0f; choiceRing.gameObject.SetActive(false); if (_ringRt) _ringRt.localScale = Vector3.zero; }
+
+        if (_boatCo != null) StopCoroutine(_boatCo);
+        _boatCo = null;
+
+        if (chosen == 0)
+            yield return RevealScene(DemoEnding1());
+        else
+            yield return RevealScene(DemoEnding2());
     }
+
 
 
     System.Collections.IEnumerator Fade(GameObject go, float toAlpha, float seconds)
@@ -497,6 +525,70 @@ public class Director : MonoBehaviour
         yield return fadeOut;
     }
 
+    void ActivateOnlyScene(GameObject active)
+    {
+        if (!sceneParent)
+        {
+            if (active) active.SetActive(true);
+            return;
+        }
+
+        foreach (Transform child in sceneParent.transform)
+            child.gameObject.SetActive(child.gameObject == active);
+    }
+
+    void SetDecisionColliders(bool enabled)
+    {
+        if (decisionL)
+        {
+            var c = decisionL.GetComponent<Collider>();
+            if (c) c.enabled = enabled;
+        }
+        if (decisionR)
+        {
+            var c = decisionR.GetComponent<Collider>();
+            if (c) c.enabled = enabled;
+        }
+    }
+
+    Vector3 ViewportToWorldOnZPlane(float vx, float vy, float z)
+    {
+        var cam = Camera.main;
+        if (!cam) return new Vector3(0f, 0f, z);
+
+        var ray = cam.ViewportPointToRay(new Vector3(vx, vy, 0f));
+        var plane = new Plane(Vector3.forward, new Vector3(0f, 0f, z)); // z = constant plane
+
+        return plane.Raycast(ray, out var enter)
+            ? ray.GetPoint(enter)
+            : new Vector3(0f, 0f, z);
+    }
+
+    System.Collections.IEnumerator BoatDriftForever(Transform t)
+    {
+        if (!t) yield break;
+
+        while (t && t.gameObject.activeInHierarchy)
+        {
+            // “Lerp forever to the right” (target updates every frame)
+            Vector3 target = t.position + Vector3.right * 1000f;
+            t.position = Vector3.Lerp(t.position, target, Time.deltaTime * boatLerpSpeed);
+            yield return null;
+        }
+    }
+
+    System.Collections.IEnumerator RevealScene(System.Collections.IEnumerator sceneRoutine)
+    {
+        var sceneCo = StartCoroutine(sceneRoutine);
+
+        if (scenePrerollSeconds > 0f)
+            yield return new WaitForSeconds(scenePrerollSeconds);
+
+        var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
+
+        yield return sceneCo;
+        yield return fadeCo;
+    }
 
 
     public System.Collections.IEnumerator DemoScene()
@@ -523,6 +615,68 @@ public class Director : MonoBehaviour
         ToggleDecisionBoxes(true);
     }
 
+    public System.Collections.IEnumerator DemoEnding1()
+    {
+        ActivateOnlyScene(demoEnding1Parent);
+
+        // edge positions on the z-plane
+        Vector3 rightEdge = ViewportToWorldOnZPlane(1f, 0.5f, endingPlaneZ);
+        Vector3 bottomEdge = ViewportToWorldOnZPlane(0.5f, 0f, endingPlaneZ);
+
+        // island: Y = 0, at right edge
+        if (island)
+        {
+            island.transform.position = new Vector3(rightEdge.x, 0f, endingPlaneZ);
+            island.transform.rotation = defaultBillboardRotation;
+            StartCoroutine(Fade(island, 1f, 0f));
+        }
+
+        // overpass: X = 0, at bottom edge
+        if (woodenOverpass)
+        {
+            woodenOverpass.transform.position = new Vector3(0f, bottomEdge.y, endingPlaneZ);
+            woodenOverpass.transform.rotation = defaultBillboardRotation;
+            StartCoroutine(Fade(woodenOverpass, 1f, 0f));
+        }
+
+        // boat: X = left choice box X, Y = island Y - 50
+        if (boat)
+        {
+            float islandY = island ? island.transform.position.y : 0f;
+            float x = decisionL ? decisionL.transform.position.x : 0f;
+
+            boat.transform.position = new Vector3(x, islandY - boatBelowIslandY, endingPlaneZ);
+            boat.transform.rotation = defaultBillboardRotation;
+            StartCoroutine(Fade(boat, 1f, 0f));
+
+            _boatCo = StartCoroutine(BoatDriftForever(boat.transform));
+        }
+
+        // no choices in endings
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+
+        // start textbox AFTER reveal so typing is visible
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 1);
+    }
+
+    public System.Collections.IEnumerator DemoEnding2()
+    {
+        ActivateOnlyScene(demoEnding2Parent);
+
+        if (ending2FullScreenObject)
+        {
+            ending2FullScreenObject.transform.rotation = defaultBillboardRotation;
+            StartCoroutine(Fade(ending2FullScreenObject, 1f, 0f));
+        }
+
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 2);
+    }
 
 
 }
