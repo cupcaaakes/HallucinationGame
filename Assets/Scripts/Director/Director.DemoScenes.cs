@@ -206,7 +206,7 @@ public partial class Director
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 2);
-        yield return new WaitForSeconds(textboxDuration);
+        yield return new WaitForSeconds(7.5f);
         ToggleTextbox(true, 3);
     }
 }
