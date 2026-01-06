@@ -16,11 +16,11 @@ public static class ChoiceTextScripts
     public static readonly List<Line> Lines = new()
     {
         new Line(
-            "Follow the sound of calm waves?",
+            "Play the game in English!",
             21.6f
         ),
         new Line(
-            "See what the commotion is all about?",
+            "Spiele das Spiel auf Deutsch!",
             21.6f
         )
     };

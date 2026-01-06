@@ -16,7 +16,7 @@ public static class TextboxScripts
     public static readonly List<Line> Lines = new()
     {
         new Line(
-            "After what felt like an eternity, you end up in front of two doors. The one on the left has the calm sounds of waves behind it, while the one on the right sounds like a bunch of voices talking over one another.",
+            "Move to the door of the language you wish to play in. / Bewege dich zu der Türe von der Sprache, in der du das Spiel spielen möchtest.",
             21.6f
         ),
         new Line(

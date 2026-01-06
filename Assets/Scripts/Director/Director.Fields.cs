@@ -1,7 +1,8 @@
+using System;
 using TMPro;
 using UnityEngine;
-using static TextboxScripts;
 using UnityEngine.UI;
+using static TextboxScripts;
 
 // This file is part of the partial Director class.
 // It contains ALL Inspector fields + runtime state variables.
@@ -14,6 +15,9 @@ public partial class Director
     [Header("Decision Boxes")]
     public GameObject decisionL;
     public GameObject decisionR;
+    // current scene + routing (left/right)
+    Func<System.Collections.IEnumerator> _currentScene;
+    Func<System.Collections.IEnumerator>[] _nextScene = new Func<System.Collections.IEnumerator>[2];
 
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
@@ -22,6 +26,7 @@ public partial class Director
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+    public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:
     // - If Canvas is Screen Space Overlay: uiCamera can be null.
@@ -81,8 +86,8 @@ public partial class Director
     bool _choiceWasOpen;
 
     // -------------------------------------------------------------------------
-    // Ambience:
-    // We have TWO ambience tracks: one for ending 1 and one for ending 2.
+    // Ambiance:
+    // We have TWO Ambiance tracks: one for ending 1 and one for ending 2.
     //
     // While hovering a choice:
     // - we play ONLY that side at low volume (ambPreviewVolume).
@@ -91,9 +96,9 @@ public partial class Director
     // - chosen side ramps to 100%
     // - other side ramps to 0 and stops
     // -------------------------------------------------------------------------
-    [Header("Ambience")]
-    [SerializeField] private AudioSource amb1;     // ending 1 ambience source
-    [SerializeField] private AudioSource amb2;     // ending 2 ambience source
+    [Header("Ambiance")]
+    [SerializeField] private AudioSource amb1;     // ending 1 Ambiance source
+    [SerializeField] private AudioSource amb2;     // ending 2 Ambiance source
     [SerializeField] private AudioClip ambEnding1;
     [SerializeField] private AudioClip ambEnding2;
 
@@ -130,15 +135,15 @@ public partial class Director
     private GameObject sceneParent;
 
     // -------------------------------------------------------------------------
-    // Demo Scene: doors slide in
+    // Language Select Scene: Language doors sliding in.
     // -------------------------------------------------------------------------
-    [Header("Demo Scene")]
+    [Header("Language Select Scene")]
     [SerializeField]
     private GameObject demoSceneParent;
     [SerializeField]
-    private GameObject doorL;
+    private GameObject doorEnglishL;
     [SerializeField]
-    private GameObject doorR;
+    private GameObject doorGermanR;
 
     // -------------------------------------------------------------------------
     // Ending 1: island + boat drift

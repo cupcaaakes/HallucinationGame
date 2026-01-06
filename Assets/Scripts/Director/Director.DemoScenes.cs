@@ -130,27 +130,31 @@ public partial class Director
     }
 
     // -------------------------------------------------------------------------
-    // DemoScene():
-    // - Moves and fades doors into place
+    // LanguageSelectScene():
+    // - Moves and fades language flags into position
     // - Then shows textbox line 0 and enables decision boxes
+    // - The player choice determines the UseGerman flag and sets the language for the rest of the game
     // -------------------------------------------------------------------------
-    public System.Collections.IEnumerator DemoScene()
+    public System.Collections.IEnumerator LanguageSelectScene()
     {
+        _nextScene[0] = DemoEnding1;
+        _nextScene[1] = DemoEnding1;
+
         if (demoSceneParent) demoSceneParent.SetActive(true);
 
-        StartCoroutine(Fade(doorL, 0f, 0f));
-        StartCoroutine(Fade(doorR, 0f, 0f));
-        doorL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 5f);
-        doorR.transform.position = new Vector3(decisionR.transform.position.x, 0f, 5f);
-        doorL.transform.rotation = defaultBillboardRotation;
-        doorR.transform.rotation = defaultBillboardRotation;
+        StartCoroutine(Fade(doorEnglishL, 0f, 0f));
+        StartCoroutine(Fade(doorGermanR, 0f, 0f));
+        doorEnglishL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 5f);
+        doorGermanR.transform.position = new Vector3(decisionR.transform.position.x, 0f, 5f);
+        doorEnglishL.transform.rotation = defaultBillboardRotation;
+        doorGermanR.transform.rotation = defaultBillboardRotation;
 
         float doorTransition = 3f;
 
-        StartCoroutine(Fade(doorL, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorL, new Vector3(decisionL.transform.position.x, 0f, 0f), doorTransition));
-        StartCoroutine(Fade(doorR, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorR, new Vector3(decisionR.transform.position.x, 0f, 0f), doorTransition));
+        StartCoroutine(Fade(doorEnglishL, 1f, doorTransition));
+        StartCoroutine(MoveTo(doorEnglishL, new Vector3(decisionL.transform.position.x, 0f, 0f), doorTransition));
+        StartCoroutine(Fade(doorGermanR, 1f, doorTransition));
+        StartCoroutine(MoveTo(doorGermanR, new Vector3(decisionR.transform.position.x, 0f, 0f), doorTransition));
 
         yield return new WaitForSeconds(doorTransition); // wait for door anims
 

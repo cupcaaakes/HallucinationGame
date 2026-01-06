@@ -305,7 +305,7 @@ PrefabInstance:
     - target: {fileID: 4970188114296679083, guid: 90ed71b131482984ba25355dbd68f2a3,
         type: 3}
       propertyPath: m_Name
-      value: DoorL
+      value: DoorEnglishL
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4934200723328656780, guid: 90ed71b131482984ba25355dbd68f2a3, type: 3}
@@ -847,7 +847,7 @@ GameObject:
   m_Component:
   - component: {fileID: 569041702}
   m_Layer: 0
-  m_Name: DemoScene
+  m_Name: LanguageSelectScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1228,7 +1228,7 @@ PrefabInstance:
     - target: {fileID: 4970188114296679083, guid: 90ed71b131482984ba25355dbd68f2a3,
         type: 3}
       propertyPath: m_Name
-      value: DoorR
+      value: DoorGermanR
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4934200723328656780, guid: 90ed71b131482984ba25355dbd68f2a3, type: 3}
@@ -1514,8 +1514,8 @@ MonoBehaviour:
   whiteoutBlocksInput: 1
   sceneParent: {fileID: 460358356}
   demoSceneParent: {fileID: 569041701}
-  doorL: {fileID: 144918125}
-  doorR: {fileID: 625210692}
+  doorEnglishL: {fileID: 144918125}
+  doorGermanR: {fileID: 625210692}
   demoEnding1Parent: {fileID: 1580762843}
   island: {fileID: 31196399}
   boat: {fileID: 920341157}
@@ -1647,7 +1647,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4663113a073ffe47ac360c4c344b5f4, type: 3}
   m_Name: 
@@ -2152,7 +2152,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264200774}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f77f6e47c9c421b4395ab162f6834cd8, type: 3}
   m_Name: 

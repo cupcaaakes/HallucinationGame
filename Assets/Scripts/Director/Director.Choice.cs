@@ -58,12 +58,12 @@ public partial class Director
     //
     // When open=true:
     // - sets _activeChoice to 0 or 1
-    // - starts ambience preview for that side
+    // - starts Ambiance preview for that side
     // - shows choiceText and ring, and positions them nicely
     //
     // When open=false:
     // - resets hold timer and hides UI
-    // - stops ambience preview
+    // - stops Ambiance preview
     // -------------------------------------------------------------------------
     public void SetChoiceHover(bool isLeft, bool open)
     {
@@ -87,7 +87,7 @@ public partial class Director
             if (_ambPreviewActive)
             {
                 _ambPreviewActive = false;
-                StopAmbiencePreview();
+                StopAmbiancePreview();
             }
 
             if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
@@ -108,8 +108,8 @@ public partial class Director
         if (_activeChoice != side) _choiceHold = 0f; // switching sides resets hold
         _activeChoice = side;
 
-        // Start / switch ambience preview
-        StartAmbiencePreview(side);
+        // Start / switch Ambiance preview
+        StartAmbiancePreview(side);
 
         // play the "choice open" sfx once when we first show the UI
         if (!_choiceWasOpen)

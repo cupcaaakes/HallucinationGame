@@ -1,7 +1,7 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using static TextboxScripts;
 
 // -----------------------------------------------------------------------------
@@ -11,9 +11,9 @@ using static TextboxScripts;
 // 1) Starts with a full-white screen, while the "DemoScene" starts moving behind it.
 // 2) Fades the white away so the player sees two doors (left/right).
 // 3) When you hover a door "decision box", it shows a UI text label + a hold-to-confirm ring.
-// 4) While hovering, it previews ambience for that side at low volume (~33%).
+// 4) While hovering, it previews Ambiance for that side at low volume (~33%).
 // 5) If you keep hovering long enough, it "chooses" that side, fades to white,
-//    ramps ambience for the chosen side to 100%, then reveals that ending scene.
+//    ramps Ambiance for the chosen side to 100%, then reveals that ending scene.
 //
 // Important Unity basics for Tom:
 // - Start() runs once when the scene starts.
@@ -58,7 +58,7 @@ public partial class Director : MonoBehaviour
                 typeSfx.spatialBlend = 0f; // 2D
             }
         }
-        SetupAmbienceSources();
+        SetupAmbianceSources();
 
         if (textbox)
         {
@@ -130,8 +130,8 @@ public partial class Director : MonoBehaviour
         {
             _ending = true;
 
-            // lock in ambience to the chosen side (ramps chosen to 100%, other to 0)
-            CommitAmbience(_activeChoice);
+            // lock in ambiance to the chosen side (ramps chosen to 100%, other to 0)
+            CommitAmbiance(_activeChoice);
 
             PlaySfx(sfxChoiceConfirm, confirmVolume);
             StartCoroutine(EndAfterChoice());
@@ -147,19 +147,7 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        // 1) Start the scene immediately (doors start moving right away under white)
-        var sceneCo = StartCoroutine(DemoScene());
-
-        // 2) Optional: keep full white for a tiny bit so stuff is already in motion
-        if (scenePrerollSeconds > 0f)
-            yield return new WaitForSeconds(scenePrerollSeconds);
-
-        // 3) Now fade out to reveal the already-moving scene
-        var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
-
-        // 4) Wait for both to finish (order doesn't matter)
-        yield return sceneCo;
-        yield return fadeCo;
+        yield return RevealScene(LanguageSelectScene);
     }
 
     // -------------------------------------------------------------------------
@@ -179,7 +167,7 @@ public partial class Director : MonoBehaviour
         SetDecisionColliders(false);
 
         // hide choice UI
-        _activeChoice = -1;   // now it's safe to reset
+        _activeChoice = -1;
         _choiceHold = 0f;
 
         if (choiceText) { choiceText.SetActive(false); if (_choiceRt) _choiceRt.localScale = Vector3.zero; }
@@ -188,10 +176,21 @@ public partial class Director : MonoBehaviour
         if (_boatCo != null) StopCoroutine(_boatCo);
         _boatCo = null;
 
-        if (chosen == 0)
-            yield return RevealScene(DemoEnding1());
-        else
-            yield return RevealScene(DemoEnding2());
+        if (_currentScene == LanguageSelectScene) UseGerman = (chosen == 1); // left = English, right = German
+
+        // route to next scene
+        chosen = Mathf.Clamp(chosen, 0, 1);
+        var next = _nextScene[chosen];
+
+        // reset confirm gating for next scene
+        _ending = false;
+        _choiceWasOpen = false;
+
+        // clear routing
+        _nextScene[0] = null;
+        _nextScene[1] = null;
+
+        if (next != null) yield return RevealScene(next);
     }
 
     // -------------------------------------------------------------------------
@@ -201,15 +200,25 @@ public partial class Director : MonoBehaviour
     // - fades white out
     // - waits for scene routine AND fade to finish
     // -------------------------------------------------------------------------
-    System.Collections.IEnumerator RevealScene(System.Collections.IEnumerator sceneRoutine)
+    System.Collections.IEnumerator RevealScene(Func<System.Collections.IEnumerator> sceneRoutine)
     {
-        var sceneCo = StartCoroutine(sceneRoutine);
+        if (sceneRoutine == null)
+        {
+            Debug.LogError("RevealScene: sceneRoutine was null");
+            yield break;
+        }
+        _currentScene = sceneRoutine; // lets EndAfterChoice know what choice means
 
+        var sceneCo = StartCoroutine(sceneRoutine());
+
+        // let things move under white before revealing
         if (scenePrerollSeconds > 0f)
             yield return new WaitForSeconds(scenePrerollSeconds);
 
+        // fade white out
         var fadeCo = StartCoroutine(FadeWhiteoutTo(0f, whiteoutFadeSeconds));
 
+        // wait for both
         yield return sceneCo;
         yield return fadeCo;
     }
