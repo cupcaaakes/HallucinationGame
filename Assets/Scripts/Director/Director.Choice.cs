@@ -132,7 +132,7 @@ public partial class Director
 
         // set the text FIRST (from your ChoiceTextScripts)
         var line = ChoiceTextScripts.Lines[side];
-        _choiceTmp.text = line.text;
+        _choiceTmp.text = line.Get(UseGerman);
         _choiceTmp.fontSize = line.fontSize;
 
         choiceText.SetActive(true);

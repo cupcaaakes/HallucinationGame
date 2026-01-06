@@ -137,8 +137,8 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator LanguageSelectScene()
     {
-        _nextScene[0] = DemoEnding1;
-        _nextScene[1] = DemoEnding1;
+        _nextScene[0] = DemoEnding2;
+        _nextScene[1] = DemoEnding2;
 
         if (demoSceneParent) demoSceneParent.SetActive(true);
 
