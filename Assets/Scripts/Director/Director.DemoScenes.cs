@@ -210,6 +210,9 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 2);
         yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 4);
+        yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 6);
     }
 
     public System.Collections.IEnumerator CheckupSceneHuman()
@@ -222,8 +225,11 @@ public partial class Director
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 2);
+        ToggleTextbox(true, 3);
         yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 5);
+        yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 7);
     }
 
     // -------------------------------------------------------------------------

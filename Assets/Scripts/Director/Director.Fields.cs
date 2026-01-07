@@ -164,11 +164,13 @@ public partial class Director
     [Header("Checkup Scene AI")]
     [SerializeField]
     private GameObject checkupSceneAiParent;
+    [SerializeField]
     private GameObject checkupAiDoctor;
 
     [Header("Checkup Scene Human")]
     [SerializeField]
     private GameObject checkupSceneHumanParent;
+    [SerializeField]
     private GameObject checkupHumanDoctor;
 
     // -------------------------------------------------------------------------
