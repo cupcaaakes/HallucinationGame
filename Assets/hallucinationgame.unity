@@ -677,7 +677,42 @@ Transform:
   - {fileID: 853171314}
   - {fileID: 606596498}
   - {fileID: 88621482}
+  - {fileID: 1535876251}
+  - {fileID: 1528961735}
+  - {fileID: 462827527}
+  - {fileID: 1972011485}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &462827526
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 462827527}
+  m_Layer: 0
+  m_Name: RejectedByHumansScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &462827527
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462827526}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 460358357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &484065095
 GameObject:
@@ -2051,7 +2086,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 3689288cb5853c642aea646bd52e3de7, type: 2}
   - {fileID: 2100000, guid: 0f17edd709cf03945b408204b81995f6, type: 2}
   fitToTextureAspectOnStart: 1
-  planeMeshSize: 10
 --- !u!4 &801439985 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 134016559256545364, guid: 90ed71b131482984ba25355dbd68f2a3,
@@ -2128,7 +2162,6 @@ MonoBehaviour:
   choiceText: {fileID: 1229671853}
   canvas: {fileID: 1936220422}
   uiCamera: {fileID: 1191718252}
-  worldCam: {fileID: 1191718252}
   choiceTowardCenter: 0.25
   choiceOffsetPx: {x: 0, y: 0}
   choiceAnimSeconds: 0.2
@@ -2187,6 +2220,13 @@ MonoBehaviour:
   aiPurityTestImage: {fileID: 801439982}
   humanPuritySceneParent: {fileID: 88621481}
   humanPurityTestImage: {fileID: 1058773984}
+  acceptedToAIsSceneParent: {fileID: 1528961734}
+  acceptedToHumansSceneParent: {fileID: 1535876250}
+  rejectedFromAIsSceneParent: {fileID: 1972011484}
+  rejectedFromHumansSceneParent: {fileID: 462827526}
+  aiDoctorChosen: 0
+  aiCrowdChosen: 0
+  gotRejectedFromGroup: 0
 --- !u!4 &816459073
 Transform:
   m_ObjectHideFlags: 0
@@ -2727,7 +2767,6 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 3689288cb5853c642aea646bd52e3de7, type: 2}
   - {fileID: 2100000, guid: 0f17edd709cf03945b408204b81995f6, type: 2}
   fitToTextureAspectOnStart: 1
-  planeMeshSize: 10
 --- !u!1 &1191718250
 GameObject:
   m_ObjectHideFlags: 0
@@ -3031,6 +3070,68 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2109571330}
+  m_Father: {fileID: 460358357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1528961734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1528961735}
+  m_Layer: 0
+  m_Name: AcceptedByAIsScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1528961735
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528961734}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 460358357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1535876250
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1535876251}
+  m_Layer: 0
+  m_Name: AcceptedByHumansScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1535876251
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1535876250}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 460358357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1549314880
@@ -3377,6 +3478,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1972011484
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1972011485}
+  m_Layer: 0
+  m_Name: RejectedByAIsScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1972011485
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972011484}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 460358357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2109571329
 PrefabInstance:
   m_ObjectHideFlags: 0

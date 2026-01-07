@@ -20,6 +20,7 @@ public partial class Director
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
+    private bool purityImageIsAi = false;
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
     // -------------------------------------------------------------------------
@@ -203,7 +204,24 @@ public partial class Director
     [SerializeField] private GameObject humanPuritySceneParent;
     [SerializeField] private GameObject humanPurityTestImage;
 
+    [Header("Accepted To AIs scene")]
+    [SerializeField] private GameObject acceptedToAIsSceneParent;
+
+    [Header("Accepted To Humans scene")]
+    [SerializeField] private GameObject acceptedToHumansSceneParent;
+
+    [Header("Rejected From AIs scene")]
+    [SerializeField] private GameObject rejectedFromAIsSceneParent;
+
+    [Header("Rejected From Humans scene")]
+    [SerializeField] private GameObject rejectedFromHumansSceneParent;
+
     Coroutine _boatCo;
+
+    [Header("Choices Made")]
+    [SerializeField] private bool aiDoctorChosen = false;
+    [SerializeField] private bool aiCrowdChosen = false;
+    [SerializeField] private bool gotRejectedFromGroup = false;
 
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);

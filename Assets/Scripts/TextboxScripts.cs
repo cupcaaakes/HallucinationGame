@@ -101,8 +101,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 16: human purity scene success - AI art
-            "‘Exactly!’ he laughs. ‘That’s imitation wearing a human face. We clearly draw the line there. Welcome to our cause!’",
-            "‚Genau!‘ lacht er. ‚Das ist Imitation mit menschlicher Maske. Da ziehen wir klar die Grenze. Willkommen im Team!‘",            
+            "‘Exactly!’ he laughs. ‘There was no heart or soul in the creation of this, merely ones and zeros. We clearly draw the line there. Welcome to our cause!’",
+            "‚Genau!‘ lacht er. ‚Hier wurde kein Herz und Seele verwendet, um das zu erstellen, nur Einsen und Nullen. Da ziehen wir klar die Grenze. Willkommen im Team!‘",            
             21.6f
         ),
         new Line ( // 17: AI purity scene success - human art
@@ -111,8 +111,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 18: human purity scene success - human art
-            "‘Exactly,’ he laughs. ‘You can feel intent in it. The soul. Because that’s what real art is, a reflection of what it means to be human.’",
-            "‚Genau‘, lacht er. ‚Man spürt Absicht darin. Die Seele. Weil genau das ist echte Kunst, eine Reflektion von dem, was es bedeutet, Mensch zu sein.‘",            
+            "‘Exactly,’ he laughs. ‘You can feel intent in it. The soul. Because that’s what real art is, a reflection of what it means to be human. You're definitely a great fit for our cause!’",
+            "‚Genau‘, lacht er. ‚Man spürt Absicht darin. Die Seele. Weil genau das ist echte Kunst, eine Reflektion von dem, was es bedeutet, Mensch zu sein. Du passt super zu uns und unserer Bewegung!‘",            
             21.6f
         ),
         new Line ( // 19: AI purity scene failure - AI art

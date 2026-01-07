@@ -130,6 +130,70 @@ public partial class Director
         }
     }
 
+    private void PurityTestSlide(GameObject purityTest, float slideTransition)
+    {
+        StartCoroutine(Fade(purityTest, 1f, slideTransition));
+        StartCoroutine(MoveTo(purityTest, Vector3.zero, slideTransition));
+
+        var cam = uiCamera ? uiCamera : Camera.main;
+        if (!cam || !purityTest) return;
+
+        var r = purityTest.GetComponent<Renderer>();
+        if (!r) return;
+
+        var mat = r.material;
+        if (!mat) return;
+
+        // grab the actual texture used by common shaders
+        Texture tex = mat.mainTexture;
+        if (!tex) tex = mat.GetTexture("_BaseMap");
+        if (!tex) tex = mat.GetTexture("_MainTex");
+        if (!tex || tex.height == 0) return;
+
+        float imgAspect = (float)tex.width / tex.height;
+
+        // We scale for the FINAL position (0,0,0), not the current animated position.
+        float viewH, viewW;
+        if (cam.orthographic)
+        {
+            viewH = cam.orthographicSize * 2f;
+            viewW = viewH * cam.aspect;
+        }
+        else
+        {
+            // depth of (0,0,0) along camera forward
+            float dist = Mathf.Abs(Vector3.Dot(-cam.transform.position, cam.transform.forward));
+            if (dist < 0.0001f) dist = 0.0001f;
+
+            viewH = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            viewW = viewH * cam.aspect;
+        }
+
+        // Fit image inside camera view (no crop)
+        float targetW, targetH;
+        if (viewW / viewH > imgAspect)
+        {
+            targetH = viewH;
+            targetW = targetH * imgAspect;
+        }
+        else
+        {
+            targetW = viewW;
+            targetH = targetW / imgAspect;
+        }
+
+        // If parent is scaled non-uniformly, compensate so WORLD size is correct.
+        var parentScale = purityTest.transform.parent ? purityTest.transform.parent.lossyScale : Vector3.one;
+        if (Mathf.Abs(parentScale.x) < 0.0001f) parentScale.x = 1f;
+        if (Mathf.Abs(parentScale.z) < 0.0001f) parentScale.z = 1f;
+
+        // Unity Plane mesh is 10x10 in local X/Z
+        var s = purityTest.transform.localScale;
+        s.x = (targetW / 10f) / parentScale.x;
+        s.z = (targetH / 10f) / parentScale.z;
+        purityTest.transform.localScale = s;
+    }
+
     // -------------------------------------------------------------------------
     // LanguageSelectScene():
     // - Moves and fades language flags into position
@@ -205,7 +269,7 @@ public partial class Director
         checkupAiDoctor.transform.position = introAiDoctor.transform.position;
         checkupAiDoctor.transform.rotation = defaultBillboardRotation;
         checkupAiDoctor.transform.localScale = introAiDoctor.transform.localScale;
-
+        aiDoctorChosen = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 2);
         yield return new WaitForSeconds(7.5f);
@@ -227,7 +291,7 @@ public partial class Director
         if (checkupSceneHumanParent) checkupSceneHumanParent.SetActive(true);
         checkupHumanDoctor.transform.position = introHumanDoctor.transform.position;
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
-
+        aiDoctorChosen = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 3);
         yield return new WaitForSeconds(7.5f);
@@ -309,9 +373,20 @@ public partial class Director
         ActivateOnlyScene(aiPuritySceneParent);
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
-
+        aiCrowdChosen = true;
 
         aiPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
+        purityImageIsAi = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex <= 3; // 0-3 are AI, 4-7 are human
+        if (purityImageIsAi) // 0-3 are AI, 4-7 are human
+        {
+            _next[0] = new SceneRef(AcceptedByAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+        }
+        else
+        {
+            _next[0] = new SceneRef(RejectedFromAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+        }
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
@@ -330,8 +405,21 @@ public partial class Director
         ActivateOnlyScene(humanPuritySceneParent);
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
+        aiCrowdChosen = false;
 
         humanPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
+        purityImageIsAi = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex <= 3; // 0-3 are AI, 4-7 are human
+
+        if (!purityImageIsAi) 
+        {
+            _next[0] = new SceneRef(AcceptedByHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+        }
+        else
+        {
+            _next[0] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+        }
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
@@ -345,68 +433,51 @@ public partial class Director
         ToggleDecisionBoxes(true);
     }
 
-    private void PurityTestSlide(GameObject purityTest, float slideTransition)
+    public System.Collections.IEnumerator RejectedFromHumansScene()
     {
-        StartCoroutine(Fade(purityTest, 1f, slideTransition));
-        StartCoroutine(MoveTo(purityTest, Vector3.zero, slideTransition));
-
-        var cam = uiCamera ? uiCamera : Camera.main;
-        if (!cam || !purityTest) return;
-
-        var r = purityTest.GetComponent<Renderer>();
-        if (!r) return;
-
-        var mat = r.material;
-        if (!mat) return;
-
-        // grab the actual texture used by common shaders
-        Texture tex = mat.mainTexture;
-        if (!tex) tex = mat.GetTexture("_BaseMap");
-        if (!tex) tex = mat.GetTexture("_MainTex");
-        if (!tex || tex.height == 0) return;
-
-        float imgAspect = (float)tex.width / tex.height;
-
-        // We scale for the FINAL position (0,0,0), not the current animated position.
-        float viewH, viewW;
-        if (cam.orthographic)
-        {
-            viewH = cam.orthographicSize * 2f;
-            viewW = viewH * cam.aspect;
-        }
-        else
-        {
-            // depth of (0,0,0) along camera forward
-            float dist = Mathf.Abs(Vector3.Dot(-cam.transform.position, cam.transform.forward));
-            if (dist < 0.0001f) dist = 0.0001f;
-
-            viewH = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            viewW = viewH * cam.aspect;
-        }
-
-        // Fit image inside camera view (no crop)
-        float targetW, targetH;
-        if (viewW / viewH > imgAspect)
-        {
-            targetH = viewH;
-            targetW = targetH * imgAspect;
-        }
-        else
-        {
-            targetW = viewW;
-            targetH = targetW / imgAspect;
-        }
-
-        // If parent is scaled non-uniformly, compensate so WORLD size is correct.
-        var parentScale = purityTest.transform.parent ? purityTest.transform.parent.lossyScale : Vector3.one;
-        if (Mathf.Abs(parentScale.x) < 0.0001f) parentScale.x = 1f;
-        if (Mathf.Abs(parentScale.z) < 0.0001f) parentScale.z = 1f;
-
-        // Unity Plane mesh is 10x10 in local X/Z
-        var s = purityTest.transform.localScale;
-        s.x = (targetW / 10f) / parentScale.x;
-        s.z = (targetH / 10f) / parentScale.z;
-        purityTest.transform.localScale = s;
+        ActivateOnlyScene(rejectedFromHumansSceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        gotRejectedFromGroup = true;
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (purityImageIsAi) ToggleTextbox(true, 20);
+        else ToggleTextbox(true, 22);
+        yield return new WaitForSeconds(7.5f);
     }
 
+    public System.Collections.IEnumerator RejectedFromAIsScene()
+    {
+        ActivateOnlyScene(rejectedFromAIsSceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        gotRejectedFromGroup = true;
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (purityImageIsAi) ToggleTextbox(true, 19);
+        else ToggleTextbox(true, 21);
+        yield return new WaitForSeconds(7.5f);
+    }
+
+    public System.Collections.IEnumerator AcceptedByHumansScene()
+    {
+        ActivateOnlyScene(acceptedToHumansSceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        gotRejectedFromGroup = false;
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (purityImageIsAi) ToggleTextbox(true, 16);
+        else ToggleTextbox(true, 18);
+        yield return new WaitForSeconds(7.5f);
+    }
+
+    public System.Collections.IEnumerator AcceptedByAIsScene()
+    {
+        ActivateOnlyScene(acceptedToAIsSceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        gotRejectedFromGroup = false;
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (purityImageIsAi) ToggleTextbox(true, 15);
+        else ToggleTextbox(true, 17);
+        yield return new WaitForSeconds(7.5f);
+    }
 }
