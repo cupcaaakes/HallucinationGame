@@ -164,7 +164,6 @@ public partial class Director : MonoBehaviour
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
         ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
 
         // hide choice UI
         _activeChoice = -1;

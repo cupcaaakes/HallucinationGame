@@ -14,6 +14,7 @@ public partial class Director
     {
         if (decisionL) decisionL.SetActive(active);
         if (decisionR) decisionR.SetActive(active);
+        SetDecisionColliders(active);
     }
 
     // -------------------------------------------------------------------------
@@ -158,6 +159,7 @@ public partial class Director
 
         yield return new WaitForSeconds(doorTransition); // wait for door anims
 
+        SetChoicePair(0);
         ToggleTextbox(true, 0);
         ToggleDecisionBoxes(true);
     }
@@ -185,6 +187,7 @@ public partial class Director
 
         yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
 
+        SetChoicePair(1);
         ToggleTextbox(true, 1);
         ToggleDecisionBoxes(true);
     }

@@ -129,9 +129,16 @@ public partial class Director
 
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;
+        int idx = _choiceBaseIndex + side; // left=base, right=base+1
 
-        // set the text FIRST (from your ChoiceTextScripts)
-        var line = ChoiceTextScripts.Lines[side];
+        if ((uint)idx >= (uint)ChoiceTextScripts.Lines.Count)
+        {
+            Debug.LogError($"ChoiceTextScripts index out of range: idx={idx}, base={_choiceBaseIndex}, side={side}");
+            return;
+        }
+
+        var line = ChoiceTextScripts.Lines[idx];
+
         _choiceTmp.text = line.Get(UseGerman);
         _choiceTmp.fontSize = line.fontSize;
 
@@ -168,4 +175,14 @@ public partial class Director
             _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.one, choiceAnimSeconds, false));
         }
     }
+
+    void SetChoicePair(int leftIndexEven)
+    {
+        // Each "scene" gets exactly 2 choice lines in ChoiceTextScripts:
+        // scene 0 -> indices 0,1
+        // scene 1 -> indices 2,3
+        // scene 2 -> indices 4,5
+        _choiceBaseIndex = leftIndexEven * 2;
+    }
+
 }

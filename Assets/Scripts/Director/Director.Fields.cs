@@ -60,8 +60,10 @@ public partial class Director
     Coroutine _choiceMoveCo, _choiceScaleCo;
 
     // Active hovered choice:
-    // -1 = none, 0 = left, 1 = right
+    // left = base, right = base+1
     int _activeChoice = -1;
+
+    int _choiceBaseIndex = 0; // left = base, right = base+1
 
     // -------------------------------------------------------------------------
     // Audio: SFX + typing sound
