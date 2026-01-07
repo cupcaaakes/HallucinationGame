@@ -60,10 +60,20 @@ public static class TextboxScripts
             "'Am Besten gehst du raus und machst dir selber ein Bild davon', sagt er. Also entscheidest du dich, genau dies zu tun.",
             21.6f
         ),
-        new Line( //8: demonstration scene
-            "As you step outside, you find yourself amidst a crowd of protesters and counter-protestors. Signs reading 'Down with disinformation!' and 'Where is your heart?' are held high. The tension in the air is palpable.",
-            "Als du nach draußen trittst, befindest du dich mitten in einer Menge von Demonstranten und Gegendemonstranten. Schilder mit den Aufschriften ‚Nieder mit euch Desinformanten!‘ und ‚Wo ist euer Herz?‘ werden hochgehalten. Die Spannung in der Luft ist spürbar.",
+        new Line( //8: demonstration scene 1
+            "As you step outside, you find yourself amidst a crowd of protesters and counter-protestors. The tension in the air is palpable.",
+            "Als du nach draußen trittst, befindest du dich mitten in einer Menge von Demonstranten und Gegendemonstranten. Die Spannung in der Luft ist spürbar.",
+            21.6f
+        ),
+        new Line( //9: demonstration scene 2
+            "You notice that some protesters are holding signs that say 'Humans First!' and 'AI is a Threat!'. The counter-protestors respond with signs like 'Embrace the Future!' and 'AI for a Better Tomorrow!'.",
+            "Du bemerkst, dass einige Demonstranten Schilder mit den Aufschriften ‚Menschen zuerst!‘ und ‚KI ist eine Bedrohung!‘ halten. Die Gegendemonstranten antworten mit Schildern wie ‚Umarme die Zukunft!‘ und ‚KI für ein besseres Morgen!‘.",
             18.75f
-        )
+        ),
+        new Line( //10: demonstration scene 3
+            "Both sides have someone waving at you to join them. Where do you wanna go?",
+            "Auf beiden Seiten winkt jemand dir zu, damit du zu ihrer Seite gehst. Wohin wirst du gehen?",
+            21.6f
+        ),
     };
 }
