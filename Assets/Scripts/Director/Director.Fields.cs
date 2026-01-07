@@ -195,6 +195,12 @@ public partial class Director
     [SerializeField] private GameObject demonstrationSceneParent;
     [SerializeField] private GameObject demonstrationSceneFullscreenObj;
 
+    [Header("AI Purity scene")]
+    [SerializeField] private GameObject aiPuritySceneParent;
+
+    [Header("Human Purity scene")]
+    [SerializeField] private GameObject humanPuritySceneParent;
+
     Coroutine _boatCo;
 
     // This is a fixed rotation you want to apply to billboard objects

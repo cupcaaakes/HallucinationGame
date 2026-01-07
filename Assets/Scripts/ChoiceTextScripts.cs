@@ -30,6 +30,10 @@ public static class ChoiceTextScripts
 
         //2: demonstration scene
         new Line("AI didn’t replace our humanity — it amplified it!", "KI hat unsere Menschlichkeit nicht ersetzt – sie hat sie verstärkt!", 21.6f),
-        new Line("We can't trust these walking hallucination machines!", "Wir können diesen wandelnden Halluzinationsboxen nicht vertrauen!", 21.6f)
+        new Line("We can't trust these walking hallucination machines!", "Wir können diesen wandelnden Halluzinationsboxen nicht vertrauen!", 21.6f),
+
+        //3: purity scenes
+        new Line("I like it!", "Finde ich gut!", 21.6f),
+        new Line("Not really a fan...", "Nicht wirklich mein Fall...", 21.6f)
     };
 }

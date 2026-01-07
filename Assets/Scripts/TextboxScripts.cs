@@ -37,7 +37,7 @@ public static class TextboxScripts
         ),
         new Line( //3: human doctor 1
             "The doctor takes your vitals, and everything seems to be in order. 'Welcome to the future. Some that appear human are actually AI nowadays... But we humans aren't completely redundant yet.', he says.",
-            "Der Arzt nimmt deine Vitalitäten, alles scheint okay zu sein. 'Willkommen in der Zukunft. Einige der Leute hier sind eigentlich KI... Aber wir Menschen sind noch nicht komplett überflüssig.', sagt er.",
+            "Der Arzt nimmt deine Vitalitäten, alles scheint okay zu sein. ‚Willkommen in der Zukunft. Einige der Leute hier sind eigentlich KI... Aber wir Menschen sind noch nicht komplett überflüssig.‘, sagt er.",
             21.2f
         ),
         new Line( //4: AI doctor 2
@@ -47,7 +47,7 @@ public static class TextboxScripts
         ),
         new Line( //5: human doctor 2
             "He looks at you with a worried look on his face. 'You can't trust people these days because of those AIs that appear human. Most believe that they have some sort of agenda...'",
-            "Er schaut dich etwas besorgt an. 'Man kann heute keinem mehr vertrauen wegen diesen menschlich wirkenden KIs... Die meisten gehen davon aus, dass die was gegen uns planen.'",
+            "Er schaut dich etwas besorgt an. ‚Man kann heute keinem mehr vertrauen wegen diesen menschlich wirkenden KIs... Die meisten gehen davon aus, dass die was gegen uns planen.‘",
             21.6f
         ),
         new Line( //6: AI doctor 3
@@ -57,7 +57,7 @@ public static class TextboxScripts
         ),
         new Line( //7: human doctor 3
             "'You better go outside and take a look for yourself', he says. So you decide to do just that.",
-            "'Am Besten gehst du raus und machst dir selber ein Bild davon', sagt er. Also entscheidest du dich, genau dies zu tun.",
+            "‚Am Besten gehst du raus und machst dir selber ein Bild davon‘, sagt er. Also entscheidest du dich, genau dies zu tun.",
             21.6f
         ),
         new Line( //8: demonstration scene 1
@@ -75,5 +75,25 @@ public static class TextboxScripts
             "Auf beiden Seiten winkt jemand dir zu, damit du zu ihrer Seite gehst. Wohin wirst du gehen?",
             21.6f
         ),
+        new Line( //11: AI purity scene 1
+            "‘Nice!’ one of the counter-protesters says with a friendly nod. ‘We’re glad you’re open to the future. Still, we like to get a feel for who’s standing with us.’",
+            "‚Schön!‘ sagt einer der Gegendemonstranten mit einem freundlichen Nicken. ‚Wir freuen uns, dass du offen für die Zukunft bist. Trotzdem möchten wir ein Gefühl dafür bekommen, wer hier mit uns steht.‘",            
+            21.6f
+        ),
+        new Line( //12: human purity scene 1
+            "'You made the right choice,' a fellow protester says, clapping you on the back. 'We have to stand up for humanity. But first, we gotta make sure that you are truly one of us.'",
+            "‚Du hast die richtige Wahl getroffen‘, sagt dir ein Mitdemonstrant und klopft dir auf den Rücken. ‚Wir müssen für die Menschheit einstehen. Aber zuerst müssen wir sicherstellen, dass du wirklich einer von uns bist.‘",
+            21.6f
+        ),
+        new Line ( //13: AI purity scene 2
+            "They smile and hold up a picture in front of you. ‘What do you think of this image?’ they ask gently. ‘Do you like it?’",
+            "Sie lächeln und halten dir ein Bild vor. ‚Was hältst du von diesem Bild?‘ fragen sie freundlich. ‚Gefällt es dir?‘",            
+            21.6f
+        ),
+        new Line ( //14: human purity scene 2
+            "He looks at you critically and holds up a picture in front of you. 'What do you think of this image here? Do you like it?'.",
+            "Er schaut dich etwas kritisch an und hält ein Bild vor dich. ‚Was denkst du über dieses Bild hier? Findest du es gut?‘",
+            21.6f
+        )
     };
 }

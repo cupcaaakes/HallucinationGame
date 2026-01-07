@@ -330,6 +330,37 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 44688214}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &88621481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 88621482}
+  m_Layer: 0
+  m_Name: HumanPurityScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &88621482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 88621481}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 460358357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &144918123
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -643,6 +674,8 @@ Transform:
   - {fileID: 1444523906}
   - {fileID: 1580762844}
   - {fileID: 853171314}
+  - {fileID: 606596498}
+  - {fileID: 88621482}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &484065095
@@ -964,7 +997,7 @@ PrefabInstance:
     - target: {fileID: 4970188114296679083, guid: 90ed71b131482984ba25355dbd68f2a3,
         type: 3}
       propertyPath: m_Name
-      value: Ending2
+      value: Protesters
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1288,6 +1321,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   isLeft: 1
   director: {fileID: 816459072}
+--- !u!1 &606596497
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 606596498}
+  m_Layer: 0
+  m_Name: AIPurityScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &606596498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606596497}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 460358357}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &625210690
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1929,8 +1993,10 @@ MonoBehaviour:
   boatRollHz: 0.2
   boatRollEaseOutSeconds: 2
   boatRollDamping: 0.35
-  demoEnding2Parent: {fileID: 853171313}
-  ending2FullScreenObject: {fileID: 543380189}
+  demonstrationSceneParent: {fileID: 853171313}
+  demonstrationSceneFullscreenObj: {fileID: 543380189}
+  aiPuritySceneParent: {fileID: 606596497}
+  humanPuritySceneParent: {fileID: 88621481}
 --- !u!4 &816459073
 Transform:
   m_ObjectHideFlags: 0
@@ -2129,7 +2195,7 @@ GameObject:
   m_Component:
   - component: {fileID: 853171314}
   m_Layer: 0
-  m_Name: DemoEnding2
+  m_Name: DemonstrationScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

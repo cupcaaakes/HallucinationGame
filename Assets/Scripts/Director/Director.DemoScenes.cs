@@ -279,6 +279,9 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemonstrationScene()
     {
+        _next[0] = new SceneRef(AiPurityScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+        _next[1] = new SceneRef(HumanPurityScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+
         ActivateOnlyScene(demonstrationSceneParent);
 
         if (demonstrationSceneFullscreenObj)
@@ -298,6 +301,36 @@ public partial class Director
         ToggleTextbox(true, 10);
 
         SetChoicePair(2);
+        ToggleDecisionBoxes(true);
+    }
+
+    public System.Collections.IEnumerator AiPurityScene()
+    {
+        ActivateOnlyScene(aiPuritySceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        // start textbox AFTER reveal so typing is visible
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 11);
+        yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 13);
+
+        SetChoicePair(3);
+        ToggleDecisionBoxes(true);
+    }
+
+    public System.Collections.IEnumerator HumanPurityScene()
+    {
+        ActivateOnlyScene(humanPuritySceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+        // start textbox AFTER reveal so typing is visible
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 12);
+        yield return new WaitForSeconds(7.5f);
+        ToggleTextbox(true, 14);
+
+        SetChoicePair(3);
         ToggleDecisionBoxes(true);
     }
 }
