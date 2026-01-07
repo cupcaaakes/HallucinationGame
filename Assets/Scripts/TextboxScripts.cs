@@ -60,5 +60,10 @@ public static class TextboxScripts
             "'Am Besten gehst du raus und machst dir selber ein Bild davon', sagt er. Also entscheidest du dich, genau dies zu tun.",
             21.6f
         ),
+        new Line( //8: demonstration scene
+            "As you step outside, you find yourself amidst a crowd of protesters and counter-protestors. Signs reading 'Down with disinformation!' and 'Where is your heart?' are held high. The tension in the air is palpable.",
+            "Als du nach draußen trittst, befindest du dich mitten in einer Menge von Demonstranten und Gegendemonstranten. Schilder mit den Aufschriften ‚Nieder mit euch Desinformanten!‘ und ‚Wo ist euer Herz?‘ werden hochgehalten. Die Spannung in der Luft ist spürbar.",
+            18.75f
+        )
     };
 }

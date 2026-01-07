@@ -130,19 +130,8 @@ public partial class Director : MonoBehaviour
         {
             _ending = true;
 
-            int chosen = _activeChoice;
-            var dest = _next[chosen];
-
-            // If this destination wants ambience to lock in, commit it.
-            // Otherwise, stop preview so it doesn't leak into the next scene.
-            if (dest.commitAmbOnConfirm)
-                CommitAmbiance(dest.amb);
-            else
-                StopAmbiancePreview();
-
             PlaySfx(sfxChoiceConfirm, confirmVolume);
             StartCoroutine(EndAfterChoice());
-
         }
     }
 
@@ -167,6 +156,17 @@ public partial class Director : MonoBehaviour
     System.Collections.IEnumerator EndAfterChoice()
     {
         int chosen = _activeChoice; // 0 left, 1 right
+        // Capture destination
+        var next = _next[chosen];
+        // Block re-entry
+        _ending = true;
+
+        // Ambiance routing based on DESTINATION (works for choice + auto)
+        if (next.IsValid && next.commitAmbOnConfirm)
+            CommitAmbiance(next.amb);
+        else
+            StopAmbiancePreview();
+
         PlaySfx(sfxTransition, transitionVolume);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
@@ -185,12 +185,10 @@ public partial class Director : MonoBehaviour
 
         if (_currentScene == LanguageSelectScene) UseGerman = (chosen == 1); // left = English, right = German
 
-        // route to next scene
-        chosen = Mathf.Clamp(chosen, 0, 1);
-        var next = _next[chosen];
-
         // reset confirm gating for next scene
         _ending = false;
+        chosen = Mathf.Clamp(chosen, 0, 1);
+
         _choiceWasOpen = false;
 
         // clear routing

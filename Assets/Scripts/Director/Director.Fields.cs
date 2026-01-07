@@ -189,11 +189,11 @@ public partial class Director
     [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
 
     // -------------------------------------------------------------------------
-    // Ending 2: full-screen object fade
+    // Demonstration scene
     // -------------------------------------------------------------------------
-    [Header("Demo Ending 2")]
-    [SerializeField] private GameObject demoEnding2Parent;
-    [SerializeField] private GameObject ending2FullScreenObject;
+    [Header("Demonstration scene")]
+    [SerializeField] private GameObject demonstrationSceneParent;
+    [SerializeField] private GameObject demonstrationSceneFullscreenObj;
 
     Coroutine _boatCo;
 

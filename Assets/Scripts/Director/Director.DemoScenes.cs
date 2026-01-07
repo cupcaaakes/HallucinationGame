@@ -201,9 +201,6 @@ public partial class Director
 
     public System.Collections.IEnumerator CheckupSceneAi()
     {
-        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent, AmbRoute.None, false);
-        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent, AmbRoute.None, false);
-
         if (checkupSceneAiParent) checkupSceneAiParent.SetActive(true);
         checkupAiDoctor.transform.position = introAiDoctor.transform.position;
         checkupAiDoctor.transform.rotation = defaultBillboardRotation;
@@ -215,13 +212,18 @@ public partial class Director
         ToggleTextbox(true, 4);
         yield return new WaitForSeconds(7.5f);
         ToggleTextbox(true, 6);
+        yield return new WaitForSeconds(7.5f);
+
+        // both sides go to the same destination
+        _next[0] = new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true);
+        _next[1] = _next[0];
+        _activeChoice = 0;
+        yield return EndAfterChoice();
+        yield break;
     }
 
     public System.Collections.IEnumerator CheckupSceneHuman()
     {
-        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent, AmbRoute.None, false);
-        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent, AmbRoute.None, false);
-
         if (checkupSceneHumanParent) checkupSceneHumanParent.SetActive(true);
         checkupHumanDoctor.transform.position = introHumanDoctor.transform.position;
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
@@ -232,6 +234,14 @@ public partial class Director
         ToggleTextbox(true, 5);
         yield return new WaitForSeconds(7.5f);
         ToggleTextbox(true, 7);
+        yield return new WaitForSeconds(7.5f);
+
+        // both sides go to the same destination
+        _next[0] = new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true);
+        _next[1] = _next[0];
+        _activeChoice = 0;
+        yield return EndAfterChoice();
+        yield break;
     }
 
     // -------------------------------------------------------------------------
@@ -267,22 +277,20 @@ public partial class Director
     // - Activates ending 2 scene
     // - Shows textbox line 2, then line 3 later
     // -------------------------------------------------------------------------
-    public System.Collections.IEnumerator DemoEnding2()
+    public System.Collections.IEnumerator DemonstrationScene()
     {
-        ActivateOnlyScene(demoEnding2Parent);
+        ActivateOnlyScene(demonstrationSceneParent);
 
-        if (ending2FullScreenObject)
+        if (demonstrationSceneFullscreenObj)
         {
-            ending2FullScreenObject.transform.rotation = defaultBillboardRotation;
-            StartCoroutine(Fade(ending2FullScreenObject, 1f, 0f));
+            demonstrationSceneFullscreenObj.transform.rotation = defaultBillboardRotation;
+            StartCoroutine(Fade(demonstrationSceneFullscreenObj, 1f, 0f));
         }
 
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 2);
-        yield return new WaitForSeconds(7.5f);
-        ToggleTextbox(true, 3);
+        ToggleTextbox(true, 8);
     }
 }
