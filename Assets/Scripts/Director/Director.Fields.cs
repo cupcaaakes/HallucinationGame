@@ -197,9 +197,11 @@ public partial class Director
 
     [Header("AI Purity scene")]
     [SerializeField] private GameObject aiPuritySceneParent;
+    [SerializeField] private GameObject aiPurityTestImage;
 
     [Header("Human Purity scene")]
     [SerializeField] private GameObject humanPuritySceneParent;
+    [SerializeField] private GameObject humanPurityTestImage;
 
     Coroutine _boatCo;
 
