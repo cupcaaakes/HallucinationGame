@@ -130,8 +130,15 @@ public partial class Director : MonoBehaviour
         {
             _ending = true;
 
-            // lock in ambiance to the chosen side (ramps chosen to 100%, other to 0)
-            CommitAmbiance(_activeChoice);
+            int chosen = _activeChoice;
+            var dest = _next[chosen];
+
+            // If this destination wants ambience to lock in, commit it.
+            // Otherwise, stop preview so it doesn't leak into the next scene.
+            if (dest.commitAmbOnConfirm)
+                CommitAmbiance(dest.amb);
+            else
+                StopAmbiancePreview();
 
             PlaySfx(sfxChoiceConfirm, confirmVolume);
             StartCoroutine(EndAfterChoice());
@@ -163,6 +170,7 @@ public partial class Director : MonoBehaviour
         PlaySfx(sfxTransition, transitionVolume);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
+        ToggleTextbox(false, null);
         ToggleDecisionBoxes(false);
 
         // hide choice UI

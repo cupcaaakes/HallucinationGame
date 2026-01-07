@@ -17,7 +17,7 @@ public partial class Director
     public GameObject decisionL;
     public GameObject decisionR;
     // current scene + routing (left/right)
-    Func<System.Collections.IEnumerator> _currentScene; 
+    Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
     // -------------------------------------------------------------------------
@@ -161,6 +161,16 @@ public partial class Director
     [SerializeField]
     private GameObject introHumanDoctor;
 
+    [Header("Checkup Scene AI")]
+    [SerializeField]
+    private GameObject checkupSceneAiParent;
+    private GameObject checkupAiDoctor;
+
+    [Header("Checkup Scene Human")]
+    [SerializeField]
+    private GameObject checkupSceneHumanParent;
+    private GameObject checkupHumanDoctor;
+
     // -------------------------------------------------------------------------
     // Ending 1: island + boat drift
     // -------------------------------------------------------------------------
@@ -188,18 +198,33 @@ public partial class Director
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
 
+    public enum AmbRoute
+    {
+        None = 0,
+        Amb1 = 1, // uses amb1 source / ambEnding1
+        Amb2 = 2  // uses amb2 source / ambEnding2
+    }
+
     [Serializable]
     public struct SceneRef
     {
         public Func<System.Collections.IEnumerator> routine;
         public GameObject root;
 
-        public SceneRef(Func<System.Collections.IEnumerator> routine, GameObject root)
+        public AmbRoute amb;          // which ambience this destination wants
+        public bool commitAmbOnConfirm; // should we lock ambience when confirming this choice?
+
+        public SceneRef(Func<System.Collections.IEnumerator> routine, GameObject root,
+                        AmbRoute amb = AmbRoute.None,
+                        bool commitAmbOnConfirm = false)
         {
             this.routine = routine;
             this.root = root;
+            this.amb = amb;
+            this.commitAmbOnConfirm = commitAmbOnConfirm;
         }
 
         public bool IsValid => routine != null;
     }
+
 }

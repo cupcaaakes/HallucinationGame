@@ -104,6 +104,16 @@ public partial class Director
     {
         if (_ambCommitted) return;
 
+        if ((uint)side >= 2u) return;
+        var dest = _next[side];
+
+        // If this choice doesn't define ambience, stop any preview.
+        if (dest.amb == AmbRoute.None)
+        {
+            StopAmbiancePreview();
+            return;
+        }
+
         // already previewing this side
         if (_ambPreviewActive && _ambPreviewSide == side) return;
 
@@ -135,16 +145,18 @@ public partial class Director
     // - chosen side fades to 1.0 volume
     // - the other fades to 0 and stops
     // -------------------------------------------------------------------------
-    void CommitAmbiance(int chosenSide) // 0 = left, 1 = right
+    void CommitAmbiance(AmbRoute chosenSide)
     {
+        if (chosenSide == AmbRoute.None) return;
         if (_ambCommitted) return;
-        _ambCommitted = true;
 
+        _ambCommitted = true;
         EnsureAmbiancePlaying();
 
-        float v1 = (chosenSide == 0) ? 1f : 0f;
-        float v2 = (chosenSide == 1) ? 1f : 0f;
+        float v1 = (chosenSide == AmbRoute.Amb1) ? 1f : 0f;
+        float v2 = (chosenSide == AmbRoute.Amb2) ? 1f : 0f;
 
         FadeAmbianceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
     }
+
 }

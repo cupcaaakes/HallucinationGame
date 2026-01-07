@@ -138,8 +138,8 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator LanguageSelectScene()
     {
-        _next[0] = new SceneRef(IntroScene, introSceneParent);
-        _next[1] = new SceneRef(IntroScene, introSceneParent);
+        _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
+        _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
 
         if (languageSceneParent) languageSceneParent.SetActive(true);
 
@@ -164,10 +164,16 @@ public partial class Director
         ToggleDecisionBoxes(true);
     }
 
+    // -------------------------------------------------------------------------
+    // IntroScene():
+    // - Activates the first real scene
+    // - Moves and fades the intro doctors into position
+    // - next scene is the same for both choices but with different texts
+    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator IntroScene()
     {
-        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent);
-        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent);
+        _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.None, false);
+        _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.None, false);
 
         if (introSceneParent) introSceneParent.SetActive(true);
 
@@ -190,6 +196,34 @@ public partial class Director
         SetChoicePair(1);
         ToggleTextbox(true, 1);
         ToggleDecisionBoxes(true);
+    }
+
+    public System.Collections.IEnumerator CheckupSceneAi()
+    {
+        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent, AmbRoute.None, false);
+        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent, AmbRoute.None, false);
+
+        if (checkupSceneAiParent) checkupSceneAiParent.SetActive(true);
+        checkupAiDoctor.transform.position = introAiDoctor.transform.position;
+        checkupAiDoctor.transform.rotation = defaultBillboardRotation;
+
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 2);
+        yield return new WaitForSeconds(7.5f);
+    }
+
+    public System.Collections.IEnumerator CheckupSceneHuman()
+    {
+        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent, AmbRoute.None, false);
+        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent, AmbRoute.None, false);
+
+        if (checkupSceneHumanParent) checkupSceneHumanParent.SetActive(true);
+        checkupHumanDoctor.transform.position = introHumanDoctor.transform.position;
+        checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
+
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 2);
+        yield return new WaitForSeconds(7.5f);
     }
 
     // -------------------------------------------------------------------------

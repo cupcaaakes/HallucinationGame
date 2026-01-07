@@ -20,27 +20,24 @@ public static class TextboxScripts
 
     public static readonly List<Line> Lines = new()
     {
-        new Line(
-            //0: language selector: both lines are the same
+        new Line( //0: language selector: both lines are the same
             "Move to the door of the language you wish to play in. / Bewege dich zu der Türe von der Sprache, in der du das Spiel spielen möchtest.",
             "Move to the door of the language you wish to play in. / Bewege dich zu der Türe von der Sprache, in der du das Spiel spielen möchtest.",
             21.6f
         ),
-        new Line(
-            //1: intro scene
+        new Line( //1: intro scene
             "You've woken up after a long time... On another planet. Two doctors came in to check in on you. Which one do you want to be treated by?",
-            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kamen herein, um dich zu untersuchen. Von wem möchtest du behandelt werden?",
+            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kommen herein, um dich zu untersuchen. Von wem möchtest du behandelt werden?",
             21.6f
-            )
-        /*
-        new Line(
-            "Ah, now what a serene place you've found yourself in! But clearly you aren't the biggest people person, aren't you?",
-            "Mann, an was für einen hübschen Ort du dich wieder gefunden hast! Aber du bist nicht gerade extrovertiert, oder?",
+            ),
+        new Line( //2: AI doctor
+            "The doctor seems almost delighted that you’ve woken up. ‘Welcome to the future!’ he says cheerfully. ‘A surprising number of us are actually AI—myself included. Could you tell?’",
+            "Der Arzt wirkt fast begeistert, dass du aufgewacht bist. ‚Willkommen in der Zukunft!‘ sagt er fröhlich. ‚Erstaunlich viele von uns sind tatsächlich KI – mich eingeschlossen. Hättest du es gemerkt?‘",
             21.6f
         ),
-        new Line(
-            "Huh, you clearly could've sworn that those were human sounding voices, but on closer inspection, they don't appear to be human at all... Or what do you think?",
-            "Hm, du hättest schwören können, das wären menschliche Stimmen gewesen… aber bei genauerem Hinsehen wirken sie gar nicht menschlich… oder was meinst du?",
+        new Line( //3: human doctor
+            "The doctor takes your vitals, and everything seems to be in order. 'Welcome to the future. Some that appear human are actually AI nowadays... But we humans aren't completely redundant yet.', he says.",
+            "Der Arzt nimmt deine Vitalitäten, alles scheint okay zu sein. 'Willkommen in der Zukunft. Einige der Leute hier sind eigentlich KI... Aber wir Menschen sind noch nicht komplett überflüssig.', sagt er.",
             21.6f
         ),
         new Line(
@@ -48,6 +45,5 @@ public static class TextboxScripts
             "Am besten stören wir sie lieber nicht… noch nicht.",
             26f
         )
-        */
     };
 }
