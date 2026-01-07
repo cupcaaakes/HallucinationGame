@@ -137,10 +137,10 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator LanguageSelectScene()
     {
-        _nextScene[0] = DemoEnding2;
-        _nextScene[1] = DemoEnding2;
+        _next[0] = new SceneRef(IntroScene, introSceneParent);
+        _next[1] = new SceneRef(IntroScene, introSceneParent);
 
-        if (demoSceneParent) demoSceneParent.SetActive(true);
+        if (languageSceneParent) languageSceneParent.SetActive(true);
 
         StartCoroutine(Fade(doorEnglishL, 0f, 0f));
         StartCoroutine(Fade(doorGermanR, 0f, 0f));
@@ -159,6 +159,33 @@ public partial class Director
         yield return new WaitForSeconds(doorTransition); // wait for door anims
 
         ToggleTextbox(true, 0);
+        ToggleDecisionBoxes(true);
+    }
+
+    public System.Collections.IEnumerator IntroScene()
+    {
+        _next[0] = new SceneRef(DemoEnding1, demoEnding1Parent);
+        _next[1] = new SceneRef(DemoEnding2, demoEnding2Parent);
+
+        if (introSceneParent) introSceneParent.SetActive(true);
+
+        StartCoroutine(Fade(introAiDoctor, 0f, 0f));
+        StartCoroutine(Fade(introHumanDoctor, 0f, 0f));
+        introAiDoctor.transform.position = new Vector3(decisionL.transform.position.x, 0f, 5f);
+        introHumanDoctor.transform.position = new Vector3(decisionR.transform.position.x, 0f, 5f);
+        introAiDoctor.transform.rotation = defaultBillboardRotation;
+        introHumanDoctor.transform.rotation = defaultBillboardRotation;
+
+        float doctorTransition = 3f;
+
+        StartCoroutine(Fade(introAiDoctor, 1f, doctorTransition));
+        StartCoroutine(MoveTo(introAiDoctor, new Vector3(decisionL.transform.position.x, 0f, 0f), doctorTransition));
+        StartCoroutine(Fade(introHumanDoctor, 1f, doctorTransition));
+        StartCoroutine(MoveTo(introHumanDoctor, new Vector3(decisionR.transform.position.x, 0f, 0f), doctorTransition));
+
+        yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
+
+        ToggleTextbox(true, 1);
         ToggleDecisionBoxes(true);
     }
 

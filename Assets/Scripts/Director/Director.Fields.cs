@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,8 +17,8 @@ public partial class Director
     public GameObject decisionL;
     public GameObject decisionR;
     // current scene + routing (left/right)
-    Func<System.Collections.IEnumerator> _currentScene;
-    Func<System.Collections.IEnumerator>[] _nextScene = new Func<System.Collections.IEnumerator>[2];
+    Func<System.Collections.IEnumerator> _currentScene; 
+    SceneRef[] _next = new SceneRef[2];
 
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
@@ -129,21 +130,34 @@ public partial class Director
     // Scene parenting:
     // You have a "sceneParent" which contains children scenes.
     // ActivateOnlyScene() turns on only the child scene you want.
+    // The current scene root is storing the active scene objects in its child objects.
     // -------------------------------------------------------------------------
     [Header("Scene Parent")]
     [SerializeField]
     private GameObject sceneParent;
+    GameObject _currentSceneRoot;
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
     // -------------------------------------------------------------------------
     [Header("Language Select Scene")]
     [SerializeField]
-    private GameObject demoSceneParent;
+    private GameObject languageSceneParent;
     [SerializeField]
     private GameObject doorEnglishL;
     [SerializeField]
     private GameObject doorGermanR;
+
+    // -------------------------------------------------------------------------
+    // Intro Scene: AI vs Human doctor after waking up.
+    // -------------------------------------------------------------------------
+    [Header("Intro Scene")]
+    [SerializeField]
+    private GameObject introSceneParent;
+    [SerializeField]
+    private GameObject introAiDoctor;
+    [SerializeField]
+    private GameObject introHumanDoctor;
 
     // -------------------------------------------------------------------------
     // Ending 1: island + boat drift
@@ -171,4 +185,19 @@ public partial class Director
 
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
+
+    [Serializable]
+    public struct SceneRef
+    {
+        public Func<System.Collections.IEnumerator> routine;
+        public GameObject root;
+
+        public SceneRef(Func<System.Collections.IEnumerator> routine, GameObject root)
+        {
+            this.routine = routine;
+            this.root = root;
+        }
+
+        public bool IsValid => routine != null;
+    }
 }

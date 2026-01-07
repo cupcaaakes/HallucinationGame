@@ -147,7 +147,7 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        yield return RevealScene(LanguageSelectScene);
+        yield return RevealScene(LanguageSelectScene, languageSceneParent);
     }
 
     // -------------------------------------------------------------------------
@@ -180,17 +180,17 @@ public partial class Director : MonoBehaviour
 
         // route to next scene
         chosen = Mathf.Clamp(chosen, 0, 1);
-        var next = _nextScene[chosen];
+        var next = _next[chosen];
 
         // reset confirm gating for next scene
         _ending = false;
         _choiceWasOpen = false;
 
         // clear routing
-        _nextScene[0] = null;
-        _nextScene[1] = null;
+        _next[0] = default;
+        _next[1] = default;
 
-        if (next != null) yield return RevealScene(next);
+        if (next.IsValid) yield return RevealScene(next.routine, next.root);
     }
 
     // -------------------------------------------------------------------------
@@ -200,13 +200,23 @@ public partial class Director : MonoBehaviour
     // - fades white out
     // - waits for scene routine AND fade to finish
     // -------------------------------------------------------------------------
-    System.Collections.IEnumerator RevealScene(Func<System.Collections.IEnumerator> sceneRoutine)
+    System.Collections.IEnumerator RevealScene(Func<System.Collections.IEnumerator> sceneRoutine, GameObject sceneRoot)
     {
         if (sceneRoutine == null)
         {
             Debug.LogError("RevealScene: sceneRoutine was null");
             yield break;
         }
+
+        // disable previous root
+        if (_currentSceneRoot) _currentSceneRoot.SetActive(false);
+
+        // enable new root
+        _currentSceneRoot = sceneRoot;
+        if (_currentSceneRoot) _currentSceneRoot.SetActive(true);
+
+        ToggleDecisionBoxes(false); // we disable the decision boxes until the scene specifically enables them
+
         _currentScene = sceneRoutine; // lets EndAfterChoice know what choice means
 
         var sceneCo = StartCoroutine(sceneRoutine());
