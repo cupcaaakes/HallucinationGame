@@ -1421,6 +1421,11 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: a069805ad7770a946ae85935c9229f23, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 42e3e6c9dbed34a40ba3c259b62542e3,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1655,6 +1660,9 @@ MonoBehaviour:
   kinect: {fileID: 1264200777}
   sensorOrigin: {fileID: 1264200776}
   rootOffset: {x: 0, y: 0, z: 0}
+  footPosWeight: 1
+  kneeHintWeight: 1
+  footYOffset: 0.02
   handPosWeight: 2
   elbowHintWeight: 0.5
   lookWeight: 0.6

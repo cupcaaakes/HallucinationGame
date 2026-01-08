@@ -10,6 +10,12 @@ public class AzureKinectIKDriver : MonoBehaviour
     public Transform sensorOrigin;
     public Vector3 rootOffset;
 
+
+    [Header("Leg IK")]
+    public float footPosWeight = 1f;
+    public float kneeHintWeight = 1f;
+    public float footYOffset = 0.02f;
+
     [Header("IK Weights")]
     public float handPosWeight = 1f;
     public float elbowHintWeight = 1f;
@@ -121,6 +127,37 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         anim.SetLookAtWeight(lookWeight, 0f, 1f, 0f, 0.5f);
         anim.SetLookAtPosition(lookTarget);
+
+
+        // ===== FEET TARGETS =====
+        Vector3 footL = WorldJointPos(skel, JointId.AnkleLeft, pelvisLocal, pelvisWorld);
+        Vector3 footR = WorldJointPos(skel, JointId.AnkleRight, pelvisLocal, pelvisWorld);
+
+        footL.y += footYOffset;
+        footR.y += footYOffset;
+
+        if (mirror) (footL, footR) = (footR, footL);
+
+        anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, footPosWeight);
+        anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, footPosWeight);
+
+        anim.SetIKPosition(AvatarIKGoal.LeftFoot, footL);
+        anim.SetIKPosition(AvatarIKGoal.RightFoot, footR);
+
+        // ===== KNEE HINTS =====
+        Vector3 kneeL = WorldJointPos(skel, JointId.KneeLeft, pelvisLocal, pelvisWorld);
+        Vector3 kneeR = WorldJointPos(skel, JointId.KneeRight, pelvisLocal, pelvisWorld);
+
+        if (mirror) (kneeL, kneeR) = (kneeR, kneeL);
+
+        anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, kneeHintWeight);
+        anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, kneeHintWeight);
+
+        anim.SetIKHintPosition(AvatarIKHint.LeftKnee, kneeL);
+        anim.SetIKHintPosition(AvatarIKHint.RightKnee, kneeR);
+
+
+
     }
 
     Vector3 JPosLocal(Skeleton skel, JointId id)
