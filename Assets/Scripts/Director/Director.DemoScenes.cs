@@ -376,8 +376,9 @@ public partial class Director
         aiCrowdChosen = true;
 
         aiPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
-        purityImageIsAi = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex <= 3; // 0-3 are AI, 4-7 are human
-        if (purityImageIsAi) // 0-3 are AI, 4-7 are human
+        purityImageValue = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
+        Debug.Log("Value of purity image: " + purityImageValue);
+        if (purityImageValue <= 3)
         {
             _next[0] = new SceneRef(AcceptedByAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
             _next[1] = new SceneRef(RejectedFromAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
@@ -408,17 +409,19 @@ public partial class Director
         aiCrowdChosen = false;
 
         humanPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
-        purityImageIsAi = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex <= 3; // 0-3 are AI, 4-7 are human
-
-        if (!purityImageIsAi) 
-        {
-            _next[0] = new SceneRef(AcceptedByHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(RejectedFromHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
-        }
-        else
+        purityImageValue = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
+        Debug.Log("Value of purity image: " + purityImageValue);
+        if (purityImageValue <= 3) 
         {
             _next[0] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
             _next[1] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            Debug.Log("BLOCK A");
+        }
+        else
+        {
+            _next[0] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            Debug.Log("BLOCK B");
         }
 
         // start textbox AFTER reveal so typing is visible
@@ -440,7 +443,7 @@ public partial class Director
         SetDecisionColliders(false);
         gotRejectedFromGroup = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageIsAi) ToggleTextbox(true, 20);
+        if (purityImageValue <= 3) ToggleTextbox(true, 20);
         else ToggleTextbox(true, 22);
         yield return new WaitForSeconds(7.5f);
     }
@@ -452,7 +455,7 @@ public partial class Director
         SetDecisionColliders(false);
         gotRejectedFromGroup = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageIsAi) ToggleTextbox(true, 19);
+        if (purityImageValue <= 3) ToggleTextbox(true, 19);
         else ToggleTextbox(true, 21);
         yield return new WaitForSeconds(7.5f);
     }
@@ -464,7 +467,7 @@ public partial class Director
         SetDecisionColliders(false);
         gotRejectedFromGroup = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageIsAi) ToggleTextbox(true, 16);
+        if (purityImageValue <= 3) ToggleTextbox(true, 16);
         else ToggleTextbox(true, 18);
         yield return new WaitForSeconds(7.5f);
     }
@@ -476,7 +479,7 @@ public partial class Director
         SetDecisionColliders(false);
         gotRejectedFromGroup = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageIsAi) ToggleTextbox(true, 15);
+        if (purityImageValue <= 3) ToggleTextbox(true, 15);
         else ToggleTextbox(true, 17);
         yield return new WaitForSeconds(7.5f);
     }

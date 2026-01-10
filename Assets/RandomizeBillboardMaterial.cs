@@ -20,7 +20,7 @@ public class RandomizeBillboardMaterial : MonoBehaviour
         targetRenderer = GetComponent<Renderer>();
     }
 
-    private void Start()
+    private void Awake()
     {
         ApplyRandom();
         if (fitToTextureAspectOnStart) FitToCurrentTextureAspect();

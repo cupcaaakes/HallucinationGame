@@ -20,7 +20,7 @@ public partial class Director
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
-    private bool purityImageIsAi = false;
+    private int purityImageValue = 0;
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
     // -------------------------------------------------------------------------
