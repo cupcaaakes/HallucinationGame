@@ -226,17 +226,19 @@ public partial class Director
 
         StartCoroutine(Fade(doorEnglishL, 0f, 0f));
         StartCoroutine(Fade(doorGermanR, 0f, 0f));
-        doorEnglishL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 5f);
-        doorGermanR.transform.position = new Vector3(decisionR.transform.position.x, 0f, 5f);
+        doorEnglishL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 7.5f);
+        doorGermanR.transform.position = new Vector3(decisionR.transform.position.x, 0f, 7.5f);
         doorEnglishL.transform.rotation = defaultBillboardRotation;
         doorGermanR.transform.rotation = defaultBillboardRotation;
+        doorEnglishL.transform.localScale = new Vector3(0.2f, 0.1f, 0.1f);
+        doorGermanR.transform.localScale = new Vector3(0.2f, 0.1f, 0.1f);
 
         float doorTransition = 3f;
 
         StartCoroutine(Fade(doorEnglishL, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorEnglishL, new Vector3(decisionL.transform.position.x, 0f, 0f), doorTransition));
+        StartCoroutine(MoveTo(doorEnglishL, new Vector3(decisionL.transform.position.x, 0f, 1f), doorTransition));
         StartCoroutine(Fade(doorGermanR, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorGermanR, new Vector3(decisionR.transform.position.x, 0f, 0f), doorTransition));
+        StartCoroutine(MoveTo(doorGermanR, new Vector3(decisionR.transform.position.x, 0f, 1f), doorTransition));
 
         yield return new WaitForSeconds(doorTransition); // wait for door anims
 
