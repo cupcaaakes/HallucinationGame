@@ -34,6 +34,10 @@ public static class ChoiceTextScripts
 
         //3: purity scenes
         new Line("I like it!", "Finde ich gut!", 22f),
-        new Line("Not really a fan...", "Nicht wirklich mein Fall...", 22f)
+        new Line("Not really a fan...", "Nicht wirklich mein Fall...", 22f),
+
+        //4: voting booth
+        new Line("KEEP", "LASSEN", 22f),
+        new Line("FLAG", "MELDEN", 22f)
     };
 }

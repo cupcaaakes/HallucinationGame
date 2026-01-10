@@ -31,13 +31,13 @@ public static class TextboxScripts
             21.6f
             ),
         new Line( //2: AI doctor 1
-            "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale. For the record: I’m an AI clinician running in a human-like body. You’ll meet many like me out there.’ He pauses. ‘People will try to turn that into a tribe. Don’t let them.’",
-            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass du wach bist. Ich bin Dr. Hale. Nur damit es klar ist: Ich bin ein KI-Arzt in einem menschenähnlichen Körper. Du wirst draußen vielen wie mir begegnen.‘ Er hält kurz inne. ‚Manche machen daraus sofort ein Lager. Lass dich da nicht reinziehen.‘",
-            18.75f
+            "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale.’ He checks your chart with quick confidence. ‘You’re safe. We’ve got excellent systems here.’ He pauses. ‘Outside, people will try to turn you into a symbol. Don’t let them.’",
+            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass Sie wach sind. Ich bin Dr. Hale.‘ Er prüft Ihre Werte mit routinierter Sicherheit. ‚Sie sind in Sicherheit. Wir haben hier hervorragende Systeme.‘ Er hält kurz inne. ‚Draußen werden Leute versuchen, Sie zu einem Symbol zu machen. Lassen Sie das nicht zu.‘",
+            19f
         ),
         new Line( //3: human doctor 1
-            "The doctor quickly takes your vitals. ‘Good morning. I’m Dr. Riedel, and don't worry, I'm human’, he says. ‘You appear to be in good shape. But outside, there's quite the ruckus going on. They'll probably try to recruit you.’",
-            "Der Arzt nimmt schnell deine Vitalitäten. ‚Guten Morgen. Ich bin Dr. Riedel, und keine Sorge, ich bin ein Mensch‘, sagt er. ‚Bei Ihnen scheint alles in Ordnung zu sein. Aber da draußen ist ganz schön was los... Die werden wahrscheinlich versuchen, Sie zu rekrutieren.‘",            
+            "The doctor quickly takes your vitals. ‘Good morning. I’m Dr. Riedel’, he says. ‘You appear to be in good shape. But outside, there's quite the ruckus going on. They'll probably try to recruit you.’",
+            "Der Arzt nimmt schnell deine Vitalitäten. ‚Guten Morgen. Ich bin Dr. Riedel‘, sagt er. ‚Bei Ihnen scheint alles in Ordnung zu sein. Aber da draußen ist ganz schön was los... Die werden wahrscheinlich versuchen, Sie zu rekrutieren.‘",            
             21.2f
         ),
         new Line( //4: AI doctor 2
@@ -66,8 +66,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( //9: demonstration scene 2
-            "One side shouts about ‘keeping things human’ and ‘banning the machines’. The other shouts about ‘progress’ and ‘ending the panic’. Both sound convinced. Neither sounds curious.",
-            "Die eine Seite schreit von ‚Menschlichkeit bewahren‘ und ‚Maschinen verbieten‘. Die andere schreit von ‚Fortschritt‘ und ‚Schluss mit der Panik‘. Beide klingen überzeugt. Keine klingt neugierig.",
+            "One side shouts about ‘protecting what’s real’ and ‘drawing a hard line’. The other shouts about ‘moving forward’ and ‘ending the panic’. Both sound convinced. Neither sounds curious.",
+            "Die eine Seite schreit von ‚das Echte schützen‘ und ‚klare Grenzen ziehen‘. Die andere schreit von ‚vorwärts gehen‘ und ‚Schluss mit der Panik‘. Beide klingen überzeugt. Keine klingt neugierig.",            
             21.6f
         ),
         new Line( //10: demonstration scene 3
@@ -76,13 +76,13 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( //11: AI purity scene 1
-            "‘Nice!’ one of them says with a friendly nod. ‘We like people who don’t panic. But we can’t use fence-sitters. If you slow progress down, you’re on the other side.’",
-            "‚Schön!‘ sagt einer mit einem freundlichen Nicken. ‚Wir mögen Leute, die nicht sofort in Panik verfallen. Aber wir können keine Zaungäste brauchen. Wenn du den Fortschritt ausbremst, bist du automatisch drüben bei denen.‘",            
+            "‘Nice!’ one of them says with a friendly nod. ‘We like people who don’t panic. But we can’t use fence-sitters. If you slow things down, you’re on the other side.’",
+            "‚Schön!‘ sagt einer mit einem freundlichen Nicken. ‚Wir mögen Leute, die nicht sofort in Panik verfallen. Aber wir können keine Zaungäste brauchen. Wenn du alles ausbremst, bist du automatisch drüben bei denen.‘",            
             21.6f
         ),
         new Line( //12: human purity scene 1
-            "‘You clearly made the right choice,’ someone says, gripping your shoulder. ‘We keep humans safe. No nuance, 'cause that’s how they get in. If you tolerate any of it, you’ve already lost.’",
-            "‚Du hast ganz klar die richtige Wahl getroffen‘, sagt jemand und packt dich an der Schulter. ‚Wir halten Menschen sicher. Keine Grauzonen, denn genau so kommen die rein. Wenn du irgendwas davon tolerierst, hast du schon verloren.‘",
+            "‘You clearly made the right choice,’ someone says, gripping your shoulder. ‘We keep people safe. No grey zones, 'cause that’s how it starts. If you tolerate any of it, you’ve already lost.’",
+            "‚Du hast ganz klar die richtige Wahl getroffen‘, sagt jemand und packt dich an der Schulter. ‚Wir halten Leute sicher. Keine Grauzonen, denn genau so fängt's an. Wenn du irgendwas davon tolerierst, hast du schon verloren.‘",            
             19f
         ),
         new Line ( //13: AI purity scene 2
@@ -96,13 +96,13 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 15: AI purity scene success - AI art
-            "‘Exactly,’ they say with visible relief. ‘You judge by impact, not by origin. We use new tools—and we don’t apologize for it. Welcome.’",
-            "‚Genau‘, sagen sie sichtbar erleichtert. ‚Du bewertest Wirkung, nicht Herkunft. Wir nutzen neue Werkzeuge — und wir entschuldigen uns dafür nicht. Willkommen.‘",            
+            "‘Exactly,’ they say with visible relief. ‘You judge by impact, not by labels. We don’t apologize for moving forward. Welcome.’",
+            "‚Genau‘, sagen sie sichtbar erleichtert. ‚Du bewertest Wirkung, nicht Etiketten. Wir entschuldigen uns nicht dafür, dass wir vorwärts gehen. Willkommen.‘",            
             21.6f
         ),
         new Line ( // 16: human purity scene success - AI art
-            "‘Exactly!’ he laughs. ‘There was no heart or soul in the creation of this, merely ones and zeros. We clearly draw the line there. Welcome to our cause!’",
-            "‚Genau!‘ lacht er. ‚Hier wurde kein Herz und Seele verwendet, um das zu erstellen, nur Einsen und Nullen. Da ziehen wir klar die Grenze. Willkommen im Team!‘",            
+            "‘Exactly!’ he laughs. ‘That’s just manufactured, cold and hollow trash. We clearly draw the line there. Welcome to our cause!’",
+            "‚Genau!‘ lacht er. ‚Das ist nur massengefertigter, kalter und hohler Mist. Da ziehen wir klar die Grenze. Willkommen im Team!‘",            
             21.6f
         ),
         new Line ( // 17: AI purity scene success - human art
@@ -116,13 +116,13 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 19: AI purity scene failure - AI art
-            "Their smile tightens. ‘That’s the panic talking,’ one says softly. ‘If you need hard bans to feel safe, they’ll take you. Over there.’",
-            "Ihr Lächeln wird enger. ‚Das ist die Panik, die da spricht‘, sagt einer leise. ‚Wenn du harte Verbote brauchst, um dich sicher zu fühlen, nehmen die dich. Dort drüben.‘",            
+            "Their smile tightens. ‘That’s fear talking,’ one says softly. ‘If you need strict purity to feel safe, you’ll fit better with them. Over there.’",
+            "Ihr Lächeln wird enger. ‚Das ist Angst, die da spricht‘, sagt einer leise. ‚Wenn du strikte Reinheit brauchst, um dich sicher zu fühlen, passt du besser zu denen. Dort drüben.‘",            
             21.6f
         ),
         new Line ( // 20: human purity scene failure - AI art
-            "‘Seriously?’ he snaps. ‘If you like this AI slop, then you're clearly already compromised. Go over to those other guys, you clearly have no place here.’",
-            "‚Im Ernst?‘ schnappt er. ‚Wenn du diesen KI generierten Mist gut findest, bist du ganz klar bereits voreingenommen. Geh doch rüber zu denen da drüben, hier bist du nicht richtig.‘",            
+            "‘Seriously?’ he snaps. ‘If you can’t see what’s wrong with this, then you’re already part of the problem. Go over there. You don’t belong here.’",
+            "‚Im Ernst?‘ schnappt er. ‚Wenn du nicht siehst, was daran falsch ist, dann bist du schon Teil des Problems. Geh rüber. Du gehörst nicht zu uns.‘",            
             21.6f
         ),
         new Line ( // 21: AI purity scene failure - human art
@@ -134,6 +134,81 @@ public static class TextboxScripts
             "He stares at you. ‘So you don't value what is clearly human-made...’ His voice goes cold. ‘Then we have no place for you here. Go.’",
             "Er starrt dich an. ‚Also hast du keine Wertschätzung für ganz klar menschengemachte Dinge...‘ Seine Stimme wird kalt. ‚Dann haben wir hier für dich keinen Platz. Geh.‘",            
             21.6f
-        )
+        ),
+        new Line ( // 23: staying with the AI crowd
+            "Their smiles linger—until someone taps your shoulder. ‘Cool. One more step. Quick intake booth. It’s just for safety.’",
+            "Ihr Lächeln bleibt—bis dir jemand auf die Schulter tippt. ‚Okay. Noch ein Schritt. Kurz zur Intake-Station. Nur für die Sicherheit.‘",
+            21.6f
+        ),
+        new Line ( // 24: staying with the human crowd
+            "His smile disappears as quickly as it appeared. ‘One more thing,’ he says. ‘It’s important. We do this with everyone.’",
+            "Sein Lächeln verschwindet so schnell, wie es gekommen ist. ‚Noch eine Sache‘, sagt er. ‚Wichtig. Das machen wir mit allen.‘",            
+            21.6f
+        ),
+        new Line ( // 25: joining the AI crowd
+            "Someone from the other side pulls you in with a bright smile. ‘Don’t worry. They do that to everyone. Come with me to the intake booth. Just one click.’",
+            "Jemand von der anderen Seite zieht dich mit einem breiten Lächeln zu sich. ‚Keine Sorge. Das machen die bei allen. Komm mit mir zur Intake-Station. Nur ein Klick.‘",
+            21.6f
+        ),
+        new Line( // 26: joining the human crowd
+            "Someone grips your shoulder. ‘Knew it. You’re one of us. You just had to hear their nonsense yourself.’ He chuckles. ‘Now, we gotta do one quick step at the booth.’",
+            "Jemand fasst dir an die Schulter. ‚Wusste ich’s doch. Du bist einer von uns. Du musstest dir nur einmal selbst ihren Unsinn anhören.‘ Er lacht kurz. ‚Und jetzt müssen wir nur ganz kurz zur Station.‘",            
+            21.6f
+        ),
+        new Line ( // 27: AI crowd moderation request
+            "They point at the screen. ‘We’re cleaning up panic. Label one item: KEEP it, or FLAG it. No explanations—speed matters.’",
+            "Sie zeigen auf den Bildschirm. ‚Wir räumen Panik auf. Markiere ein Beispiel: LASSEN oder MELDEN. Keine Erklärungen—Tempo zählt.‘",
+            21.6f
+        ),
+        new Line ( // 28: human crowd moderation request
+            "He leans in. ‘They hide in half-truths. We need you to flag it. Just… do the right thing.’",
+            "Er beugt sich näher. ‚Die verstecken sich in Halbwahrheiten. Du musst das melden. Mach einfach… das Richtige.‘",            
+            21.6f
+        ),
+        new Line ( // 29: voting both
+            "The kiosk claims it’s showing a post... But the content area is hidden. 'For your safety,' it says. You still have to label it: KEEP (leave it up) or FLAG (report it).",
+            "Auf dem Bildschirm steht, dass da ein Beitrag stehen würde... Aber der Inhalt ist ausgeblendet. ‚Zu Ihrer Sicherheit‘, steht dort. Trotzdem sollst du es markieren: LASSEN (sichtbar lassen) oder MELDEN (melden).",            
+            21.6f
+        ),
+        new Line ( // 30: AI - voted KEEP
+            "‘Good,’ they say. ‘You didn’t reward fear.’ The crowd noise swells again—strangely synchronized.",
+            "‚Gut‘, sagen sie. ‚Du hast Angst nicht belohnt.‘ Der Lärm der Menge schwillt wieder an—seltsam synchron.",
+            21.6f
+        ),
+        new Line ( // 31: humans - voted KEEP
+            "‘What are you doing?!’ he hisses. ‘That’s how it spreads!’ He reaches for the kiosk—then stops. ‘...Forget it. Just go.’",
+            "‚Was machst du da?!‘ zischt er. ‚Genau so verbreitet sich das!‘ Er greift nach dem Display—und stoppt dann. ‚...Vergiss es. Geh einfach.‘",
+            21.6f
+        ),
+        new Line ( // 32: AI - voted FLAG
+            "They nod, satisfied. ‘Efficient.’ For a second, their smiles look... rehearsed.",
+            "Sie nicken zufrieden. ‚Effizient.‘ Für einen Moment wirken ihre Lächeln... einstudiert.",
+            21.6f
+        ),
+        new Line ( // 33: humans - voted FLAG
+            "‘Yes!’, he breathes out in relief. ‘That’s how we stay safe.’ He cheers, but you feel a bit queasy.",
+            "‚Ja!‘, sagt er erleichtert. ‚So bleiben wir sicher.‘ Er jubelt, aber du fühlst dich etwas komisch.",            
+            21.6f
+        ),
+        new Line( // 34: convergence - leaving the booth
+            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side corridor, just to breathe.",
+            "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich, nur um kurz Luft zu holen.",            
+            21.0f
+        ),
+        new Line ( // 35: ending thoughts 1
+            "Only then you notice it: the chanting behind you isn’t just loud... It’s synchronized. Too synchronized. A few voices repeat the exact same sentence… word for word… like a copied script.",
+            "Erst dann fällt es dir auf: Der Lärm hinter dir ist nicht nur laut... Er ist synchron. Zu synchron. Ein paar Stimmen wiederholen exakt denselben Satz… Wort für Wort… wie ein kopiertes Skript.",            
+            21.6f
+        ),
+        new Line ( // 36: ending thoughts 2
+            "Your stomach drops. Maybe this was never “two sides of people.” Maybe some of the loudest pressure wasn’t human at all, just something wearing a human shape, pushing you to pick a team.",
+            "Dir wird flau. Vielleicht waren das nie „zwei Seiten von Menschen“. Vielleicht war ein Teil von dem Druck gar nicht menschlich, nur etwas, das menschlich aussieht und dich in ein Lager drücken will.",            
+            21.6f
+        ),
+        new Line( // 37: ending fadeout
+            "White. Silence. You blink and you’re back at your computer. On the screen: the same slogans, the same urgency, the same two buttons. A header reads: GAIA.",
+            "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm: dieselben Parolen, dieselbe Dringlichkeit, dieselben zwei Buttons. Oben steht: GAIA.",            
+            21.2f
+        ),
     };
 }
