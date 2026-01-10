@@ -29,8 +29,8 @@ public static class ChoiceTextScripts
         new Line("Good morning! I'm glad that you woke up. We gotta check your vitals first however.", "Guten Morgen. Ich freue mich, dass Sie aufgewacht sind. Wir müssen zuerst Ihre Vitalwerte prüfen.", 20f),
 
         //2: demonstration scene
-        new Line("AI didn’t replace our humanity — it amplified it!", "KI hat unsere Menschlichkeit nicht ersetzt – sie hat sie verstärkt!", 21.6f),
-        new Line("We can't trust these walking hallucination machines!", "Wir können diesen wandelnden Halluzinationsboxen nicht vertrauen!", 21.6f),
+        new Line("Move forward. End the panic.", "Vorwärts. Schluss mit der Panik.", 21.6f),
+        new Line("Protect what’s real. Draw the line.", "Schützt das Echte. Zieht die Grenze.", 21.6f),
 
         //3: purity scenes
         new Line("I like it!", "Finde ich gut!", 22f),
@@ -38,6 +38,10 @@ public static class ChoiceTextScripts
 
         //4: voting booth
         new Line("KEEP", "LASSEN", 22f),
-        new Line("FLAG", "MELDEN", 22f)
+        new Line("FLAG", "MELDEN", 22f),
+
+        //5: title screen, both lines are the same
+        new Line("Play!", "Play!", 24f),
+        new Line("Play!", "Play!", 24f)
     };
 }

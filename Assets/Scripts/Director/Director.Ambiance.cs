@@ -158,5 +158,4 @@ public partial class Director
 
         FadeAmbianceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
     }
-
 }

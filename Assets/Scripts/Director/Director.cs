@@ -144,7 +144,7 @@ public partial class Director : MonoBehaviour
     System.Collections.IEnumerator RunGame()
     {
         //yield return RevealScene(AiPurityScene, aiPuritySceneParent);
-        yield return RevealScene(LanguageSelectScene, languageSceneParent);
+        yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
     // -------------------------------------------------------------------------
@@ -163,10 +163,24 @@ public partial class Director : MonoBehaviour
         _ending = true;
 
         // Ambiance routing based on DESTINATION (works for choice + auto)
-        if (next.IsValid && next.commitAmbOnConfirm)
-            CommitAmbiance(next.amb);
-        else
-            StopAmbiancePreview();
+        if (next.IsValid)
+        {
+            if (next.amb == AmbRoute.None)
+            {
+                _ambCommitted = false;   // unlock so stopping works
+                StopAmbiancePreview();   // fades both out and stops them
+            }
+            else if (next.commitAmbOnConfirm)
+            {
+                CommitAmbiance(next.amb);
+            }
+            else
+            {
+                // optional: if you want non-committed ambience to stop after confirming
+                // _ambCommitted = false;
+                // StopAmbiancePreview();
+            }
+        }
 
         PlaySfx(sfxTransition, transitionVolume);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);

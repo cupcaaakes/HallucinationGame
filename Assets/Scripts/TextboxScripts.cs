@@ -21,8 +21,8 @@ public static class TextboxScripts
     public static readonly List<Line> Lines = new()
     {
         new Line( //0: language selector: both lines are the same
-            "Move to the door of the language you wish to play in. / Bewege dich zu der Türe von der Sprache, in der du das Spiel spielen möchtest.",
-            "Move to the door of the language you wish to play in. / Bewege dich zu der Türe von der Sprache, in der du das Spiel spielen möchtest.",
+            "Move to the flag of the language you wish to play in. / Bewege dich zu der Flagge von der Sprache, in der du das Spiel spielen möchtest.",
+            "Move to the flag of the language you wish to play in. / Bewege dich zu der Flagge von der Sprache, in der du das Spiel spielen möchtest.",
             21.6f
         ),
         new Line( //1: intro scene
@@ -136,33 +136,33 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 23: staying with the AI crowd
-            "Their smiles linger—until someone taps your shoulder. ‘Cool. One more step. Quick intake booth. It’s just for safety.’",
+            "Their smiles linger—until someone taps your shoulder. ‘Okay. One more step. Quick intake booth. It’s just for safety.’",
             "Ihr Lächeln bleibt—bis dir jemand auf die Schulter tippt. ‚Okay. Noch ein Schritt. Kurz zur Intake-Station. Nur für die Sicherheit.‘",
             21.6f
         ),
         new Line ( // 24: staying with the human crowd
-            "His smile disappears as quickly as it appeared. ‘One more thing,’ he says. ‘It’s important. We do this with everyone.’",
-            "Sein Lächeln verschwindet so schnell, wie es gekommen ist. ‚Noch eine Sache‘, sagt er. ‚Wichtig. Das machen wir mit allen.‘",            
+            "His smile disappears as quickly as it appeared. ‘One more thing,’ he says. ‘It’s important. We do this with everyone. Just follow me into this booth.’",
+            "Sein Lächeln verschwindet so schnell, wie es gekommen ist. ‚Noch eine Sache‘, sagt er. ‚Wichtig. Das machen wir mit allen. Folge mir bitte kurz in diese Station.‘",            
             21.6f
         ),
         new Line ( // 25: joining the AI crowd
-            "Someone from the other side pulls you in with a bright smile. ‘Don’t worry. They do that to everyone. Come with me to the intake booth. Just one click.’",
-            "Jemand von der anderen Seite zieht dich mit einem breiten Lächeln zu sich. ‚Keine Sorge. Das machen die bei allen. Komm mit mir zur Intake-Station. Nur ein Klick.‘",
+            "Someone from the other side pulls you in with a bright smile. ‘Don’t worry. They do that to everyone.’",
+            "Jemand von der anderen Seite zieht dich mit einem breiten Lächeln zu sich. ‚Keine Sorge. Das machen die bei allen.‘",
             21.6f
         ),
         new Line( // 26: joining the human crowd
-            "Someone grips your shoulder. ‘Knew it. You’re one of us. You just had to hear their nonsense yourself.’ He chuckles. ‘Now, we gotta do one quick step at the booth.’",
-            "Jemand fasst dir an die Schulter. ‚Wusste ich’s doch. Du bist einer von uns. Du musstest dir nur einmal selbst ihren Unsinn anhören.‘ Er lacht kurz. ‚Und jetzt müssen wir nur ganz kurz zur Station.‘",            
+            "Someone grips your shoulder. ‘Knew it. You’re one of us. You just had to hear their nonsense yourself.’ He chuckles.",
+            "Jemand fasst dir an die Schulter. ‚Wusste ich’s doch. Du bist einer von uns. Du musstest dir nur einmal selbst ihren Unsinn anhören.‘ Er lacht kurz.",            
             21.6f
         ),
         new Line ( // 27: AI crowd moderation request
-            "They point at the screen. ‘We’re cleaning up panic. Label one item: KEEP it, or FLAG it. No explanations—speed matters.’",
-            "Sie zeigen auf den Bildschirm. ‚Wir räumen Panik auf. Markiere ein Beispiel: LASSEN oder MELDEN. Keine Erklärungen—Tempo zählt.‘",
+            "They point at the screen. ‘We’re cleaning up panic. Label to KEEP it. No explanations—speed matters.’",
+            "Sie zeigen auf den Bildschirm. ‚Wir räumen Panik auf. Bitte markiere es zu LASSEN. Keine Erklärungen—Tempo zählt.‘",
             21.6f
         ),
         new Line ( // 28: human crowd moderation request
-            "He leans in. ‘They hide in half-truths. We need you to flag it. Just… do the right thing.’",
-            "Er beugt sich näher. ‚Die verstecken sich in Halbwahrheiten. Du musst das melden. Mach einfach… das Richtige.‘",            
+            "He leans in. ‘They hide in half-truths. We need you to FLAG it. Just... do the right thing.’",
+            "Er beugt sich näher. ‚Die verstecken sich in Halbwahrheiten. Du musst das MELDEN. Mach einfach... das Richtige.‘",            
             21.6f
         ),
         new Line ( // 29: voting both

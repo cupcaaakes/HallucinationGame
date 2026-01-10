@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using static TextboxScripts;
 using UnityEngine.UI;
+using System.Collections;
 
 // This file is part of the partial Director class.
 // It contains scene activation, decision box toggles, audio helpers, and the demo scene routines.
@@ -46,6 +47,22 @@ public partial class Director
             var c = decisionR.GetComponent<Collider>();
             if (c) c.enabled = enabled;
         }
+    }
+
+    void StartupScene(GameObject sceneParent)
+    {
+        ActivateOnlyScene(sceneParent);
+        ToggleDecisionBoxes(false);
+        SetDecisionColliders(false);
+    }
+
+    IEnumerator EndSceneWithNoChoiceMade(SceneRef scene)
+    {
+        // both sides go to the same destination
+        _next[0] = scene;
+        _next[1] = _next[0];
+        _activeChoice = 0;
+        yield return EndAfterChoice();
     }
 
     // -------------------------------------------------------------------------
@@ -205,7 +222,7 @@ public partial class Director
         _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
         _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
 
-        if (languageSceneParent) languageSceneParent.SetActive(true);
+        StartupScene(languageSceneParent);
 
         StartCoroutine(Fade(doorEnglishL, 0f, 0f));
         StartCoroutine(Fade(doorGermanR, 0f, 0f));
@@ -239,7 +256,7 @@ public partial class Director
         _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.None, false);
         _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.None, false);
 
-        if (introSceneParent) introSceneParent.SetActive(true);
+        StartupScene(introSceneParent);
 
         StartCoroutine(Fade(introAiDoctor, 0f, 0f));
         StartCoroutine(Fade(introHumanDoctor, 0f, 0f));
@@ -265,47 +282,45 @@ public partial class Director
 
     public System.Collections.IEnumerator CheckupSceneAi()
     {
-        if (checkupSceneAiParent) checkupSceneAiParent.SetActive(true);
+        StartupScene(checkupSceneAiParent);
         checkupAiDoctor.transform.position = introAiDoctor.transform.position;
         checkupAiDoctor.transform.rotation = defaultBillboardRotation;
         checkupAiDoctor.transform.localScale = introAiDoctor.transform.localScale;
         aiDoctorChosen = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 2);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 4);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 6);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
 
-        // both sides go to the same destination
-        _next[0] = new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true);
-        _next[1] = _next[0];
-        _activeChoice = 0;
-        yield return EndAfterChoice();
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
+        );
         yield break;
+
     }
 
     public System.Collections.IEnumerator CheckupSceneHuman()
     {
-        if (checkupSceneHumanParent) checkupSceneHumanParent.SetActive(true);
+        StartupScene(checkupSceneHumanParent);
         checkupHumanDoctor.transform.position = introHumanDoctor.transform.position;
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
         aiDoctorChosen = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 3);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 5);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 7);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
 
-        // both sides go to the same destination
-        _next[0] = new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true);
-        _next[1] = _next[0];
-        _activeChoice = 0;
-        yield return EndAfterChoice();
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
+        );
         yield break;
+
     }
 
     // -------------------------------------------------------------------------
@@ -316,7 +331,7 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding1()
     {
-        ActivateOnlyScene(demoEnding1Parent);
+        StartupScene(demoEnding1Parent);
 
         // edge positions on the z-plane
         Vector3 rightEdge = ViewportToWorldOnZPlane(1f, 0.5f, endingPlaneZ);
@@ -346,7 +361,7 @@ public partial class Director
         _next[0] = new SceneRef(AiPurityScene, aiPuritySceneParent, AmbRoute.Amb2, true);
         _next[1] = new SceneRef(HumanPurityScene, humanPuritySceneParent, AmbRoute.Amb2, true);
 
-        ActivateOnlyScene(demonstrationSceneParent);
+        StartupScene(demonstrationSceneParent);
 
         if (demonstrationSceneFullscreenObj)
         {
@@ -359,9 +374,9 @@ public partial class Director
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 8);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 10);
 
         SetChoicePair(2);
@@ -370,9 +385,7 @@ public partial class Director
 
     public System.Collections.IEnumerator AiPurityScene()
     {
-        ActivateOnlyScene(aiPuritySceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(aiPuritySceneParent);
         aiCrowdChosen = true;
 
         aiPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
@@ -392,7 +405,7 @@ public partial class Director
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 11);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 13);
         float slideTransition = 3f;
         PurityTestSlide(aiPurityTestImage, slideTransition);
@@ -403,9 +416,7 @@ public partial class Director
 
     public System.Collections.IEnumerator HumanPurityScene()
     {
-        ActivateOnlyScene(humanPuritySceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(humanPuritySceneParent);
         aiCrowdChosen = false;
 
         humanPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
@@ -427,7 +438,7 @@ public partial class Director
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 12);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 14);
         float slideTransition = 3f;
         PurityTestSlide(humanPurityTestImage, slideTransition);
@@ -438,49 +449,209 @@ public partial class Director
 
     public System.Collections.IEnumerator RejectedFromHumansScene()
     {
-        ActivateOnlyScene(rejectedFromHumansSceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(rejectedFromHumansSceneParent);
         gotRejectedFromGroup = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 20);
         else ToggleTextbox(true, 22);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(AIsAfterHumanRejectionScene, aiAfterHumanRejectionSceneParent, AmbRoute.Amb2, true)
+        );
+        yield break;
     }
 
     public System.Collections.IEnumerator RejectedFromAIsScene()
     {
-        ActivateOnlyScene(rejectedFromAIsSceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(rejectedFromAIsSceneParent);
         gotRejectedFromGroup = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 19);
         else ToggleTextbox(true, 21);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(HumansAfterAiRejectionScene, humanAfterAiRejectionSceneParent, AmbRoute.Amb2, true)
+        );
+        yield break;
     }
 
     public System.Collections.IEnumerator AcceptedByHumansScene()
     {
-        ActivateOnlyScene(acceptedToHumansSceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(acceptedToHumansSceneParent);
         gotRejectedFromGroup = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 16);
         else ToggleTextbox(true, 18);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 24);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+        );
+        yield break;
     }
 
     public System.Collections.IEnumerator AcceptedByAIsScene()
     {
-        ActivateOnlyScene(acceptedToAIsSceneParent);
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
+        StartupScene(acceptedToAIsSceneParent);
         gotRejectedFromGroup = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 15);
         else ToggleTextbox(true, 17);
-        yield return new WaitForSeconds(7.5f);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 23);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator AIsAfterHumanRejectionScene()
+    {
+        StartupScene(aiAfterHumanRejectionSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 25);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 23);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator HumansAfterAiRejectionScene()
+    {
+        StartupScene(humanAfterAiRejectionSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 26);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 24);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator VotingBoothScene()
+    {
+        StartupScene(votingBoothSceneParent);
+
+        _next[0] = new SceneRef(LeavingBoothKeepScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
+        _next[1] = new SceneRef(LeavingBoothFlagScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
+
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
+        {
+            ToggleTextbox(true, 27);
+        }
+        else // if human crowd
+        {
+            ToggleTextbox(true, 28);
+        }
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 29);
+        SetChoicePair(4);
+        ToggleDecisionBoxes(true);
+    }
+
+    public System.Collections.IEnumerator LeavingBoothKeepScene()
+    {
+        StartupScene(leavingBoothKeepSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
+        {
+            ToggleTextbox(true, 30);
+        }
+        else // if human crowd
+        {
+            ToggleTextbox(true, 31);
+        }
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator LeavingBoothFlagScene()
+    {
+        StartupScene(leavingBoothFlagSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
+        {
+            ToggleTextbox(true, 32);
+        }
+        else // if human crowd
+        {
+            ToggleTextbox(true, 33);
+        }
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator PonderingScene()
+    {
+        StartupScene(ponderingSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 34);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 35);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 36);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(EndingScene, endingSceneParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator EndingScene()
+    {
+        StartupScene(endingSceneParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        ToggleTextbox(true, 37);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+
+        yield return EndSceneWithNoChoiceMade(
+            new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.None, false)
+        );
+        yield break;
+    }
+
+    public System.Collections.IEnumerator ResultsScreen()
+    {
+        StartupScene(resultsScreenParent);
+        yield return new WaitForSeconds(10f);
+
+        // both sides go to the same destination
+        _next[0] = new SceneRef(TitleScreen, titleScreenParent, AmbRoute.None, false);
+        _next[1] = _next[0];
+        _activeChoice = 0;
+        yield return EndAfterChoice();
+    }
+
+    public System.Collections.IEnumerator TitleScreen()
+    {
+        StartupScene(titleScreenParent);
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+
+        _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
+        _next[1] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
+        SetChoicePair(5);
+        ToggleDecisionBoxes(true);
     }
 }

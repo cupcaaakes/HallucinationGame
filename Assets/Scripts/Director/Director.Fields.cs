@@ -49,7 +49,7 @@ public partial class Director
     // Transition timing between white fade + scene start
     [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
     [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
-
+    [SerializeField] private float defaultTextBoxTime = 7.5f; // default textbox time in seconds
     // Cached UI transforms + coroutines so we can stop animations mid-way
     RectTransform _ringRt;
     Coroutine _ringScaleCo;
@@ -140,6 +140,9 @@ public partial class Director
     private GameObject sceneParent;
     GameObject _currentSceneRoot;
 
+    [Header("Title Screen")]
+    [SerializeField] private GameObject titleScreenParent;
+
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
     // -------------------------------------------------------------------------
@@ -216,12 +219,37 @@ public partial class Director
     [Header("Rejected From Humans scene")]
     [SerializeField] private GameObject rejectedFromHumansSceneParent;
 
+    [Header("AI after Human Rejection scene")]
+    [SerializeField] private GameObject aiAfterHumanRejectionSceneParent;
+
+    [Header("Human after AI Rejection scene")]
+    [SerializeField] private GameObject humanAfterAiRejectionSceneParent;
+
+    [Header("Voting Booth scene")]
+    [SerializeField] private GameObject votingBoothSceneParent;
+
+    [Header("Leaving Booth Keep scene")]
+    [SerializeField] private GameObject leavingBoothKeepSceneParent;
+
+    [Header("Leaving Booth Flag scene")]
+    [SerializeField] private GameObject leavingBoothFlagSceneParent;
+
+    [Header("Pondering scene")]
+    [SerializeField] private GameObject ponderingSceneParent;
+
+    [Header("Ending scene")]
+    [SerializeField] private GameObject endingSceneParent;
+
+    [Header("Results screen")]
+    [SerializeField] private GameObject resultsScreenParent;
+
     Coroutine _boatCo;
 
     [Header("Choices Made")]
     [SerializeField] private bool aiDoctorChosen = false;
     [SerializeField] private bool aiCrowdChosen = false;
     [SerializeField] private bool gotRejectedFromGroup = false;
+    [SerializeField] private bool chosenToKeep = false;
 
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
