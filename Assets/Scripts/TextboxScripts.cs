@@ -176,8 +176,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line ( // 31: humans - voted KEEP
-            "‘What are you doing?!’ he hisses. ‘That’s how it spreads!’ He reaches for the kiosk—then stops. ‘...Forget it. Just go.’",
-            "‚Was machst du da?!‘ zischt er. ‚Genau so verbreitet sich das!‘ Er greift nach dem Display—und stoppt dann. ‚...Vergiss es. Geh einfach.‘",
+            "‘What are you doing?!’ he hisses. ‘That’s how it spreads!’ He starts reaching for the kiosk, but stops. ‘...Forget it. Just go.’",
+            "‚Was machst du da?!‘ zischt er. ‚Genau so verbreitet sich das!‘ Er greift nach dem Display, aber stoppt direkt wieder. ‚...Vergiss es. Geh einfach.‘",
             21.6f
         ),
         new Line ( // 32: AI - voted FLAG
@@ -191,7 +191,7 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 34: convergence - leaving the booth
-            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side corridor besides the hospital, just to breathe.",
+            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
             "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
             21.0f
         ),
