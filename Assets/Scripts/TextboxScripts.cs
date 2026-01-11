@@ -191,8 +191,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 34: convergence - leaving the booth
-            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side corridor, just to breathe.",
-            "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich, nur um kurz Luft zu holen.",            
+            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side corridor besides the hospital, just to breathe.",
+            "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
             21.0f
         ),
         new Line ( // 35: ending thoughts 1
