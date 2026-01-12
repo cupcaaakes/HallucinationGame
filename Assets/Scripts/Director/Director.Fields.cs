@@ -1,7 +1,9 @@
+using System;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
-using static TextboxScripts;
 using UnityEngine.UI;
+using static TextboxScripts;
 
 // This file is part of the partial Director class.
 // It contains ALL Inspector fields + runtime state variables.
@@ -14,7 +16,11 @@ public partial class Director
     [Header("Decision Boxes")]
     public GameObject decisionL;
     public GameObject decisionR;
+    // current scene + routing (left/right)
+    Func<System.Collections.IEnumerator> _currentScene;
+    SceneRef[] _next = new SceneRef[2];
 
+    private int purityImageValue = 0;
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
     // -------------------------------------------------------------------------
@@ -22,6 +28,7 @@ public partial class Director
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+    public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:
     // - If Canvas is Screen Space Overlay: uiCamera can be null.
@@ -42,7 +49,7 @@ public partial class Director
     // Transition timing between white fade + scene start
     [SerializeField] private float sceneStartLeadSeconds = 0.15f; // start scene this much before fade finishes
     [SerializeField] private float scenePrerollSeconds = 0.35f; // doors move under full white before fade-out starts
-
+    [SerializeField] private float defaultTextBoxTime = 7.5f; // default textbox time in seconds
     // Cached UI transforms + coroutines so we can stop animations mid-way
     RectTransform _ringRt;
     Coroutine _ringScaleCo;
@@ -54,8 +61,10 @@ public partial class Director
     Coroutine _choiceMoveCo, _choiceScaleCo;
 
     // Active hovered choice:
-    // -1 = none, 0 = left, 1 = right
+    // left = base, right = base+1
     int _activeChoice = -1;
+
+    int _choiceBaseIndex = 0; // left = base, right = base+1
 
     // -------------------------------------------------------------------------
     // Audio: SFX + typing sound
@@ -81,8 +90,8 @@ public partial class Director
     bool _choiceWasOpen;
 
     // -------------------------------------------------------------------------
-    // Ambience:
-    // We have TWO ambience tracks: one for ending 1 and one for ending 2.
+    // Ambiance:
+    // We have TWO Ambiance tracks: one for ending 1 and one for ending 2.
     //
     // While hovering a choice:
     // - we play ONLY that side at low volume (ambPreviewVolume).
@@ -91,9 +100,9 @@ public partial class Director
     // - chosen side ramps to 100%
     // - other side ramps to 0 and stops
     // -------------------------------------------------------------------------
-    [Header("Ambience")]
-    [SerializeField] private AudioSource amb1;     // ending 1 ambience source
-    [SerializeField] private AudioSource amb2;     // ending 2 ambience source
+    [Header("Ambiance")]
+    [SerializeField] private AudioSource amb1;     // ending 1 Ambiance source
+    [SerializeField] private AudioSource amb2;     // ending 2 Ambiance source
     [SerializeField] private AudioClip ambEnding1;
     [SerializeField] private AudioClip ambEnding2;
 
@@ -124,21 +133,53 @@ public partial class Director
     // Scene parenting:
     // You have a "sceneParent" which contains children scenes.
     // ActivateOnlyScene() turns on only the child scene you want.
+    // The current scene root is storing the active scene objects in its child objects.
     // -------------------------------------------------------------------------
     [Header("Scene Parent")]
     [SerializeField]
     private GameObject sceneParent;
+    GameObject _currentSceneRoot;
+
+    [Header("Title Screen")]
+    [SerializeField] private GameObject titleScreenParent;
+    [SerializeField] private GameObject titleScreenText;
+    [SerializeField] private bool isTitleScreenActive = true;
+    [SerializeField] private float titlePulseSpeed = 0.6f;   // smaller = slower
+    [SerializeField] private float titlePulseAmount = 0.06f; // 0.06 = +/-6% scale
 
     // -------------------------------------------------------------------------
-    // Demo Scene: doors slide in
+    // Language Select Scene: Language doors sliding in.
     // -------------------------------------------------------------------------
-    [Header("Demo Scene")]
+    [Header("Language Select Scene")]
     [SerializeField]
-    private GameObject demoSceneParent;
+    private GameObject languageSceneParent;
     [SerializeField]
-    private GameObject doorL;
+    private GameObject doorEnglishL;
     [SerializeField]
-    private GameObject doorR;
+    private GameObject doorGermanR;
+
+    // -------------------------------------------------------------------------
+    // Intro Scene: AI vs Human doctor after waking up.
+    // -------------------------------------------------------------------------
+    [Header("Intro Scene")]
+    [SerializeField]
+    private GameObject introSceneParent;
+    [SerializeField]
+    private GameObject introAiDoctor;
+    [SerializeField]
+    private GameObject introHumanDoctor;
+
+    [Header("Checkup Scene AI")]
+    [SerializeField]
+    private GameObject checkupSceneAiParent;
+    [SerializeField]
+    private GameObject checkupAiDoctor;
+
+    [Header("Checkup Scene Human")]
+    [SerializeField]
+    private GameObject checkupSceneHumanParent;
+    [SerializeField]
+    private GameObject checkupHumanDoctor;
 
     // -------------------------------------------------------------------------
     // Ending 1: island + boat drift
@@ -156,14 +197,94 @@ public partial class Director
     [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
 
     // -------------------------------------------------------------------------
-    // Ending 2: full-screen object fade
+    // Demonstration scene
     // -------------------------------------------------------------------------
-    [Header("Demo Ending 2")]
-    [SerializeField] private GameObject demoEnding2Parent;
-    [SerializeField] private GameObject ending2FullScreenObject;
+    [Header("Demonstration scene")]
+    [SerializeField] private GameObject demonstrationSceneParent;
+    [SerializeField] private GameObject demonstrationSceneFullscreenObj;
+
+    [Header("AI Purity scene")]
+    [SerializeField] private GameObject aiPuritySceneParent;
+    [SerializeField] private GameObject aiPurityTestImage;
+
+    [Header("Human Purity scene")]
+    [SerializeField] private GameObject humanPuritySceneParent;
+    [SerializeField] private GameObject humanPurityTestImage;
+
+    [Header("Accepted To AIs scene")]
+    [SerializeField] private GameObject acceptedToAIsSceneParent;
+
+    [Header("Accepted To Humans scene")]
+    [SerializeField] private GameObject acceptedToHumansSceneParent;
+
+    [Header("Rejected From AIs scene")]
+    [SerializeField] private GameObject rejectedFromAIsSceneParent;
+
+    [Header("Rejected From Humans scene")]
+    [SerializeField] private GameObject rejectedFromHumansSceneParent;
+
+    [Header("AI after Human Rejection scene")]
+    [SerializeField] private GameObject aiAfterHumanRejectionSceneParent;
+
+    [Header("Human after AI Rejection scene")]
+    [SerializeField] private GameObject humanAfterAiRejectionSceneParent;
+
+    [Header("Voting Booth scene")]
+    [SerializeField] private GameObject votingBoothSceneParent;
+
+    [Header("Leaving Booth Keep scene")]
+    [SerializeField] private GameObject leavingBoothKeepSceneParent;
+
+    [Header("Leaving Booth Flag scene")]
+    [SerializeField] private GameObject leavingBoothFlagSceneParent;
+
+    [Header("Pondering scene")]
+    [SerializeField] private GameObject ponderingSceneParent;
+
+    [Header("Ending scene")]
+    [SerializeField] private GameObject endingSceneParent;
+
+    [Header("Results screen")]
+    [SerializeField] private GameObject resultsScreenParent;
 
     Coroutine _boatCo;
 
+    [Header("Choices Made")]
+    [SerializeField] private bool aiDoctorChosen = false;
+    [SerializeField] private bool aiCrowdChosen = false;
+    [SerializeField] private bool gotRejectedFromGroup = false;
+    [SerializeField] private bool chosenToKeep = false;
+
     // This is a fixed rotation you want to apply to billboard objects
     private Quaternion defaultBillboardRotation = Quaternion.Euler(90f, 90f, -90f);
+
+    public enum AmbRoute
+    {
+        None = 0,
+        Amb1 = 1, // uses amb1 source / ambEnding1
+        Amb2 = 2  // uses amb2 source / ambEnding2
+    }
+
+    [Serializable]
+    public struct SceneRef
+    {
+        public Func<System.Collections.IEnumerator> routine;
+        public GameObject root;
+
+        public AmbRoute amb;          // which ambience this destination wants
+        public bool commitAmbOnConfirm; // should we lock ambience when confirming this choice?
+
+        public SceneRef(Func<System.Collections.IEnumerator> routine, GameObject root,
+                        AmbRoute amb = AmbRoute.None,
+                        bool commitAmbOnConfirm = false)
+        {
+            this.routine = routine;
+            this.root = root;
+            this.amb = amb;
+            this.commitAmbOnConfirm = commitAmbOnConfirm;
+        }
+
+        public bool IsValid => routine != null;
+    }
+
 }

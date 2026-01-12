@@ -4,16 +4,16 @@ using static TextboxScripts;
 using UnityEngine.UI;
 
 // This file is part of the partial Director class.
-// It contains ambience preview + commit + crossfade logic.
+// It contains Ambiance preview + commit + crossfade logic.
 public partial class Director
 {
     // -------------------------------------------------------------------------
-    // Ambience setup:
+    // Ambiance setup:
     // - Ensures amb1/amb2 AudioSources exist, loop, and are 2D
     // - Assigns ambEnding1/2 clips to them
     // - Starts volumes at 0 (silent)
     // -------------------------------------------------------------------------
-    void SetupAmbienceSources()
+    void SetupAmbianceSources()
     {
         // Create sources if missing
         if (!amb1)
@@ -38,7 +38,7 @@ public partial class Director
         amb2.volume = 0f;
     }
 
-    // Applies "good defaults" for ambience sources
+    // Applies "good defaults" for Ambiance sources
     void ConfigureAmbSource(AudioSource a)
     {
         a.playOnAwake = false;
@@ -48,21 +48,21 @@ public partial class Director
     }
 
     // Ensures they are actually playing (so fades work immediately)
-    void EnsureAmbiencePlaying()
+    void EnsureAmbiancePlaying()
     {
         if (amb1 && amb1.clip && !amb1.isPlaying) amb1.Play();
         if (amb2 && amb2.clip && !amb2.isPlaying) amb2.Play();
     }
 
     // Starts a crossfade coroutine to set amb1/amb2 target volumes
-    void FadeAmbienceTo(float v1, float v2, float seconds, bool stopWhenSilent)
+    void FadeAmbianceTo(float v1, float v2, float seconds, bool stopWhenSilent)
     {
         if (_ambCo != null) StopCoroutine(_ambCo);
-        _ambCo = StartCoroutine(FadeAmbienceRoutine(v1, v2, seconds, stopWhenSilent));
+        _ambCo = StartCoroutine(FadeAmbianceRoutine(v1, v2, seconds, stopWhenSilent));
     }
 
     // Actually performs the crossfade (frame-by-frame volume changes)
-    System.Collections.IEnumerator FadeAmbienceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
+    System.Collections.IEnumerator FadeAmbianceRoutine(float to1, float to2, float seconds, bool stopWhenSilent)
     {
         if (!amb1 && !amb2) yield break;
 
@@ -96,13 +96,23 @@ public partial class Director
     }
 
     // -------------------------------------------------------------------------
-    // StartAmbiencePreview(side):
+    // StartAmbiancePreview(side):
     // - side=0 -> play amb1 at preview volume, amb2 at 0
     // - side=1 -> play amb2 at preview volume, amb1 at 0
     // -------------------------------------------------------------------------
-    void StartAmbiencePreview(int side) // 0 = left, 1 = right
+    void StartAmbiancePreview(int side) // 0 = left, 1 = right
     {
         if (_ambCommitted) return;
+
+        if ((uint)side >= 2u) return;
+        var dest = _next[side];
+
+        // If this choice doesn't define ambience, stop any preview.
+        if (dest.amb == AmbRoute.None)
+        {
+            StopAmbiancePreview();
+            return;
+        }
 
         // already previewing this side
         if (_ambPreviewActive && _ambPreviewSide == side) return;
@@ -110,41 +120,42 @@ public partial class Director
         _ambPreviewActive = true;
         _ambPreviewSide = side;
 
-        EnsureAmbiencePlaying();
+        EnsureAmbiancePlaying();
 
         float v1 = (side == 0) ? ambPreviewVolume : 0f;
         float v2 = (side == 1) ? ambPreviewVolume : 0f;
 
-        FadeAmbienceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
+        FadeAmbianceTo(v1, v2, ambPreviewFadeSeconds, stopWhenSilent: false);
     }
 
     // Stops any preview (fades both to 0 and stops them)
-    void StopAmbiencePreview()
+    void StopAmbiancePreview()
     {
         if (_ambCommitted) return;
 
         _ambPreviewActive = false;
         _ambPreviewSide = -1;
 
-        FadeAmbienceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
+        FadeAmbianceTo(0f, 0f, ambStopFadeSeconds, stopWhenSilent: true);
     }
 
     // -------------------------------------------------------------------------
-    // CommitAmbience(chosenSide):
+    // CommitAmbiance(chosenSide):
     // After the player confirms the choice:
     // - chosen side fades to 1.0 volume
     // - the other fades to 0 and stops
     // -------------------------------------------------------------------------
-    void CommitAmbience(int chosenSide) // 0 = left, 1 = right
+    void CommitAmbiance(AmbRoute chosenSide)
     {
+        if (chosenSide == AmbRoute.None) return;
         if (_ambCommitted) return;
+
         _ambCommitted = true;
+        EnsureAmbiancePlaying();
 
-        EnsureAmbiencePlaying();
+        float v1 = (chosenSide == AmbRoute.Amb1) ? 1f : 0f;
+        float v2 = (chosenSide == AmbRoute.Amb2) ? 1f : 0f;
 
-        float v1 = (chosenSide == 0) ? 1f : 0f;
-        float v2 = (chosenSide == 1) ? 1f : 0f;
-
-        FadeAmbienceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
+        FadeAmbianceTo(v1, v2, ambCommitFadeSeconds, stopWhenSilent: true);
     }
 }
