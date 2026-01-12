@@ -191,8 +191,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 34: convergence - leaving the booth
-            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
-            "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
+            "Before anyone can say more, you step back from the chaos. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
+            "Bevor noch jemand etwas sagen kann, trittst du von dem ganzen Chaos zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
             21.0f
         ),
         new Line ( // 35: ending thoughts 1
@@ -206,8 +206,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 37: ending fadeout
-            "White. Silence. You blink and you’re back at your computer. On the screen: the same slogans, the same urgency, the same two buttons. A header reads: GAIA.",
-            "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm: dieselben Parolen, dieselbe Dringlichkeit, dieselben zwei Buttons. Oben steht: GAIA.",            
+            "White. Silence. You blink and you’re back at your computer. On the screen are the same slogans, the same urgency, the same hostility. A header reads: GAIA.",
+            "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm stehen dieselben Parolen, dieselbe Dringlichkeit, dieselbe Feindseligkeit. Oben steht: GAIA.",            
             21.2f
         ),
     };
