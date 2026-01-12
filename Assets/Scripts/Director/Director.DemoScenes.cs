@@ -487,10 +487,8 @@ public partial class Director
         if (purityImageValue <= 3) ToggleTextbox(true, 16);
         else ToggleTextbox(true, 18);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 24);
-        yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
         );
         yield break;
     }
@@ -503,11 +501,8 @@ public partial class Director
         if (purityImageValue <= 3) ToggleTextbox(true, 15);
         else ToggleTextbox(true, 17);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 23);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
         );
         yield break;
     }
@@ -518,11 +513,8 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 25);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 23);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
         );
         yield break;
     }
@@ -533,11 +525,8 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 26);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 24);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(VotingBoothScene, votingBoothSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
         );
         yield break;
     }
