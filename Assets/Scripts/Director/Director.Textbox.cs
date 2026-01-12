@@ -56,7 +56,7 @@ public partial class Director
         {
             var line = TextboxScripts.Lines[textBoxLine.Value];
             textboxText.fontSize = line.fontSize;
-            yield return TypeText(line.text, 45f);
+            yield return TypeText(line.Get(UseGerman), 45f);
         }
 
         textbox.localScale = to;

@@ -58,12 +58,12 @@ public partial class Director
     //
     // When open=true:
     // - sets _activeChoice to 0 or 1
-    // - starts ambience preview for that side
+    // - starts Ambiance preview for that side
     // - shows choiceText and ring, and positions them nicely
     //
     // When open=false:
     // - resets hold timer and hides UI
-    // - stops ambience preview
+    // - stops Ambiance preview
     // -------------------------------------------------------------------------
     public void SetChoiceHover(bool isLeft, bool open)
     {
@@ -87,7 +87,7 @@ public partial class Director
             if (_ambPreviewActive)
             {
                 _ambPreviewActive = false;
-                StopAmbiencePreview();
+                StopAmbiancePreview();
             }
 
             if (_choiceMoveCo != null) StopCoroutine(_choiceMoveCo);
@@ -108,8 +108,8 @@ public partial class Director
         if (_activeChoice != side) _choiceHold = 0f; // switching sides resets hold
         _activeChoice = side;
 
-        // Start / switch ambience preview
-        StartAmbiencePreview(side);
+        // Start / switch Ambiance preview
+        StartAmbiancePreview(side);
 
         // play the "choice open" sfx once when we first show the UI
         if (!_choiceWasOpen)
@@ -129,10 +129,17 @@ public partial class Director
 
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;
+        int idx = _choiceBaseIndex + side; // left=base, right=base+1
 
-        // set the text FIRST (from your ChoiceTextScripts)
-        var line = ChoiceTextScripts.Lines[side];
-        _choiceTmp.text = line.text;
+        if ((uint)idx >= (uint)ChoiceTextScripts.Lines.Count)
+        {
+            Debug.LogError($"ChoiceTextScripts index out of range: idx={idx}, base={_choiceBaseIndex}, side={side}");
+            return;
+        }
+
+        var line = ChoiceTextScripts.Lines[idx];
+
+        _choiceTmp.text = line.Get(UseGerman);
         _choiceTmp.fontSize = line.fontSize;
 
         choiceText.SetActive(true);
@@ -168,4 +175,14 @@ public partial class Director
             _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.one, choiceAnimSeconds, false));
         }
     }
+
+    void SetChoicePair(int leftIndexEven)
+    {
+        // Each "scene" gets exactly 2 choice lines in ChoiceTextScripts:
+        // scene 0 -> indices 0,1
+        // scene 1 -> indices 2,3
+        // scene 2 -> indices 4,5
+        _choiceBaseIndex = leftIndexEven * 2;
+    }
+
 }
