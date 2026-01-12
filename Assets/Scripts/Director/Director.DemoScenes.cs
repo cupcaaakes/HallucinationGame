@@ -54,6 +54,7 @@ public partial class Director
         ActivateOnlyScene(sceneParent);
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
+        titleScreenText.SetActive(false);
     }
 
     IEnumerator EndSceneWithNoChoiceMade(SceneRef scene)
@@ -223,7 +224,6 @@ public partial class Director
         _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
 
         StartupScene(languageSceneParent);
-
         StartCoroutine(Fade(doorEnglishL, 0f, 0f));
         StartCoroutine(Fade(doorGermanR, 0f, 0f));
         doorEnglishL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 7.5f);
@@ -649,6 +649,7 @@ public partial class Director
     public System.Collections.IEnumerator TitleScreen()
     {
         StartupScene(titleScreenParent);
+        titleScreenText.SetActive(true);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);

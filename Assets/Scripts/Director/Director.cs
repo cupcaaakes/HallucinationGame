@@ -111,6 +111,13 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     void Update()
     {
+        if (isTitleScreenActive && titleScreenText)
+        {
+            float t = (Mathf.Sin(Time.unscaledTime * titlePulseSpeed) + 1f) * 0.5f; // 0..1
+            float s = Mathf.Lerp(0.75f, 1.25f, t); // 0.5 -> 2
+            titleScreenText.transform.localScale = new Vector3(s, s, s);
+        }
+
         if (!decisionL || !decisionR) return;
 
         // don’t progress if decision boxes are disabled
