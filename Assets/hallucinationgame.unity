@@ -2968,7 +2968,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4663113a073ffe47ac360c4c344b5f4, type: 3}
   m_Name: 
@@ -2979,11 +2979,15 @@ MonoBehaviour:
   handPosWeight: 2
   elbowHintWeight: 0.5
   lookWeight: 0.6
+  trackFeet: 1
+  footPosWeight: 1
+  kneeHintWeight: 1
+  trackYaw: 1
   mirror: 0
   flipZ: 1
   flipX: 1
   rootSmooth: 24
-  yawSmooth: 10
+  yawSmooth: 32
   lockX: 0
   lockY: 1
   lockZ: 1
@@ -3044,7 +3048,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70c3570698c398542b95aee97bfe5a60, type: 3}
   m_Name: 
@@ -3869,7 +3873,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264200774}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f77f6e47c9c421b4395ab162f6834cd8, type: 3}
   m_Name: 
