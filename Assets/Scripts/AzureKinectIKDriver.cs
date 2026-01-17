@@ -29,28 +29,39 @@ public class AzureKinectIKDriver : MonoBehaviour
 
     [Header("Gesture detection")]
     [Tooltip("Upper arm angle from 'down' (0=arm down, 90=straight out sideways, 180=straight up).")]
-    public float armRaiseAngle = 90f;
+    public float armRaiseAngle = 70f;
 
     [Tooltip("Extra degrees required to ENTER the raised state.")]
-    public float angleHysteresis = 7f;
+    public float angleHysteresis = 5f;
 
     [Tooltip("Hand must be at least this much above the shoulder.")]
-    public float minHandAboveShoulder = 0.05f;
+    public float minHandAboveShoulder = 0f;
 
     [Tooltip("Hand must be at least this far to the side.")]
-    public float minSideOffset = 0.15f;
+    public float minSideOffset = 0f;
 
     [Tooltip("How much the arm is allowed to point forward/back (0 = never, 1 = always). Lower = stricter anti-salute.")]
-    [Range(0f, 1f)] public float maxForwardDot = 0.35f;
+    [Range(0f, 1f)] public float maxForwardDot = 1f;
 
     [Tooltip("How much the arm must point sideways (dot with body-right axis). Higher = stricter.")]
-    [Range(0f, 1f)] public float minSideDot = 0.45f;
+    [Range(0f, 1f)] public float minSideDot = 0f;
 
     [Tooltip("Minimum time between logs per arm (seconds).")]
-    public float gestureCooldown = 0.6f;
+    public float gestureCooldown = 0.3f;
 
-    private bool _rightArmRaised;
-    private bool _leftArmRaised;
+    [Header("Anti-salute filter")]
+    [Tooltip("If the arm points forward within this angle AND is roughly horizontal AND fairly straight, it will be rejected.")]
+    public float saluteForwardMaxAngle = 35f;
+    [Tooltip("How close to horizontal the arm must be to count as a salute (degrees away from perfectly horizontal).")]
+    public float saluteHorizontalMaxDelta = 25f;
+    [Tooltip("Elbow angle required to count as 'straight enough' (180 = perfectly straight).")]
+    public float saluteMinElbowAngle = 150f;
+    [Tooltip("Arm must point within this many degrees of the side direction (left/right). 45° = forward becomes invalid.")]
+    public float sideMaxAngle = 45f;
+
+
+    public bool RightArmRaised { get; private set; }
+    public bool LeftArmRaised { get; private set; }
     private float _nextRightLogTime;
     private float _nextLeftLogTime;
 
@@ -206,7 +217,7 @@ public class AzureKinectIKDriver : MonoBehaviour
             JointId.ShoulderRight, JointId.ElbowRight, JointId.HandRight,
             bodyRight, bodyUp, bodyForward,
             isRight: true,
-            angleThreshold: _rightArmRaised ? exitAngle : enterAngle
+            angleThreshold: RightArmRaised ? exitAngle : enterAngle
         );
 
         bool leftPose = IsArmRaisedToSide(
@@ -214,24 +225,24 @@ public class AzureKinectIKDriver : MonoBehaviour
             JointId.ShoulderLeft, JointId.ElbowLeft, JointId.HandLeft,
             bodyRight, bodyUp, bodyForward,
             isRight: false,
-            angleThreshold: _leftArmRaised ? exitAngle : enterAngle
+            angleThreshold: LeftArmRaised ? exitAngle : enterAngle
         );
 
         // Log ONLY on the rising edge (false -> true)
-        if (rightPose && !_rightArmRaised && Time.time >= _nextRightLogTime)
+        if (rightPose && !RightArmRaised && Time.time >= _nextRightLogTime)
         {
             Debug.Log("GESTURE: Right arm raised to the side");
             _nextRightLogTime = Time.time + gestureCooldown;
         }
 
-        if (leftPose && !_leftArmRaised && Time.time >= _nextLeftLogTime)
+        if (leftPose && !LeftArmRaised && Time.time >= _nextLeftLogTime)
         {
             Debug.Log("GESTURE: Left arm raised to the side");
             _nextLeftLogTime = Time.time + gestureCooldown;
         }
 
-        _rightArmRaised = rightPose;
-        _leftArmRaised = leftPose;
+        RightArmRaised = rightPose;
+        LeftArmRaised = leftPose;
     }
 
     private bool TryGetBodyAxes(Skeleton skel, out Vector3 bodyRight, out Vector3 bodyUp, out Vector3 bodyForward)
@@ -262,70 +273,68 @@ public class AzureKinectIKDriver : MonoBehaviour
         // Re-orthonormalize up to be safe
         bodyUp = Vector3.Cross(bodyForward, bodyRight).normalized;
 
+        // Make "forward" consistent with the avatar (prevents forward/back flips)
+        if (Vector3.Dot(bodyForward, transform.forward) < 0f)
+            bodyForward = -bodyForward;
+
+        // Keep orthonormal basis consistent after flipping forward
+        bodyUp = Vector3.Cross(bodyForward, bodyRight).normalized;
+
         return true;
     }
 
     private bool IsArmRaisedToSide(
-        Skeleton skel,
-        JointId shoulderId,
-        JointId elbowId,
-        JointId handId,
-        Vector3 bodyRight,
-        Vector3 bodyUp,
-        Vector3 bodyForward,
-        bool isRight,
-        float angleThreshold
-    )
+    Skeleton skel,
+    JointId shoulderId,
+    JointId elbowId,
+    JointId handId,
+    Vector3 bodyRight,
+    Vector3 bodyUp,
+    Vector3 bodyForward,
+    bool isRight,
+    float angleThreshold
+)
     {
-        // Optional safety: ignore if tracking confidence is bad (prevents random logs when occluded)
         var shJ = skel.GetJoint(shoulderId);
-        var elJ = skel.GetJoint(elbowId);
         var haJ = skel.GetJoint(handId);
 
-        if (shJ.ConfidenceLevel <= JointConfidenceLevel.Low ||
-            elJ.ConfidenceLevel <= JointConfidenceLevel.Low ||
-            haJ.ConfidenceLevel <= JointConfidenceLevel.Low)
+        // Super tolerant: only reject if tracking is basically missing
+        if (shJ.ConfidenceLevel == JointConfidenceLevel.None ||
+            haJ.ConfidenceLevel == JointConfidenceLevel.None)
             return false;
 
         Vector3 shoulder = JPosLocal(skel, shoulderId);
-        Vector3 elbow = JPosLocal(skel, elbowId);
         Vector3 hand = JPosLocal(skel, handId);
 
-        Vector3 upperDir = (elbow - shoulder).normalized;
+        Vector3 handRel = hand - shoulder;
+        if (handRel.sqrMagnitude < 0.0001f)
+            return false;
 
-        // 0 = arm down, 90 = arm sideways, 180 = arm straight up
-        float angleFromDown = Vector3.Angle(-bodyUp, upperDir);
+        Vector3 handDir = handRel.normalized;
+
+        // --- 1) "Raised" check (works with bent elbows because we use SHOULDER -> HAND) ---
+        // 0 = arm down, 90 = horizontal, 180 = up
+        float angleFromDown = Vector3.Angle(-bodyUp, handDir);
         if (angleFromDown < angleThreshold)
             return false;
 
-        // Must actually be above shoulder a bit
-        if (hand.y < shoulder.y + minHandAboveShoulder)
-            return false;
+        // --- 2) Side direction check (this is what kills salutes) ---
+        // We compare only the horizontal direction ("yaw"), so raising up diagonally still works.
+        Vector3 flat = Vector3.ProjectOnPlane(handDir, bodyUp);
+        if (flat.sqrMagnitude < 0.0001f)
+            return false; // arm is too vertical to be a left/right gesture
 
-        Vector3 handRel = hand - shoulder;
-        Vector3 handDir = handRel.normalized;
+        Vector3 flatDir = flat.normalized;
+        Vector3 sideAxis = isRight ? bodyRight : -bodyRight;
 
-        // Anti-salute: forbid arms pointing forward/backward
-        float forwardDot = Mathf.Abs(Vector3.Dot(handDir, bodyForward));
-        if (forwardDot > maxForwardDot)
-            return false;
+        float sideYawAngle = Vector3.Angle(flatDir, sideAxis);
 
-        // Must be to the side (based on the body's own right axis)
-        float sideDot = Vector3.Dot(handDir, bodyRight);
-        if (isRight)
-        {
-            if (sideDot < minSideDot) return false;
-        }
-        else
-        {
-            if (sideDot > -minSideDot) return false;
-        }
-
-        // Must reach to the side by distance (meters)
-        float sideOffset = Mathf.Abs(Vector3.Dot(handRel, bodyRight));
-        if (sideOffset < minSideOffset)
+        // If it's not pointing mostly to the side, it's not a valid choice gesture.
+        // This makes forward-ish "salute" poses invalid by construction.
+        if (sideYawAngle > sideMaxAngle)
             return false;
 
         return true;
     }
+
 }

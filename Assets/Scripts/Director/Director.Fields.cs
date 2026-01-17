@@ -9,6 +9,8 @@ using static TextboxScripts;
 // It contains ALL Inspector fields + runtime state variables.
 public partial class Director
 {
+    [SerializeField] private AzureKinectIKDriver ikDriver;
+
     // -------------------------------------------------------------------------
     // Scene objects used as "hover zones" / choices
     // (These should have Colliders so hover/trigger detection works.)
@@ -21,6 +23,9 @@ public partial class Director
     SceneRef[] _next = new SceneRef[2];
 
     private int purityImageValue = 0;
+
+    int _armChoice = -1;        // -1 none, 0 left, 1 right (arm-based preview)
+    int _previewChoice = -1;    // which side the choice UI is currently showing
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
     // -------------------------------------------------------------------------

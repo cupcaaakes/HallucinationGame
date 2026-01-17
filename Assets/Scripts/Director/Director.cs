@@ -118,6 +118,14 @@ public partial class Director : MonoBehaviour
             titleScreenText.transform.localScale = new Vector3(s, s, s);
         }
 
+        if (ikDriver)
+        {
+            SetArmChoicePreviewFromBools(
+                ikDriver.LeftArmRaised,
+                ikDriver.RightArmRaised
+            );
+        }
+
         if (!decisionL || !decisionR) return;
 
         // don’t progress if decision boxes are disabled

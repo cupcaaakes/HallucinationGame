@@ -2678,6 +2678,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af4565f9c6310b94d95cf9c74283d58a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  ikDriver: {fileID: 847006724}
   decisionL: {fileID: 590647153}
   decisionR: {fileID: 234460517}
   textbox: {fileID: 1621188874}
@@ -2987,6 +2988,13 @@ MonoBehaviour:
   lockX: 0
   lockY: 1
   lockZ: 1
+  armRaiseAngle: 90
+  angleHysteresis: 7
+  minHandAboveShoulder: 0.05
+  minSideOffset: 0.15
+  maxForwardDot: 0.35
+  minSideDot: 0.45
+  gestureCooldown: 0.6
 --- !u!54 &847006727
 Rigidbody:
   m_ObjectHideFlags: 0
