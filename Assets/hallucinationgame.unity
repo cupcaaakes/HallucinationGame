@@ -4699,6 +4699,7 @@ MonoBehaviour:
   ikDriver: {fileID: 847006724}
   decisionL: {fileID: 590647153}
   decisionR: {fileID: 234460517}
+  DisableInactivityTimer: 0
   textbox: {fileID: 1621188874}
   textboxText: {fileID: 496062446}
   choiceText: {fileID: 1229671853}
@@ -4713,6 +4714,8 @@ MonoBehaviour:
   sceneStartLeadSeconds: 0.15
   scenePrerollSeconds: 0.35
   defaultTextBoxTime: 7.5
+  idleReturnEnabled: 1
+  idleReturnSeconds: 30
   sfx: {fileID: 816459074}
   typeSfx: {fileID: 573238923}
   sfxTypeChar: {fileID: 8300000, guid: c2cb723fa445b5c418cd2d7f29528b0e, type: 3}

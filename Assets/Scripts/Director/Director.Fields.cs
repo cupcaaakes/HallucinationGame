@@ -22,6 +22,8 @@ public partial class Director
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
+    [SerializeField] private bool DisableInactivityTimer;
+
     private int purityImageValue = 0;
 
     int _armChoice = -1;        // -1 none, 0 left, 1 right (arm-based preview)
@@ -70,6 +72,15 @@ public partial class Director
     int _activeChoice = -1;
 
     int _choiceBaseIndex = 0; // left = base, right = base+1
+
+    [Header("Idle Return To Title")]
+    [SerializeField] private bool idleReturnEnabled = true;
+    [SerializeField] private float idleReturnSeconds = 30f;
+
+    // runtime
+    private float _idleNoUserTime = 0f;
+    private bool _idleReturnInProgress = false;
+
 
     // -------------------------------------------------------------------------
     // Audio: SFX + typing sound

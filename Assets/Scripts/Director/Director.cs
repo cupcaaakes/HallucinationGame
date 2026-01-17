@@ -126,6 +126,8 @@ public partial class Director : MonoBehaviour
             );
         }
 
+        UpdateIdleReturnToTitle();
+
         if (!decisionL || !decisionR) return;
 
         // don’t progress if decision boxes are disabled
@@ -267,4 +269,84 @@ public partial class Director : MonoBehaviour
         yield return sceneCo;
         yield return fadeCo;
     }
+
+    private void UpdateIdleReturnToTitle()
+    {
+        if (!idleReturnEnabled) return;
+        if (DisableInactivityTimer) return;
+
+        // Only do this if Kinect exists (otherwise you’ll “idle return” in editor/dev by accident)
+        if (ikDriver == null || ikDriver.kinect == null) return;
+
+        // If we're already on the title screen, keep the timer reset
+        if (_currentScene == TitleScreen)
+        {
+            _idleNoUserTime = 0f;
+            _idleReturnInProgress = false; // allow future idle returns after leaving title again
+            return;
+        }
+
+        bool hasUser = ikDriver.kinect.TryGetLatestSkeleton(out var _);
+
+        if (hasUser)
+        {
+            _idleNoUserTime = 0f;
+            _idleReturnInProgress = false;
+            return;
+        }
+
+        if (_idleReturnInProgress) return;
+
+        _idleNoUserTime += Time.unscaledDeltaTime;
+
+        if (_idleNoUserTime >= idleReturnSeconds)
+        {
+            ForceReturnToTitle();
+        }
+    }
+
+    private void ForceReturnToTitle()
+    {
+        _idleReturnInProgress = true;
+        _idleNoUserTime = 0f;
+
+        // Stop everything currently running (scene routines, fades, boat coroutine, etc.)
+        StopAllCoroutines();
+
+        // Hard reset state
+        _ending = false;
+        _activeChoice = -1;
+        _choiceHold = 0f;
+        _choiceWasOpen = false;
+
+        // Hide choice UI
+        if (choiceText) { choiceText.SetActive(false); if (_choiceRt) _choiceRt.localScale = Vector3.zero; }
+        if (choiceRing) { choiceRing.fillAmount = 0f; choiceRing.gameObject.SetActive(false); if (_ringRt) _ringRt.localScale = Vector3.zero; }
+
+        // Hide textbox UI
+        ToggleTextbox(false, null);
+        ToggleDecisionBoxes(false);
+
+        // Stop ambiance immediately (don’t rely on fade coroutines because we just stopped them)
+        _ambCommitted = false;
+        _ambPreviewActive = false;
+        _ambPreviewSide = -1;
+        if (amb1) { amb1.Stop(); amb1.volume = 0f; }
+        if (amb2) { amb2.Stop(); amb2.volume = 0f; }
+
+        // Force white screen up immediately (so the jump feels intentional)
+        if (whiteout)
+        {
+            whiteout.gameObject.SetActive(true);
+            if (whiteoutBlocksInput) whiteout.raycastTarget = true;
+            SetWhiteoutAlpha(1f);
+        }
+
+        // Make sure title pulse is active again
+        isTitleScreenActive = true;
+
+        // Restart the normal flow at the title
+        StartCoroutine(RevealScene(TitleScreen, titleScreenParent));
+    }
+
 }
