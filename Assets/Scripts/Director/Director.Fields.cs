@@ -144,8 +144,8 @@ public partial class Director
     [SerializeField] private GameObject titleScreenParent;
     [SerializeField] private GameObject titleScreenText;
     [SerializeField] private bool isTitleScreenActive = true;
-    [SerializeField] private float titlePulseSpeed = 0.6f;   // smaller = slower
-    [SerializeField] private float titlePulseAmount = 0.06f; // 0.06 = +/-6% scale
+    [SerializeField] private float titlePulseSpeed = 0.3f;   // smaller = slower
+    [SerializeField] private float titlePulseAmount = 0.03f; // 0.06 = +/-6% scale
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
