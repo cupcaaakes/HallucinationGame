@@ -158,8 +158,8 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        //yield return RevealScene(PonderingScene, ponderingSceneParent);
-        yield return RevealScene(TitleScreen, titleScreenParent);
+        yield return RevealScene(IntroScene, introSceneParent);
+        //yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
     // -------------------------------------------------------------------------

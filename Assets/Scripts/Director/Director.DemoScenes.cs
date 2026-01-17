@@ -262,18 +262,18 @@ public partial class Director
 
         StartCoroutine(Fade(introAiDoctor, 0f, 0f));
         StartCoroutine(Fade(introHumanDoctor, 0f, 0f));
-        introAiDoctor.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0.4f, 5f);
-        introHumanDoctor.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, 5f);
+        introAiDoctor.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, 0f);
+        introHumanDoctor.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, 0.5f);
         introAiDoctor.transform.rotation = defaultBillboardRotation;
         introHumanDoctor.transform.rotation = defaultBillboardRotation;
-        introAiDoctor.transform.localScale = new Vector3(0.2f, introAiDoctor.transform.localScale.y, introAiDoctor.transform.localScale.z);
+        introAiDoctor.transform.localScale = new Vector3(0.225f, introAiDoctor.transform.localScale.y, introAiDoctor.transform.localScale.z);
 
         float doctorTransition = 3f;
 
         StartCoroutine(Fade(introAiDoctor, 1f, doctorTransition));
-        StartCoroutine(MoveTo(introAiDoctor, new Vector3(decisionL.transform.position.x, 0.4f, 0f), doctorTransition));
+        StartCoroutine(MoveTo(introAiDoctor, new Vector3(decisionL.transform.position.x, 0f, 0f), doctorTransition));
         StartCoroutine(Fade(introHumanDoctor, 1f, doctorTransition));
-        StartCoroutine(MoveTo(introHumanDoctor, new Vector3(decisionR.transform.position.x, 0f, 0f), doctorTransition));
+        StartCoroutine(MoveTo(introHumanDoctor, new Vector3(decisionR.transform.position.x, 0f, 0.5f), doctorTransition));
 
         yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
 
