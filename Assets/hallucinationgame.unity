@@ -2451,11 +2451,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1229671854}
+  m_Father: {fileID: 1936220423}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 180}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &574615087
@@ -4699,7 +4699,7 @@ MonoBehaviour:
   ikDriver: {fileID: 847006724}
   decisionL: {fileID: 590647153}
   decisionR: {fileID: 234460517}
-  DisableInactivityTimer: 0
+  DisableInactivityTimer: 1
   textbox: {fileID: 1621188874}
   textboxText: {fileID: 496062446}
   choiceText: {fileID: 1229671853}
@@ -6177,8 +6177,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 574615086}
+  m_Children: []
   m_Father: {fileID: 1936220423}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -8433,6 +8432,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1621188874}
+  - {fileID: 574615086}
   - {fileID: 1229671854}
   - {fileID: 1889992325}
   - {fileID: 2120402375}

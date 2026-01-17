@@ -221,16 +221,12 @@ public partial class Director
         _choiceTmp.ForceMeshUpdate();
         Canvas.ForceUpdateCanvases();
 
-        float textH = _choiceTmp.preferredHeight;
-        float ringH = _ringRt.rect.height;
-        float ringW = _ringRt.rect.width;
+        // Put ring under the text (bottom-center)
+        _ringRt.anchorMin = _ringRt.anchorMax = new Vector2(0.5f, 0f); // bottom-center of the text rect
+        _ringRt.pivot = new Vector2(0.5f, 1f);                        // top-center of the ring
 
-        float inside = (_choiceRt.rect.width * 0.5f) - (ringW * 0.5f) - 8f;
-        float xLocal = isLeft ? +inside : -inside;
-        float yLocalOffset = 50f;
-        float yLocal = -(textH * 0.5f + ringH * 0.5f + choiceRingGapPx) + yLocalOffset;
-
-        _ringRt.anchoredPosition = new Vector2(xLocal, yLocal);
+        // distance below the text rect (use your existing field)
+        _ringRt.anchoredPosition = new Vector2(0f, -choiceRingGapPx);
 
         if (_ringScaleCo != null) StopCoroutine(_ringScaleCo);
         _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.one, choiceAnimSeconds, false));
