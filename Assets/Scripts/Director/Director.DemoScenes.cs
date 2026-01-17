@@ -273,7 +273,7 @@ public partial class Director
         StartCoroutine(Fade(introAiDoctor, 1f, doctorTransition));
         StartCoroutine(MoveTo(introAiDoctor, new Vector3(decisionL.transform.position.x, 0f, 0f), doctorTransition));
         StartCoroutine(Fade(introHumanDoctor, 1f, doctorTransition));
-        StartCoroutine(MoveTo(introHumanDoctor, new Vector3(decisionR.transform.position.x, 0f, 0.5f), doctorTransition));
+        StartCoroutine(MoveTo(introHumanDoctor, new Vector3(decisionR.transform.position.x + 0.25f, 0f, 0.5f), doctorTransition));
 
         yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
 
