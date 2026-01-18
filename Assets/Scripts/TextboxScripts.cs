@@ -26,8 +26,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( //1: intro scene
-            "You've woken up after a long time... On another planet. Two doctors came in to check in on you. Which one do you want to be treated by?",
-            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kommen herein, um dich zu untersuchen. Von wem möchtest du behandelt werden?",            
+            "You've woken up after a long time... On another planet. Two doctors came in to check in on you. Whom would you prefer to be treated by?",
+            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kommen herein, um dich zu untersuchen. Von wem möchtest du lieber behandelt werden?",            
             21.6f
             ),
         new Line( //2: AI doctor 1
