@@ -262,6 +262,8 @@ public partial class Director
 
     [Header("Results screen")]
     [SerializeField] private GameObject resultsScreenParent;
+    [SerializeField] private GameObject resultTitle;
+    [SerializeField] private GameObject resultRank;
 
     Coroutine _boatCo;
 

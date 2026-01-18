@@ -3,6 +3,7 @@ using UnityEngine;
 using static TextboxScripts;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 // This file is part of the partial Director class.
 // It contains scene activation, decision box toggles, audio helpers, and the demo scene routines.
@@ -105,7 +106,7 @@ public partial class Director
         if (Time.unscaledTime < _nextTypeSfxAt) return; // throttle
         _nextTypeSfxAt = Time.unscaledTime + typeMinInterval;
 
-        typeSfx.pitch = 1f + Random.Range(-typePitchJitter, typePitchJitter);
+        typeSfx.pitch = 1f + UnityEngine.Random.Range(-typePitchJitter, typePitchJitter);
         typeSfx.PlayOneShot(sfxTypeChar, 1f);
     }
 
@@ -626,8 +627,70 @@ public partial class Director
     public System.Collections.IEnumerator ResultsScreen()
     {
         StartupScene(resultsScreenParent);
-        yield return new WaitForSeconds(10f);
+        if(UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
+        else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
+        String rankingText = "";
+        if (UseGerman && aiDoctorChosen && aiCrowdChosen && !gotRejectedFromGroup) rankingText = "Revolutionär";
+        switch(UseGerman, aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup)
+        {
+            case (true, true, true, true): // AI Doc, AI Crowd, Rejected from AIs
+                rankingText = "Denker";
+                break;
+            case (false, true, true, true):
+                rankingText = "Thinker";
+                break;
+            case (true, true, true, false): // AI Doc, AI Crowd, Accepted by AIs
+                rankingText = "Vorreiter";
+                break;
+            case (false, true, true, false):
+                rankingText = "Pioneer";
+                break;
+            case (true, true, false, true): // AI Doc, Human Crowd, Rejected from Humans
+                rankingText = "Revoluzer";
+                break;
+            case (false, true, false, true):
+                rankingText = "Revolutionary";
+                break;
+            case (true, true, false, false): // AI Doc, Human Crowd, Accepted by Humans
+                rankingText = "Brückenbauer";
+                break;
+            case (false, true, false, false):
+                rankingText = "Bridge Builder";
+                break;
+            case (true, false, true, true): // Human Doc, AI Crowd, Rejected from AIs
+                rankingText = "Zweifler";
+                break;
+            case (false, false, true, true):
+                rankingText = "Doubter";
+                break;
+            case (true, false, true, false): // Human Doc, AI Crowd, Accepted by AIs
+                rankingText = "Meinungsbildner";
+                break;
+            case (false, false, true, false):
+                rankingText = "Opinion Shaper";
+                break;
+            case (true, false, false, true): // Human Doc, Human Crowd, Rejected from Humans
+                rankingText = "Individuist";
+                break;
+            case (false, false, false, true):
+                rankingText = "Individualist";
+                break;
+            case (true, false, false, false): // Human Doc, Human Crowd, Accepted by Humans)
+                rankingText = "Humanist";
+                break;
+            case (false, false, false, false):
+                rankingText = "Humanist";
+                break;
+            default: // should never happen but y'know, just in case
+                rankingText = "Error"; 
+                break;
+        }
 
+
+        resultRank.GetComponent<TextMeshPro>().text = rankingText;
+
+        yield return new WaitForSeconds(10f);
+        
         // both sides go to the same destination
         _next[0] = new SceneRef(TitleScreen, titleScreenParent, AmbRoute.None, false);
         _next[1] = _next[0];
