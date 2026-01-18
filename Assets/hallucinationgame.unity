@@ -3582,7 +3582,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 42e3e6c9dbed34a40ba3c259b62542e3,
         type: 3}
       propertyPath: m_Name
-      value: X Bot
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 42e3e6c9dbed34a40ba3c259b62542e3,
         type: 3}
