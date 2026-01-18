@@ -67,7 +67,7 @@ public partial class Director : MonoBehaviour
         }
         if (choiceText)
         {
-            _choiceTmp = choiceText.GetComponent<TMP_Text>();
+            _choiceTmp = choiceText.GetComponentInChildren<TMP_Text>(true);
             _choiceRt = choiceText.GetComponent<RectTransform>();
 
             if (!canvas) canvas = choiceText.GetComponentInParent<Canvas>();
