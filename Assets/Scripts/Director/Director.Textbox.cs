@@ -29,7 +29,7 @@ public partial class Director
         if (!textbox) yield break;
 
         Vector3 from = textbox.localScale;
-        Vector3 to = open ? Vector3.one : Vector3.zero;
+        Vector3 to = open ? new Vector3(2f, 2f, 1f) : Vector3.zero;
 
         if (seconds <= 0f)
         {

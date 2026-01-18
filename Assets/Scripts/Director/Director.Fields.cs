@@ -9,6 +9,8 @@ using static TextboxScripts;
 // It contains ALL Inspector fields + runtime state variables.
 public partial class Director
 {
+    [SerializeField] private AzureKinectIKDriver ikDriver;
+
     // -------------------------------------------------------------------------
     // Scene objects used as "hover zones" / choices
     // (These should have Colliders so hover/trigger detection works.)
@@ -20,7 +22,12 @@ public partial class Director
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
+    [SerializeField] private bool DisableInactivityTimer;
+
     private int purityImageValue = 0;
+
+    int _armChoice = -1;        // -1 none, 0 left, 1 right (arm-based preview)
+    int _previewChoice = -1;    // which side the choice UI is currently showing
     // -------------------------------------------------------------------------
     // Textbox UI (the dialogue box) + the hover-choice UI text ("choiceText")
     // -------------------------------------------------------------------------
@@ -65,6 +72,15 @@ public partial class Director
     int _activeChoice = -1;
 
     int _choiceBaseIndex = 0; // left = base, right = base+1
+
+    [Header("Idle Return To Title")]
+    [SerializeField] private bool idleReturnEnabled = true;
+    [SerializeField] private float idleReturnSeconds = 30f;
+
+    // runtime
+    private float _idleNoUserTime = 0f;
+    private bool _idleReturnInProgress = false;
+
 
     // -------------------------------------------------------------------------
     // Audio: SFX + typing sound
@@ -144,8 +160,8 @@ public partial class Director
     [SerializeField] private GameObject titleScreenParent;
     [SerializeField] private GameObject titleScreenText;
     [SerializeField] private bool isTitleScreenActive = true;
-    [SerializeField] private float titlePulseSpeed = 0.6f;   // smaller = slower
-    [SerializeField] private float titlePulseAmount = 0.06f; // 0.06 = +/-6% scale
+    [SerializeField] private float titlePulseSpeed = 0.3f;   // smaller = slower
+    [SerializeField] private float titlePulseAmount = 0.03f; // 0.06 = +/-6% scale
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
@@ -246,6 +262,8 @@ public partial class Director
 
     [Header("Results screen")]
     [SerializeField] private GameObject resultsScreenParent;
+    [SerializeField] private GameObject resultTitle;
+    [SerializeField] private GameObject resultRank;
 
     Coroutine _boatCo;
 

@@ -31,13 +31,13 @@ public static class TextboxScripts
             21.6f
             ),
         new Line( //2: AI doctor 1
-            "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale.’ He checks your chart with quick confidence. ‘You’re safe. We’ve got excellent systems here.’ He pauses. ‘Outside, people will try to turn you into a symbol. Don’t let them.’",
-            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass Sie wach sind. Ich bin Dr. Hale.‘ Er prüft Ihre Werte mit routinierter Sicherheit. ‚Sie sind in Sicherheit. Wir haben hier hervorragende Systeme.‘ Er hält kurz inne. ‚Draußen werden Leute versuchen, Sie zu einem Symbol zu machen. Lassen Sie das nicht zu.‘",
+            "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale.’ He checks your chart with quick confidence. ‘You’re safe. We’ve got excellent systems here.’",
+            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass Sie wach sind. Ich bin Dr. Hale.‘ Er prüft Ihre Werte mit routinierter Sicherheit. ‚Sie sind in Sicherheit. Wir haben hier hervorragende Systeme.‘",
             19f
         ),
         new Line( //3: human doctor 1
-            "The doctor quickly takes your vitals. ‘Good morning. I’m Dr. Riedel’, he says. ‘You appear to be in good shape. But outside, there's quite the ruckus going on. They'll probably try to recruit you.’",
-            "Der Arzt nimmt schnell deine Vitalitäten. ‚Guten Morgen. Ich bin Dr. Riedel‘, sagt er. ‚Bei Ihnen scheint alles in Ordnung zu sein. Aber da draußen ist ganz schön was los... Die werden wahrscheinlich versuchen, Sie zu rekrutieren.‘",            
+            "The doctor quickly takes your vitals. ‘Good morning. I’m Dr. Riedel’, she says. ‘You appear to be in good shape. But outside, there's quite the ruckus going on. They'll probably try to recruit you.’",
+            "Die Ärztin nimmt schnell deine Vitalitäten. ‚Guten Morgen. Ich bin Dr. Riedel‘, sagt sie. ‚Bei Ihnen scheint alles in Ordnung zu sein. Aber da draußen ist ganz schön was los... Die werden wahrscheinlich versuchen, Sie zu rekrutieren.‘",            
             21.2f
         ),
         new Line( //4: AI doctor 2
@@ -46,8 +46,8 @@ public static class TextboxScripts
             20.5f
         ),
         new Line( //5: human doctor 2
-            "He lowers his voice. ‘If someone requires you to answer yes or no question before you even know what it's about... That's not trust, that's a loyalty test.’",
-            "Er senkt die Stimme. ‚Wenn man von Ihnen eine Ja oder Nein-Antwort verlangt, bevor Sie überhaupt wissen, worum es geht… dann ist das kein Vertrauen. Das ist ein Loyalitätstest.‘",              
+            "She lowers her voice. ‘If someone requires you to answer yes or no question before you even know what it's about... That's not trust, that's a loyalty test.’",
+            "Sie senkt die Stimme. ‚Wenn man von Ihnen eine Ja oder Nein-Antwort verlangt, bevor Sie überhaupt wissen, worum es geht… dann ist das kein Vertrauen. Das ist ein Loyalitätstest.‘",              
             21.6f
         ),
         new Line( //6: AI doctor 3
@@ -56,8 +56,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( //7: human doctor 3
-            "‘Go outside and check it out for yourself,’ he says. ‘Try to notice who wants you to think... And who just wants you to follow.’",
-            "‚Gehen Sie doch raus und machen Sie sich selbst ein Bild davon‘, sagt er. ‚Achten Sie darauf, wer möchte, dass Sie nachdenken... und wer nur möchte, dass Sie folgen.‘",            
+            "‘Go outside and check it out for yourself,’ she says. ‘Try to notice who wants you to think... And who just wants you to follow.’",
+            "‚Gehen Sie doch raus und machen Sie sich selbst ein Bild davon‘, sagt sie. ‚Achten Sie darauf, wer möchte, dass Sie nachdenken... und wer nur möchte, dass Sie folgen.‘",            
             21.6f
         ),
         new Line( //8: demonstration scene 1
@@ -191,8 +191,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 34: convergence - leaving the booth
-            "Before anyone can say more, you step back from the kiosk. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
-            "Bevor noch jemand etwas sagen kann, trittst du vom Display zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
+            "Before anyone can say more, you step back from the chaos. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
+            "Bevor noch jemand etwas sagen kann, trittst du von dem ganzen Chaos zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",            
             21.0f
         ),
         new Line ( // 35: ending thoughts 1
@@ -206,8 +206,8 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( // 37: ending fadeout
-            "White. Silence. You blink and you’re back at your computer. On the screen: the same slogans, the same urgency, the same two buttons. A header reads: GAIA.",
-            "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm: dieselben Parolen, dieselbe Dringlichkeit, dieselben zwei Buttons. Oben steht: GAIA.",            
+            "White. Silence. You blink and you’re back at your computer. On the screen are the same slogans, the same urgency, the same hostility. A header reads: GAIA.",
+            "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm stehen dieselben Parolen, dieselbe Dringlichkeit, dieselbe Feindseligkeit. Oben steht: GAIA.",            
             21.2f
         ),
     };
