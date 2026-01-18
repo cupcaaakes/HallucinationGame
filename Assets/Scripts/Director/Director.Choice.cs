@@ -157,6 +157,17 @@ public partial class Director
             ? Vector3.Lerp(leftW, centerW, choiceTowardCenter)
             : Vector3.Lerp(rightW, centerW, choiceTowardCenter);
 
+        bool isPurity = _currentSceneRoot == humanPuritySceneParent
+             || _currentSceneRoot == aiPuritySceneParent;
+
+        // Normal: flip right
+        // Purity:  flip left
+        bool flip = isPurity ? isLeft : !isLeft;
+
+        var s = speechBubble.transform.localScale;
+        s.x = Mathf.Abs(s.x) * (flip ? -1f : 1f); // SET flip, don't toggle
+        speechBubble.transform.localScale = s;
+
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;
 

@@ -375,12 +375,28 @@ public partial class Director
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
 
+        StartCoroutine(Fade(demonstrationSceneAIProtester, 0f, 0f));
+        StartCoroutine(Fade(demonstrationSceneHumanProtester, 0f, 0f));
+        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, 0f);
+        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, 0.5f);
+        demonstrationSceneAIProtester.transform.rotation = defaultBillboardRotation;
+        demonstrationSceneHumanProtester.transform.rotation = defaultBillboardRotation;
+        demonstrationSceneAIProtester.transform.localScale = new Vector3(0.225f, demonstrationSceneAIProtester.transform.localScale.y, demonstrationSceneAIProtester.transform.localScale.z);
+
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 8);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
+
+        float demonstrationTransition = 3f;
+
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 10);
+
+        StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneAIProtester, new Vector3(decisionL.transform.position.x, 0f, 0f), demonstrationTransition));
+        StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0f, 0.5f), demonstrationTransition));
 
         SetChoicePair(2);
         ToggleDecisionBoxes(true);

@@ -18,6 +18,7 @@ public partial class Director
     [Header("Decision Boxes")]
     public GameObject decisionL;
     public GameObject decisionR;
+    [SerializeField] private Transform speechBubble;
     // current scene + routing (left/right)
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
@@ -218,32 +219,42 @@ public partial class Director
     [Header("Demonstration scene")]
     [SerializeField] private GameObject demonstrationSceneParent;
     [SerializeField] private GameObject demonstrationSceneFullscreenObj;
+    [SerializeField] private GameObject demonstrationSceneAIProtester;
+    [SerializeField] private GameObject demonstrationSceneHumanProtester;
 
     [Header("AI Purity scene")]
     [SerializeField] private GameObject aiPuritySceneParent;
     [SerializeField] private GameObject aiPurityTestImage;
+    [SerializeField] private GameObject aiPurityAIProtester;
 
     [Header("Human Purity scene")]
     [SerializeField] private GameObject humanPuritySceneParent;
     [SerializeField] private GameObject humanPurityTestImage;
+    [SerializeField] private GameObject humanPurityHumanProtester;
 
     [Header("Accepted To AIs scene")]
     [SerializeField] private GameObject acceptedToAIsSceneParent;
+    [SerializeField] private GameObject acceptedToAIsSceneAIProtester;
 
     [Header("Accepted To Humans scene")]
     [SerializeField] private GameObject acceptedToHumansSceneParent;
+    [SerializeField] private GameObject acceptedToHumansSceneHumanProtester;
 
     [Header("Rejected From AIs scene")]
     [SerializeField] private GameObject rejectedFromAIsSceneParent;
+    [SerializeField] private GameObject rejectedFromAIsSceneAIProtester;
 
     [Header("Rejected From Humans scene")]
     [SerializeField] private GameObject rejectedFromHumansSceneParent;
+    [SerializeField] private GameObject rejectedFromHumansSceneHumanProtester;
 
     [Header("AI after Human Rejection scene")]
     [SerializeField] private GameObject aiAfterHumanRejectionSceneParent;
+    [SerializeField] private GameObject aiAfterHumanRejectionSceneAIProtester;
 
     [Header("Human after AI Rejection scene")]
     [SerializeField] private GameObject humanAfterAiRejectionSceneParent;
+    [SerializeField] private GameObject humanAfterAiRejectionSceneHumanProtester;
 
     [Header("Voting Booth scene")]
     [SerializeField] private GameObject votingBoothSceneParent;
