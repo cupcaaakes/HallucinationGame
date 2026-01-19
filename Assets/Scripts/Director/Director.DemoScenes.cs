@@ -656,10 +656,10 @@ public partial class Director
                 rankingText = "Thinker";
                 break;
             case (true, true, true, false): // AI Doc, AI Crowd, Accepted by AIs
-                rankingText = "Vorreiter";
+                rankingText = "Technikenthusiast";
                 break;
             case (false, true, true, false):
-                rankingText = "Pioneer";
+                rankingText = "Tech Enthusiast";
                 break;
             case (true, true, false, true): // AI Doc, Human Crowd, Rejected from Humans
                 rankingText = "Revoluzer";
