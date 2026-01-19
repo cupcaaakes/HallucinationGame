@@ -5336,7 +5336,7 @@ MonoBehaviour:
   decisionL: {fileID: 590647153}
   decisionR: {fileID: 234460517}
   speechBubble: {fileID: 381978150}
-  DisableInactivityTimer: 1
+  DisableInactivityTimer: 0
   textbox: {fileID: 1621188874}
   textboxText: {fileID: 496062446}
   choiceText: {fileID: 1229671853}
@@ -5706,7 +5706,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4663113a073ffe47ac360c4c344b5f4, type: 3}
   m_Name: 
@@ -5793,7 +5793,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70c3570698c398542b95aee97bfe5a60, type: 3}
   m_Name: 
@@ -7027,7 +7027,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264200774}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f77f6e47c9c421b4395ab162f6834cd8, type: 3}
   m_Name: 

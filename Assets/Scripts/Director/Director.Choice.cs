@@ -99,7 +99,7 @@ public partial class Director
 
     void RefreshChoicePreviewUI()
     {
-        if (!decisionL || !decisionR || !choiceText || !canvas) return;
+        if (!decisionL || !decisionL.activeInHierarchy || !decisionR || !decisionR.activeInHierarchy || !choiceText || !canvas) return;
 
         // Hover takes priority over arm preview (because hover is the real selectable state)
         int desiredSide = (_activeChoice != -1) ? _activeChoice : _armChoice;
