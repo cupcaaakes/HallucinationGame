@@ -371,8 +371,8 @@ public partial class Director
 
         StartCoroutine(Fade(demonstrationSceneAIProtester, 0f, 0f));
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 0f, 0f));
-        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0.25f, 0f);
-        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0.25f, 0.5f);
+        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 2f, 0.25f, 0f);
+        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 2f, 0.25f, 0.5f);
         demonstrationSceneAIProtester.transform.rotation = defaultBillboardRotation;
         demonstrationSceneHumanProtester.transform.rotation = defaultBillboardRotation;
         demonstrationSceneAIProtester.transform.localScale = new Vector3(0.35f, demonstrationSceneAIProtester.transform.localScale.y, demonstrationSceneAIProtester.transform.localScale.z);
@@ -382,12 +382,10 @@ public partial class Director
         ToggleTextbox(true, 8);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
-
-        float demonstrationTransition = 3f;
-
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 10);
 
+        float demonstrationTransition = 1.5f;
         StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
         StartCoroutine(MoveTo(demonstrationSceneAIProtester, new Vector3(decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));

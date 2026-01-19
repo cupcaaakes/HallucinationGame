@@ -23,6 +23,8 @@ public partial class Director
     Func<System.Collections.IEnumerator> _currentScene;
     SceneRef[] _next = new SceneRef[2];
 
+    [SerializeField] private Transform playerTransform;
+
     [SerializeField] private bool DisableInactivityTimer;
 
     private int purityImageValue = 0;
