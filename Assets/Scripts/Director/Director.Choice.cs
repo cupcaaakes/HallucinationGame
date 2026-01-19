@@ -157,12 +157,14 @@ public partial class Director
             ? Vector3.Lerp(leftW, centerW, choiceTowardCenter)
             : Vector3.Lerp(rightW, centerW, choiceTowardCenter);
 
-        bool isPurity = _currentSceneRoot == humanPuritySceneParent
-             || _currentSceneRoot == aiPuritySceneParent;
+        bool isPlayerSpeaking = _currentSceneRoot == humanPuritySceneParent
+             || _currentSceneRoot == aiPuritySceneParent
+             || _currentSceneRoot == titleScreenParent
+             || _currentSceneRoot == languageSceneParent;
 
         // Normal: flip right
         // Purity:  flip left
-        bool flip = isPurity ? isLeft : !isLeft;
+        bool flip = isPlayerSpeaking ? isLeft : !isLeft;
 
         var s = speechBubble.transform.localScale;
         s.x = Mathf.Abs(s.x) * (flip ? -1f : 1f); // SET flip, don't toggle

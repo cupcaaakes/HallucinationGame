@@ -377,11 +377,12 @@ public partial class Director
 
         StartCoroutine(Fade(demonstrationSceneAIProtester, 0f, 0f));
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 0f, 0f));
-        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, 0f);
-        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, 0.5f);
+        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0.25f, 0f);
+        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0.25f, 0.5f);
         demonstrationSceneAIProtester.transform.rotation = defaultBillboardRotation;
         demonstrationSceneHumanProtester.transform.rotation = defaultBillboardRotation;
-        demonstrationSceneAIProtester.transform.localScale = new Vector3(0.225f, demonstrationSceneAIProtester.transform.localScale.y, demonstrationSceneAIProtester.transform.localScale.z);
+        demonstrationSceneAIProtester.transform.localScale = new Vector3(0.35f, demonstrationSceneAIProtester.transform.localScale.y, demonstrationSceneAIProtester.transform.localScale.z);
+        demonstrationSceneHumanProtester.transform.localScale = new Vector3(0.45f, demonstrationSceneHumanProtester.transform.localScale.y, 0.35f);
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 8);
@@ -394,9 +395,9 @@ public partial class Director
         ToggleTextbox(true, 10);
 
         StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
-        StartCoroutine(MoveTo(demonstrationSceneAIProtester, new Vector3(decisionL.transform.position.x, 0f, 0f), demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneAIProtester, new Vector3(decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));
-        StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0f, 0.5f), demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0.25f, 0.5f), demonstrationTransition));
 
         SetChoicePair(2);
         ToggleDecisionBoxes(true);
@@ -646,7 +647,6 @@ public partial class Director
         if(UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
         String rankingText = "";
-        if (UseGerman && aiDoctorChosen && aiCrowdChosen && !gotRejectedFromGroup) rankingText = "Revolutionär";
         switch(UseGerman, aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup)
         {
             case (true, true, true, true): // AI Doc, AI Crowd, Rejected from AIs
