@@ -326,12 +326,6 @@ public partial class Director
 
     }
 
-    // -------------------------------------------------------------------------
-    // DemoEnding1():
-    // - Activates ending 1 scene
-    // - Starts boat drift coroutine
-    // - Shows textbox line 1 after reveal timing
-    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding1()
     {
         StartupScene(demoEnding1Parent);
