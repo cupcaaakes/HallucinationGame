@@ -5685,7 +5685,7 @@ MonoBehaviour:
   decisionR: {fileID: 234460517}
   speechBubble: {fileID: 381978150}
   playerTransform: {fileID: 799871864}
-  DisableInactivityTimer: 0
+  DisableInactivityTimer: 1
   textbox: {fileID: 1621188874}
   textboxText: {fileID: 496062446}
   choiceText: {fileID: 1229671853}

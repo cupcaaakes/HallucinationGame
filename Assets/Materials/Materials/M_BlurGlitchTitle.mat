@@ -36,7 +36,7 @@ Material:
     - _GlitchEnable: 1
     - _GlitchEventChance: 1
     - _GlitchMaxInterval: 4
-    - _GlitchMinInterval: 1
+    - _GlitchMinInterval: 0.3
     - _GlitchSpeed: 17.83
     - _GlitchStrength: 21
     - _Noise: 7.04
