@@ -99,7 +99,7 @@ public partial class Director
 
     void RefreshChoicePreviewUI()
     {
-        if (!decisionL || !decisionR || !choiceText || !canvas) return;
+        if (!decisionL || !decisionL.activeInHierarchy || !decisionR || !decisionR.activeInHierarchy || !choiceText || !canvas) return;
 
         // Hover takes priority over arm preview (because hover is the real selectable state)
         int desiredSide = (_activeChoice != -1) ? _activeChoice : _armChoice;
@@ -151,11 +151,40 @@ public partial class Director
         // compute target for ChoiceText (canvas space)
         Vector3 leftW = decisionL.transform.position;
         Vector3 rightW = decisionR.transform.position;
+
+        bool isPlayerSpeaking = _currentSceneRoot == humanPuritySceneParent
+             || _currentSceneRoot == aiPuritySceneParent
+             || _currentSceneRoot == titleScreenParent
+             || _currentSceneRoot == languageSceneParent;
+
+        if (!isPlayerSpeaking && _currentSceneRoot != demonstrationSceneParent)
+        {
+            leftW = new Vector3(leftW.x + 0.5f, leftW.y, leftW.z);
+            rightW = new Vector3(rightW.x - 0.5f, rightW.y, rightW.z);
+        } 
+        else if (_currentSceneRoot == demonstrationSceneParent)
+        {
+            leftW = new Vector3(leftW.x + 0.75f, leftW.y, leftW.z);
+            rightW = new Vector3(rightW.x - 1f, rightW.y, rightW.z);
+        }
+
         Vector3 centerW = (leftW + rightW) * 0.5f;
 
         Vector3 pickW = isLeft
             ? Vector3.Lerp(leftW, centerW, choiceTowardCenter)
             : Vector3.Lerp(rightW, centerW, choiceTowardCenter);
+
+        Debug.Log(isLeft ? leftW : rightW);
+
+
+        bool playerInCenter = Mathf.Abs(playerTransform.position.x) <= 1f;
+        // Normal when in center: flip right
+        // NPC/Player in the far corners:  flip left
+        bool flip = (isPlayerSpeaking && playerInCenter) ? isLeft : !isLeft;
+        var s = speechBubble.transform.localScale;
+        s.x = Mathf.Abs(s.x) * (flip ? -1f : 1f); // SET flip, don't toggle
+        s.y = isPlayerSpeaking ? Mathf.Abs(s.y) : -Mathf.Abs(s.y); // flip upside down for NPC speech bubbles
+        speechBubble.transform.localScale = s;
 
         Vector2 targetCanvas = WorldToCanvasLocal(pickW) + choiceOffsetPx;
         targetCanvas.y = 0f;

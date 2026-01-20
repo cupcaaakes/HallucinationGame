@@ -26,6 +26,7 @@ public partial class Director
 
         // make sure it's visible while fading
         whiteout.gameObject.SetActive(true);
+        glitchTransitionOverlay.SetActive(true);
         if (whiteoutBlocksInput) whiteout.raycastTarget = true;
 
         float fromAlpha = whiteout.color.a;
@@ -50,11 +51,13 @@ public partial class Director
         {
             if (whiteoutBlocksInput) whiteout.raycastTarget = false;
             whiteout.gameObject.SetActive(false);
+            glitchTransitionOverlay.SetActive(false);
         }
         else
         {
             if (whiteoutBlocksInput) whiteout.raycastTarget = true;
             whiteout.gameObject.SetActive(true);
+            glitchTransitionOverlay.SetActive(true);
         }
     }
 

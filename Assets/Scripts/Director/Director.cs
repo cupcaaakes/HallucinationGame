@@ -67,7 +67,7 @@ public partial class Director : MonoBehaviour
         }
         if (choiceText)
         {
-            _choiceTmp = choiceText.GetComponent<TMP_Text>();
+            _choiceTmp = choiceText.GetComponentInChildren<TMP_Text>(true);
             _choiceRt = choiceText.GetComponent<RectTransform>();
 
             if (!canvas) canvas = choiceText.GetComponentInParent<Canvas>();
@@ -93,6 +93,7 @@ public partial class Director : MonoBehaviour
         if (whiteout)
         {
             whiteout.gameObject.SetActive(true);
+            glitchTransitionOverlay.SetActive(true);
             if (whiteoutBlocksInput) whiteout.raycastTarget = true;
             SetWhiteoutAlpha(1f); // start fully white
         }
@@ -160,7 +161,7 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        //yield return RevealScene(ResultsScreen, resultsScreenParent);
+        //yield return RevealScene(DemonstrationScene, demonstrationSceneParent);
         yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
@@ -338,6 +339,7 @@ public partial class Director : MonoBehaviour
         if (whiteout)
         {
             whiteout.gameObject.SetActive(true);
+            glitchTransitionOverlay.SetActive(true);
             if (whiteoutBlocksInput) whiteout.raycastTarget = true;
             SetWhiteoutAlpha(1f);
         }

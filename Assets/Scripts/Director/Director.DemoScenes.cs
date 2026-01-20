@@ -326,12 +326,6 @@ public partial class Director
 
     }
 
-    // -------------------------------------------------------------------------
-    // DemoEnding1():
-    // - Activates ending 1 scene
-    // - Starts boat drift coroutine
-    // - Shows textbox line 1 after reveal timing
-    // -------------------------------------------------------------------------
     public System.Collections.IEnumerator DemoEnding1()
     {
         StartupScene(demoEnding1Parent);
@@ -375,12 +369,27 @@ public partial class Director
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
 
+        StartCoroutine(Fade(demonstrationSceneAIProtester, 0f, 0f));
+        StartCoroutine(Fade(demonstrationSceneHumanProtester, 0f, 0f));
+        demonstrationSceneAIProtester.transform.position = new Vector3(decisionL.transform.position.x - 2f, 0.25f, 0f);
+        demonstrationSceneHumanProtester.transform.position = new Vector3(decisionR.transform.position.x + 2f, 0.25f, 0.5f);
+        demonstrationSceneAIProtester.transform.rotation = defaultBillboardRotation;
+        demonstrationSceneHumanProtester.transform.rotation = defaultBillboardRotation;
+        demonstrationSceneAIProtester.transform.localScale = new Vector3(0.35f, demonstrationSceneAIProtester.transform.localScale.y, demonstrationSceneAIProtester.transform.localScale.z);
+        demonstrationSceneHumanProtester.transform.localScale = new Vector3(0.45f, demonstrationSceneHumanProtester.transform.localScale.y, 0.35f);
+
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 8);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 10);
+
+        float demonstrationTransition = 1.5f;
+        StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneAIProtester, new Vector3(decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
+        StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0.25f, 0.5f), demonstrationTransition));
 
         SetChoicePair(2);
         ToggleDecisionBoxes(true);
@@ -630,7 +639,6 @@ public partial class Director
         if(UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
         String rankingText = "";
-        if (UseGerman && aiDoctorChosen && aiCrowdChosen && !gotRejectedFromGroup) rankingText = "Revolutionär";
         switch(UseGerman, aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup)
         {
             case (true, true, true, true): // AI Doc, AI Crowd, Rejected from AIs
@@ -640,10 +648,10 @@ public partial class Director
                 rankingText = "Thinker";
                 break;
             case (true, true, true, false): // AI Doc, AI Crowd, Accepted by AIs
-                rankingText = "Vorreiter";
+                rankingText = "Technikenthusiast";
                 break;
             case (false, true, true, false):
-                rankingText = "Pioneer";
+                rankingText = "Tech Enthusiast";
                 break;
             case (true, true, false, true): // AI Doc, Human Crowd, Rejected from Humans
                 rankingText = "Revoluzer";
