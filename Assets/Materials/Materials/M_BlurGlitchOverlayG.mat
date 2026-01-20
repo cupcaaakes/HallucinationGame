@@ -28,12 +28,12 @@ Material:
     - _BandChance: 0.432
     - _BandCount: 29
     - _BandSizeJitter: 0.67
-    - _BandSizeSpeed: 8.3
+    - _BandSizeSpeed: 11.6
     - _BlurRadius: 10
     - _BlurStrength: 1
     - _Chromatic: 6.89
     - _GlitchDuration: 2.39
-    - _GlitchEnable: 0.179
+    - _GlitchEnable: 0.202
     - _GlitchEventChance: 1
     - _GlitchMaxInterval: 5.3
     - _GlitchMinInterval: 8
@@ -41,7 +41,7 @@ Material:
     - _GlitchStrength: 80
     - _Noise: 10
     - _Opacity: 1
-    - _TimedGlitch: 0.515
+    - _TimedGlitch: 0.704
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
