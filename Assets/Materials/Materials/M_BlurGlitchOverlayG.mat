@@ -25,23 +25,23 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _BandChance: 0.38
-    - _BandCount: 98
-    - _BandSizeJitter: 0.97
-    - _BandSizeSpeed: 8.3
+    - _BandChance: 0.432
+    - _BandCount: 29
+    - _BandSizeJitter: 0.67
+    - _BandSizeSpeed: 11.6
     - _BlurRadius: 10
     - _BlurStrength: 1
     - _Chromatic: 6.89
     - _GlitchDuration: 2.39
-    - _GlitchEnable: 0.168
+    - _GlitchEnable: 0.202
     - _GlitchEventChance: 1
     - _GlitchMaxInterval: 5.3
     - _GlitchMinInterval: 8
-    - _GlitchSpeed: 20
+    - _GlitchSpeed: 17.1
     - _GlitchStrength: 80
     - _Noise: 10
     - _Opacity: 1
-    - _TimedGlitch: 0.515
+    - _TimedGlitch: 0.704
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
