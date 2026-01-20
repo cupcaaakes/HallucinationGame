@@ -5726,7 +5726,7 @@ MonoBehaviour:
   glitchTransitionOverlay: {fileID: 308556669}
   whiteoutFadeSeconds: 0.5
   whiteoutBlocksInput: 1
-  glitchVolume: {fileID: 0}
+  glitchVolume: {fileID: 486358269}
   sceneParent: {fileID: 460358356}
   titleScreenParent: {fileID: 1638517421}
   titleScreenText: {fileID: 1889992324}
