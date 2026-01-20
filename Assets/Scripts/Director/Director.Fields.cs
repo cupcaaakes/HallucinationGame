@@ -142,6 +142,7 @@ public partial class Director
     // -------------------------------------------------------------------------
     [Header("Whiteout Loading Screen")]
     [SerializeField] private Image whiteout;
+    [SerializeField] private GameObject glitchTransitionOverlay;
     [SerializeField] private float whiteoutFadeSeconds = 0.5f;
     [SerializeField] private bool whiteoutBlocksInput = true;
 
@@ -163,8 +164,14 @@ public partial class Director
     [SerializeField] private GameObject titleScreenParent;
     [SerializeField] private GameObject titleScreenText;
     [SerializeField] private bool isTitleScreenActive = true;
+    [SerializeField] private GameObject titleScreenGlitchTransitionOverlay;
     [SerializeField] private float titlePulseSpeed = 0.3f;   // smaller = slower
     [SerializeField] private float titlePulseAmount = 0.03f; // 0.06 = +/-6% scale
+    [SerializeField] private GameObject hospitalBackgroundParent;
+    [SerializeField] private GameObject demonstrationBackgroundParent;
+    [SerializeField] private GameObject aiProtestersBackgroundParent;
+    [SerializeField] private GameObject humanProtestersBackgroundParent;
+    [SerializeField] private GameObject alleyBackgroundParent;
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.

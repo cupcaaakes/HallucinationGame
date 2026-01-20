@@ -93,6 +93,7 @@ public partial class Director : MonoBehaviour
         if (whiteout)
         {
             whiteout.gameObject.SetActive(true);
+            glitchTransitionOverlay.SetActive(true);
             if (whiteoutBlocksInput) whiteout.raycastTarget = true;
             SetWhiteoutAlpha(1f); // start fully white
         }
@@ -338,6 +339,7 @@ public partial class Director : MonoBehaviour
         if (whiteout)
         {
             whiteout.gameObject.SetActive(true);
+            glitchTransitionOverlay.SetActive(true);
             if (whiteoutBlocksInput) whiteout.raycastTarget = true;
             SetWhiteoutAlpha(1f);
         }
