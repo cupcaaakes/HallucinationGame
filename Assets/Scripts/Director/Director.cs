@@ -252,6 +252,7 @@ public partial class Director : MonoBehaviour
         // enable new root
         _currentSceneRoot = sceneRoot;
         if (_currentSceneRoot) _currentSceneRoot.SetActive(true);
+        if (whiteout) SetWhiteoutAlpha(whiteout.color.a);
 
         ToggleDecisionBoxes(false); // we disable the decision boxes until the scene specifically enables them
 

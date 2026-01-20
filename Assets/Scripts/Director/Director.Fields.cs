@@ -149,6 +149,9 @@ public partial class Director
     Coroutine _whiteoutCo;
     bool _ending;
 
+    [Header("Glitch Volume (PostProcessVolume or Volume)")]
+    [SerializeField] private Component glitchVolume;
+
     // -------------------------------------------------------------------------
     // Scene parenting:
     // You have a "sceneParent" which contains children scenes.
