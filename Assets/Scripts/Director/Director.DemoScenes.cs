@@ -55,7 +55,6 @@ public partial class Director
         ActivateOnlyScene(sceneParent);
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
-        titleScreenText.SetActive(false);
     }
 
     IEnumerator EndSceneWithNoChoiceMade(SceneRef scene)
@@ -406,7 +405,15 @@ public partial class Director
     {
         StartupScene(aiPuritySceneParent);
         aiCrowdChosen = true;
+        aiPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.1f);
+        aiPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.1f);
+        aiPurityCheckmark.transform.rotation = defaultBillboardRotation;
+        aiPurityCross.transform.rotation = defaultBillboardRotation;
+        aiPurityCheckmark.transform.localScale = new Vector3(0.15f, aiPurityCheckmark.transform.localScale.y, 0.1f);
+        aiPurityCross.transform.localScale = new Vector3(0.15f, aiPurityCross.transform.localScale.y, 0.1f);
 
+        float puritySymbolTransition = 3f;
+        
         aiPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
         purityImageValue = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
         Debug.Log("Value of purity image: " + purityImageValue);
@@ -425,6 +432,14 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 11);
         yield return new WaitForSeconds(defaultTextBoxTime);
+
+
+        StartCoroutine(Fade(aiPurityCheckmark, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(aiPurityCheckmark, new Vector3(-1.059f, 0f, -0.423f), puritySymbolTransition));
+        StartCoroutine(Fade(aiPurityCross, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(aiPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
+
+        purityTestActive = true;
         ToggleTextbox(true, 13);
         float slideTransition = 3f;
         PurityTestSlide(aiPurityTestImage, slideTransition);
@@ -437,6 +452,14 @@ public partial class Director
     {
         StartupScene(humanPuritySceneParent);
         aiCrowdChosen = false;
+        humanPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.1f);
+        humanPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.1f);
+        humanPurityCheckmark.transform.rotation = defaultBillboardRotation;
+        humanPurityCross.transform.rotation = defaultBillboardRotation;
+        humanPurityCheckmark.transform.localScale = new Vector3(0.15f, humanPurityCheckmark.transform.localScale.y, 0.1f);
+        humanPurityCross.transform.localScale = new Vector3(0.15f, humanPurityCross.transform.localScale.y, 0.1f);
+
+        float puritySymbolTransition = 3f;
 
         humanPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
         purityImageValue = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
@@ -458,6 +481,13 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 12);
         yield return new WaitForSeconds(defaultTextBoxTime);
+
+        StartCoroutine(Fade(humanPurityCheckmark, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(humanPurityCheckmark, new Vector3(-1.059f, 0f, -0.423f), puritySymbolTransition));
+        StartCoroutine(Fade(humanPurityCross, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(humanPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
+
+        purityTestActive = true;
         ToggleTextbox(true, 14);
         float slideTransition = 3f;
         PurityTestSlide(humanPurityTestImage, slideTransition);
@@ -470,6 +500,7 @@ public partial class Director
     {
         StartupScene(rejectedFromHumansSceneParent);
         gotRejectedFromGroup = true;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 20);
         else ToggleTextbox(true, 22);
@@ -485,6 +516,7 @@ public partial class Director
     {
         StartupScene(rejectedFromAIsSceneParent);
         gotRejectedFromGroup = true;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 19);
         else ToggleTextbox(true, 21);
@@ -500,6 +532,7 @@ public partial class Director
     {
         StartupScene(acceptedToHumansSceneParent);
         gotRejectedFromGroup = false;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 16);
         else ToggleTextbox(true, 18);
@@ -514,6 +547,7 @@ public partial class Director
     {
         StartupScene(acceptedToAIsSceneParent);
         gotRejectedFromGroup = false;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 15);
         else ToggleTextbox(true, 17);
@@ -722,7 +756,6 @@ public partial class Director
     public System.Collections.IEnumerator TitleScreen()
     {
         StartupScene(titleScreenParent);
-        titleScreenText.SetActive(true);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);

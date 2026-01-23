@@ -112,11 +112,14 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     void Update()
     {
-        if (isTitleScreenActive && titleScreenText)
+        if (purityTestActive)
         {
             float t = (Mathf.Sin(Time.unscaledTime * titlePulseSpeed) + 1f) * 0.5f; // 0..1
-            float s = Mathf.Lerp(1.9f, 2.1f, t); // 0.5 -> 2
-            titleScreenText.transform.localScale = new Vector3(s, s, s);
+            float s = Mathf.Lerp(0.1f, 0.125f, t); // 0.5 -> 2
+            aiPurityCheckmark.transform.localScale = new Vector3(s, s, s);
+            aiPurityCross.transform.localScale = new Vector3(s, s, s);
+            humanPurityCheckmark.transform.localScale = new Vector3(s, s, s);
+            humanPurityCross.transform.localScale = new Vector3(s, s, s);
         }
 
         if (ikDriver)
@@ -161,8 +164,8 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        yield return RevealScene(ResultsScreen, resultsScreenParent);
-        //yield return RevealScene(TitleScreen, titleScreenParent);
+        //yield return RevealScene(HumanPurityScene, humanPuritySceneParent);
+        yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
     // -------------------------------------------------------------------------

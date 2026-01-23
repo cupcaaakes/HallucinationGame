@@ -245,15 +245,21 @@ public partial class Director
     [SerializeField] private GameObject demonstrationSceneAIProtester;
     [SerializeField] private GameObject demonstrationSceneHumanProtester;
 
+    private bool purityTestActive = false;
+
     [Header("AI Purity scene")]
     [SerializeField] private GameObject aiPuritySceneParent;
     [SerializeField] private GameObject aiPurityTestImage;
     [SerializeField] private GameObject aiPurityAIProtester;
+    [SerializeField] private GameObject aiPurityCheckmark;
+    [SerializeField] private GameObject aiPurityCross;
 
     [Header("Human Purity scene")]
     [SerializeField] private GameObject humanPuritySceneParent;
     [SerializeField] private GameObject humanPurityTestImage;
     [SerializeField] private GameObject humanPurityHumanProtester;
+    [SerializeField] private GameObject humanPurityCheckmark;
+    [SerializeField] private GameObject humanPurityCross;
 
     [Header("Accepted To AIs scene")]
     [SerializeField] private GameObject acceptedToAIsSceneParent;
