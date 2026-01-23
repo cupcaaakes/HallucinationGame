@@ -27,6 +27,9 @@ public partial class Director
 
     [SerializeField] private bool DisableInactivityTimer;
 
+    /// <summary>
+    /// 0-3 are AI, 4-7 are human
+    /// </summary>
     private int purityImageValue = 0;
 
     int _armChoice = -1;        // -1 none, 0 left, 1 right (arm-based preview)
@@ -220,21 +223,6 @@ public partial class Director
     private GameObject checkupHumanDoctor;
 
     // -------------------------------------------------------------------------
-    // Ending 1: island + boat drift
-    // -------------------------------------------------------------------------
-    [Header("Demo Ending 1")]
-    [SerializeField] private GameObject demoEnding1Parent;
-    [SerializeField] private GameObject island;
-    [SerializeField] private GameObject boat;
-    [SerializeField] private GameObject woodenOverpass;
-    [SerializeField] private float endingPlaneZ = 0f;
-    [SerializeField] private float boatSpeedUnitsPerSec = 0.05f;
-    [SerializeField] private float boatRollDegrees = 4f;          // max roll angle
-    [SerializeField] private float boatRollHz = 0.20f;            // cycles per second (0.2 = 5s per cycle)
-    [SerializeField] private float boatRollEaseOutSeconds = 2.0f; // how long until sway reaches full strength
-    [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
-
-    // -------------------------------------------------------------------------
     // Demonstration scene
     // -------------------------------------------------------------------------
     [Header("Demonstration scene")]
@@ -282,15 +270,6 @@ public partial class Director
     [Header("Human after AI Rejection scene")]
     [SerializeField] private GameObject humanAfterAiRejectionSceneParent;
     [SerializeField] private GameObject humanAfterAiRejectionSceneHumanProtester;
-
-    [Header("Voting Booth scene")]
-    [SerializeField] private GameObject votingBoothSceneParent;
-
-    [Header("Leaving Booth Keep scene")]
-    [SerializeField] private GameObject leavingBoothKeepSceneParent;
-
-    [Header("Leaving Booth Flag scene")]
-    [SerializeField] private GameObject leavingBoothFlagSceneParent;
 
     [Header("Pondering scene")]
     [SerializeField] private GameObject ponderingSceneParent;

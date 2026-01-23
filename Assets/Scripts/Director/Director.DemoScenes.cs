@@ -116,45 +116,6 @@ public partial class Director
         typeSfx.PlayOneShot(clip, 1f);
     }
 
-    // -------------------------------------------------------------------------
-    // BoatDriftForever(): moves boat to the right and adds gentle sway forever
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator BoatDriftForever(Transform t)
-    {
-        if (!t) yield break;
-
-        // remember whatever rotation you spawned the boat with
-        Quaternion baseRot = t.rotation;
-
-        float elapsed = 0f;
-        float smoothRoll = 0f;
-
-        while (t && t.gameObject.activeInHierarchy)
-        {
-            float dt = Time.deltaTime;
-            elapsed += dt;
-
-            // drift right at constant speed
-            t.position += Vector3.right * (boatSpeedUnitsPerSec * dt);
-
-            // amplitude eases in (0 -> 1). Clamp so it stays 1 after the ease time.
-            float amp = (boatRollEaseOutSeconds <= 0f)
-                ? 1f
-                : Mathf.Clamp01(elapsed / boatRollEaseOutSeconds);
-
-            // target roll is a sine wave in degrees
-            float targetRoll = Mathf.Sin(elapsed * (Mathf.PI * 2f) * boatRollHz) * boatRollDegrees * amp;
-
-            // damp/smooth the roll so it feels gentle
-            float k = 1f - Mathf.Exp(-boatRollDamping * dt); // framerate-independent smoothing factor
-            smoothRoll = Mathf.Lerp(smoothRoll, targetRoll, k);
-
-            t.rotation = baseRot * Quaternion.Euler(0f, smoothRoll, 0f);
-
-            yield return null;
-        }
-    }
-
     private void PurityTestSlide(GameObject purityTest, float slideTransition)
     {
         StartCoroutine(Fade(purityTest, 1f, slideTransition));
@@ -271,8 +232,11 @@ public partial class Director
 
         yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
 
-        SetChoicePair(1);
         ToggleTextbox(true, 1);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 2);
+
+        SetChoicePair(1);
         ToggleDecisionBoxes(true);
     }
 
@@ -284,11 +248,11 @@ public partial class Director
         checkupAiDoctor.transform.localScale = introAiDoctor.transform.localScale;
         aiDoctorChosen = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 2);
+        ToggleTextbox(true, 3);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 4);
+        ToggleTextbox(true, 5);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 6);
+        ToggleTextbox(true, 7);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
@@ -305,11 +269,11 @@ public partial class Director
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
         aiDoctorChosen = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 3);
+        ToggleTextbox(true, 4);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 5);
+        ToggleTextbox(true, 6);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 7);
+        ToggleTextbox(true, 8);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
@@ -317,28 +281,6 @@ public partial class Director
         );
         yield break;
 
-    }
-
-    public System.Collections.IEnumerator DemoEnding1()
-    {
-        StartupScene(demoEnding1Parent);
-
-        // edge positions on the z-plane
-        Vector3 rightEdge = ViewportToWorldOnZPlane(1f, 0.5f, endingPlaneZ);
-        Vector3 bottomEdge = ViewportToWorldOnZPlane(0.5f, 0f, endingPlaneZ);
-
-        if (boat)
-        {
-            _boatCo = StartCoroutine(BoatDriftForever(boat.transform));
-        }
-
-        // no choices in endings
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
-
-        // start textbox AFTER reveal so typing is visible
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 1);
     }
 
     // -------------------------------------------------------------------------
@@ -372,11 +314,11 @@ public partial class Director
         demonstrationSceneHumanProtester.transform.localScale = new Vector3(0.45f, demonstrationSceneHumanProtester.transform.localScale.y, 0.35f);
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 8);
-        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 10);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 11);
 
         float demonstrationTransition = 1.5f;
         StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
@@ -417,7 +359,7 @@ public partial class Director
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 11);
+        ToggleTextbox(true, 12);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
 
@@ -427,7 +369,7 @@ public partial class Director
         StartCoroutine(MoveTo(aiPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
 
         purityTestActive = true;
-        ToggleTextbox(true, 13);
+        ToggleTextbox(true, 14);
         float slideTransition = 3f;
         PurityTestSlide(aiPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
@@ -466,7 +408,7 @@ public partial class Director
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 12);
+        ToggleTextbox(true, 13);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         StartCoroutine(Fade(humanPurityCheckmark, 1f, puritySymbolTransition));
@@ -475,7 +417,7 @@ public partial class Director
         StartCoroutine(MoveTo(humanPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
 
         purityTestActive = true;
-        ToggleTextbox(true, 14);
+        ToggleTextbox(true, 15);
         float slideTransition = 3f;
         PurityTestSlide(humanPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
@@ -489,8 +431,8 @@ public partial class Director
         gotRejectedFromGroup = true;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 20);
-        else ToggleTextbox(true, 22);
+        if (purityImageValue <= 3) ToggleTextbox(true, 21); //AI chosen
+        else ToggleTextbox(true, 24);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
@@ -505,10 +447,14 @@ public partial class Director
         gotRejectedFromGroup = true;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 19);
-        else ToggleTextbox(true, 21);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
+        if (purityImageValue <= 3) ToggleTextbox(true, 20);
+        else
+        {
+            ToggleTextbox(true, 22);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+            ToggleTextbox(true, 23);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+        }
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(HumansAfterAiRejectionScene, humanAfterAiRejectionSceneParent, AmbRoute.Amb2, true)
         );
@@ -521,8 +467,8 @@ public partial class Director
         gotRejectedFromGroup = false;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 16);
-        else ToggleTextbox(true, 18);
+        if (purityImageValue <= 3) ToggleTextbox(true, 17);
+        else ToggleTextbox(true, 19);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
@@ -536,8 +482,8 @@ public partial class Director
         gotRejectedFromGroup = false;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 15);
-        else ToggleTextbox(true, 17);
+        if (purityImageValue <= 3) ToggleTextbox(true, 16);
+        else ToggleTextbox(true, 18);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
@@ -551,6 +497,9 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 25);
         yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 27);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 29);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -563,70 +512,10 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 26);
         yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 28);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
-        );
-        yield break;
-    }
-
-    public System.Collections.IEnumerator VotingBoothScene()
-    {
-        StartupScene(votingBoothSceneParent);
-
-        _next[0] = new SceneRef(LeavingBoothKeepScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
-        _next[1] = new SceneRef(LeavingBoothFlagScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
-
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 27);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 28);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 29);
-        SetChoicePair(4);
-        ToggleDecisionBoxes(true);
-    }
-
-    public System.Collections.IEnumerator LeavingBoothKeepScene()
-    {
-        StartupScene(leavingBoothKeepSceneParent);
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 30);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 31);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
-        yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
-        );
-        yield break;
-    }
-
-    public System.Collections.IEnumerator LeavingBoothFlagScene()
-    {
-        StartupScene(leavingBoothFlagSceneParent);
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 32);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 33);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
-        yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
         );
         yield break;
     }
@@ -635,11 +524,11 @@ public partial class Director
     {
         StartupScene(ponderingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 34);
+        ToggleTextbox(true, 30);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 35);
+        ToggleTextbox(true, 31);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 36);
+        ToggleTextbox(true, 32);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
@@ -652,7 +541,7 @@ public partial class Director
     {
         StartupScene(endingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 37);
+        ToggleTextbox(true, 33);
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
