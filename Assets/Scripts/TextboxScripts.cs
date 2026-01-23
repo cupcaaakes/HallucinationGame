@@ -20,10 +20,10 @@ public static class TextboxScripts
 
     public static readonly List<Line> Lines = new()
     {
-        new Line( //0: language selector: both lines are the same
-            "Move to the flag of the language you wish to play in. / Bewege dich zu der Flagge von der Sprache, in der du das Spiel spielen möchtest.",
-            "Move to the flag of the language you wish to play in. / Bewege dich zu der Flagge von der Sprache, in der du das Spiel spielen möchtest.",
-            21.6f
+        new Line( //0: tutorial
+            "Welcome! In GAIA, you have to make some choices. To preview your options, stretch out your arm to the side of the choice you want to check out. Once you're ready, move to either side to start!",
+            "Hallo! In GAIA musst du Entscheidungen treffen. Um deine Auswahloptionen anzuschauen, strecke deinen Arm auf die Seite aus, die du betrachten willst. Sobald du bereit bist, gehe auf eine der beiden Seiten!",
+            20.6f
         ),
         new Line( //1: intro scene
             "You've woken up after a long time... On another planet. Two doctors came in to check in on you. Whom would you prefer to be treated by?",

@@ -219,7 +219,7 @@ public partial class Director : MonoBehaviour
         if (_boatCo != null) StopCoroutine(_boatCo);
         _boatCo = null;
 
-        if (_currentScene == LanguageSelectScene) UseGerman = (chosen == 1); // left = English, right = German
+        if (_currentScene == TitleScreen) UseGerman = (chosen == 1); // left = English, right = German
 
         // reset confirm gating for next scene
         _ending = false;

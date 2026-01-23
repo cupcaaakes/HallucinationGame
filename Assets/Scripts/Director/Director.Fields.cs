@@ -186,6 +186,8 @@ public partial class Director
     [SerializeField] private GameObject aiProtestersBackgroundParent;
     [SerializeField] private GameObject humanProtestersBackgroundParent;
     [SerializeField] private GameObject alleyBackgroundParent;
+    [SerializeField] private GameObject usBox;
+    [SerializeField] private GameObject deBox;
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
@@ -193,10 +195,6 @@ public partial class Director
     [Header("Language Select Scene")]
     [SerializeField]
     private GameObject languageSceneParent;
-    [SerializeField]
-    private GameObject doorEnglishL;
-    [SerializeField]
-    private GameObject doorGermanR;
 
     // -------------------------------------------------------------------------
     // Intro Scene: AI vs Human doctor after waking up.

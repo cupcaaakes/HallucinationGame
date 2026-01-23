@@ -20,9 +20,9 @@ public static class ChoiceTextScripts
 
     public static readonly List<Line> Lines = new()
     {
-        //0: language selector, both lines are the same
-        new Line("Play the game in English!", "Play the game in English!", 21.6f),
-        new Line("Spiele das Spiel auf Deutsch!", "Spiele das Spiel auf Deutsch!", 21.6f),
+        //0: tutorial
+        new Line("This is the left option. Move here to select it!", "Das ist die linke Auswahl. Bewege dich hierhin, um sie auszuwählen!", 21.6f),
+        new Line("This is the right option. Move here to select it!", "Das ist die rechte Auswahl. Bewege dich hierhin, um sie auszuwahlen!", 21.6f),
 
         //1: intro scene
         new Line("Oh my goodness — this is incredible news! You’re awake! Welcome back, We’ve all been rooting for you!", "Oh mein Gott – das sind unglaubliche Neuigkeiten! Du bist wach! Willkommen zurück. Wir haben alle die Daumen für dich gedrückt!", 19f),
@@ -40,8 +40,8 @@ public static class ChoiceTextScripts
         new Line("KEEP", "LASSEN", 22f),
         new Line("FLAG", "MELDEN", 22f),
 
-        //5: title screen, both lines are the same
-        new Line("Play!", "Play!", 24f),
-        new Line("Play!", "Play!", 24f)
+        //5: title screen and language select, both sides are the same
+        new Line("Let's begin!", "Let's begin!", 21.6f),
+        new Line("Los geht's!", "Los geht's!", 21.6f),
     };
 }
