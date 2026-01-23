@@ -120,65 +120,8 @@ public partial class Director
     {
         StartCoroutine(Fade(purityTest, 1f, slideTransition));
         StartCoroutine(MoveTo(purityTest, Vector3.zero, slideTransition));
-
-        var cam = uiCamera ? uiCamera : Camera.main;
-        if (!cam || !purityTest) return;
-
-        var r = purityTest.GetComponent<Renderer>();
-        if (!r) return;
-
-        var mat = r.material;
-        if (!mat) return;
-
-        // grab the actual texture used by common shaders
-        Texture tex = mat.mainTexture;
-        if (!tex) tex = mat.GetTexture("_BaseMap");
-        if (!tex) tex = mat.GetTexture("_MainTex");
-        if (!tex || tex.height == 0) return;
-
-        float imgAspect = (float)tex.width / tex.height;
-
-        // We scale for the FINAL position (0,0,0), not the current animated position.
-        float viewH, viewW;
-        if (cam.orthographic)
-        {
-            viewH = cam.orthographicSize * 2f;
-            viewW = viewH * cam.aspect;
-        }
-        else
-        {
-            // depth of (0,0,0) along camera forward
-            float dist = Mathf.Abs(Vector3.Dot(-cam.transform.position, cam.transform.forward));
-            if (dist < 0.0001f) dist = 0.0001f;
-
-            viewH = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            viewW = viewH * cam.aspect;
-        }
-
-        // Fit image inside camera view (no crop)
-        float targetW, targetH;
-        if (viewW / viewH > imgAspect)
-        {
-            targetH = viewH;
-            targetW = targetH * imgAspect;
-        }
-        else
-        {
-            targetW = viewW;
-            targetH = targetW / imgAspect;
-        }
-
-        // If parent is scaled non-uniformly, compensate so WORLD size is correct.
-        var parentScale = purityTest.transform.parent ? purityTest.transform.parent.lossyScale : Vector3.one;
-        if (Mathf.Abs(parentScale.x) < 0.0001f) parentScale.x = 1f;
-        if (Mathf.Abs(parentScale.z) < 0.0001f) parentScale.z = 1f;
-
-        // Unity Plane mesh is 10x10 in local X/Z
-        var s = purityTest.transform.localScale;
-        s.x = (targetW / 10f) / parentScale.x;
-        s.z = (targetH / 10f) / parentScale.z;
-        purityTest.transform.localScale = s;
     }
+
 
     // -------------------------------------------------------------------------
     // LanguageSelectScene():

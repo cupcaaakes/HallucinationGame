@@ -173,7 +173,7 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        //yield return RevealScene(LanguageSelectScene, languageSceneParent);
+        //yield return RevealScene(AiPurityScene, aiPuritySceneParent);
         yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
