@@ -195,6 +195,23 @@ public partial class Director
         usBox.SetActive(false);
         deBox.SetActive(false);
 
+        
+        StartCoroutine(Fade(leftArrow, 0f, 0f));
+        StartCoroutine(Fade(rightArrow, 0f, 0f));
+        leftArrow.transform.position = new Vector3(decisionL.transform.position.x - 2f, 0.25f, 0f);
+        rightArrow.transform.position = new Vector3(decisionR.transform.position.x + 2f, 0.25f, 0f);
+        leftArrow.transform.rotation = defaultBillboardRotation;
+        rightArrow.transform.rotation = defaultBillboardRotation;
+        leftArrow.transform.localScale = new Vector3(-0.1f, leftArrow.transform.localScale.y, 0.1f);
+        rightArrow.transform.localScale = new Vector3(0.1f, rightArrow.transform.localScale.y, 0.1f);
+
+        float demonstrationTransition = 1.5f;
+        StartCoroutine(Fade(leftArrow, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(leftArrow, new Vector3(decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
+        StartCoroutine(Fade(rightArrow, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(rightArrow, new Vector3(-decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
+        _arrowsActive = true;
+
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         SetChoicePair(0);
         ToggleTextbox(true, 0);
@@ -214,7 +231,7 @@ public partial class Director
         _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.Hospital, true);
 
         StartupScene(introSceneParent);
-
+        _arrowsActive = false;
         StartCoroutine(Fade(introAiDoctor, 0f, 0f));
         StartCoroutine(Fade(introHumanDoctor, 0f, 0f));
         introAiDoctor.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, 0f);
@@ -334,8 +351,8 @@ public partial class Director
     {
         StartupScene(aiPuritySceneParent);
         aiCrowdChosen = true;
-        aiPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.1f);
-        aiPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.1f);
+        aiPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.423f);
+        aiPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.423f);
         aiPurityCheckmark.transform.rotation = defaultBillboardRotation;
         aiPurityCross.transform.rotation = defaultBillboardRotation;
         aiPurityCheckmark.transform.localScale = new Vector3(0.15f, aiPurityCheckmark.transform.localScale.y, 0.1f);
@@ -381,8 +398,8 @@ public partial class Director
     {
         StartupScene(humanPuritySceneParent);
         aiCrowdChosen = false;
-        humanPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.1f);
-        humanPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.1f);
+        humanPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.423f);
+        humanPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.423f);
         humanPurityCheckmark.transform.rotation = defaultBillboardRotation;
         humanPurityCross.transform.rotation = defaultBillboardRotation;
         humanPurityCheckmark.transform.localScale = new Vector3(0.15f, humanPurityCheckmark.transform.localScale.y, 0.1f);

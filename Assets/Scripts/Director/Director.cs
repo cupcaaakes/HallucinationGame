@@ -122,6 +122,15 @@ public partial class Director : MonoBehaviour
             humanPurityCross.transform.localScale = new Vector3(s, s, s);
         }
 
+        if (_arrowsActive)
+        {
+            float t = (Mathf.Sin(Time.unscaledTime * titlePulseSpeed) + 1f) * 0.5f; // 0..1
+            float s = Mathf.Lerp(0.1f, 0.125f, t); // 0.5 -> 2
+            leftArrow.transform.localScale = new Vector3(s, s, s);
+            rightArrow.transform.localScale = new Vector3(s, s, s);
+            leftArrow.transform.localScale = new Vector3(-leftArrow.transform.localScale.x, leftArrow.transform.localScale.y, leftArrow.transform.localScale.z);
+        }
+
         if (ikDriver)
         {
             SetArmChoicePreviewFromBools(

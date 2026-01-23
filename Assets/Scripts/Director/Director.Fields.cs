@@ -198,6 +198,11 @@ public partial class Director
     [Header("Language Select Scene")]
     [SerializeField]
     private GameObject languageSceneParent;
+    [SerializeField]
+    private GameObject leftArrow;
+    [SerializeField]
+    private GameObject rightArrow;
+    private bool _arrowsActive = false;
 
     // -------------------------------------------------------------------------
     // Intro Scene: AI vs Human doctor after waking up.
