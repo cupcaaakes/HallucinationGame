@@ -335,6 +335,10 @@ public partial class Director : MonoBehaviour
         _ambPreviewSide = -1;
         if (amb1) { amb1.Stop(); amb1.volume = 0f; }
         if (amb2) { amb2.Stop(); amb2.volume = 0f; }
+        if (amb3) { amb3.Stop(); amb3.volume = 0f; }
+        if (amb4) { amb4.Stop(); amb4.volume = 0f; }
+        if (amb5) { amb5.Stop(); amb5.volume = 0f; }
+        if (amb6) { amb6.Stop(); amb6.volume = 0f; }
 
         // Force white screen up immediately (so the jump feels intentional)
         if (whiteout)

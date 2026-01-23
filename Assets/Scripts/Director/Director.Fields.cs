@@ -91,6 +91,7 @@ public partial class Director
     [Header("Audio")]
     [SerializeField] private AudioSource sfx;      // UI / transitions / confirms (NO pitch jitter)
     [SerializeField] private AudioSource typeSfx;  // typing clicks (pitch jitter)
+    [SerializeField] private AudioClip[] sfxTypeChars; // put 20 clips in here in the Inspector
     [SerializeField] private AudioClip sfxTypeChar;
     [SerializeField] private AudioClip sfxTextboxOpen;
     [SerializeField] private AudioClip sfxTextboxClose;
@@ -105,7 +106,8 @@ public partial class Director
     [SerializeField] private float typeMinInterval = 0.03f;   // seconds between type clicks
     [SerializeField] private float typePitchJitter = 0.1f;   // small pitch variation
 
-    float _nextTypeSfxAt;
+    private float _nextTypeSfxAt;
+    private int _typeSfxIdx;
     bool _choiceWasOpen;
 
     // -------------------------------------------------------------------------
@@ -122,8 +124,16 @@ public partial class Director
     [Header("Ambiance")]
     [SerializeField] private AudioSource amb1;     // ending 1 Ambiance source
     [SerializeField] private AudioSource amb2;     // ending 2 Ambiance source
+    [SerializeField] private AudioSource amb3;
+    [SerializeField] private AudioSource amb4;
+    [SerializeField] private AudioSource amb5;
+    [SerializeField] private AudioSource amb6;
     [SerializeField] private AudioClip ambEnding1;
     [SerializeField] private AudioClip ambEnding2;
+    [SerializeField] private AudioClip ambHospital;
+    [SerializeField] private AudioClip ambAlley;
+    [SerializeField] private AudioClip ambEnding;
+    [SerializeField] private AudioClip ambTitle;
 
     [SerializeField, Range(0f, 1f)] private float ambPreviewVolume = 0.33f;
     [SerializeField] private float ambPreviewFadeSeconds = 0.25f;
@@ -134,6 +144,7 @@ public partial class Director
     bool _ambPreviewActive;
     bool _ambCommitted;
     int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
+    const bool AMB_PREVIEW_ENABLED = false;
 
     // -------------------------------------------------------------------------
     // Whiteout overlay:
@@ -303,7 +314,11 @@ public partial class Director
     {
         None = 0,
         Amb1 = 1, // uses amb1 source / ambEnding1
-        Amb2 = 2  // uses amb2 source / ambEnding2
+        Amb2 = 2,  // uses amb2 source / ambEnding2 (protests)
+        Hospital = 3,
+        Alley = 4,
+        Ending = 5,
+        Title = 6
     }
 
     [Serializable]

@@ -101,13 +101,20 @@ public partial class Director
     // -------------------------------------------------------------------------
     void PlayTypeSfx()
     {
-        if (!typeSfx || !sfxTypeChar) return;
+        if (!typeSfx) return;
+        if (sfxTypeChars == null || sfxTypeChars.Length == 0) return;
 
         if (Time.unscaledTime < _nextTypeSfxAt) return; // throttle
         _nextTypeSfxAt = Time.unscaledTime + typeMinInterval;
 
+        // pick next clip (cycles)
+        var clip = sfxTypeChars[_typeSfxIdx];
+        _typeSfxIdx = (_typeSfxIdx + 1) % sfxTypeChars.Length;
+
+        if (!clip) return;
+
         typeSfx.pitch = 1f + UnityEngine.Random.Range(-typePitchJitter, typePitchJitter);
-        typeSfx.PlayOneShot(sfxTypeChar, 1f);
+        typeSfx.PlayOneShot(clip, 1f);
     }
 
     // -------------------------------------------------------------------------
@@ -221,8 +228,8 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator LanguageSelectScene()
     {
-        _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
-        _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
+        _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.Hospital, true);
+        _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.Hospital, true);
 
         StartupScene(languageSceneParent);
         StartCoroutine(Fade(doorEnglishL, 0f, 0f));
@@ -256,8 +263,8 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator IntroScene()
     {
-        _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.None, false);
-        _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.None, false);
+        _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.Hospital, true);
+        _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.Hospital, true);
 
         StartupScene(introSceneParent);
 
@@ -498,7 +505,7 @@ public partial class Director
         else ToggleTextbox(true, 18);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -512,7 +519,7 @@ public partial class Director
         else ToggleTextbox(true, 17);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -524,7 +531,7 @@ public partial class Director
         ToggleTextbox(true, 25);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -536,7 +543,7 @@ public partial class Director
         ToggleTextbox(true, 26);
         yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -615,7 +622,7 @@ public partial class Director
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(EndingScene, endingSceneParent, AmbRoute.None, false)
+            new SceneRef(EndingScene, endingSceneParent, AmbRoute.Ending, true)
         );
         yield break;
     }
@@ -628,7 +635,7 @@ public partial class Director
         yield return new WaitForSeconds(defaultTextBoxTime);
 
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.None, false)
+            new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.Title, true)
         );
         yield break;
     }

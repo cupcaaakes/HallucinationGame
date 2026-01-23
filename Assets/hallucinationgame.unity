@@ -5704,20 +5704,49 @@ MonoBehaviour:
   idleReturnSeconds: 30
   sfx: {fileID: 816459074}
   typeSfx: {fileID: 573238923}
-  sfxTypeChar: {fileID: 8300000, guid: c2cb723fa445b5c418cd2d7f29528b0e, type: 3}
-  sfxTextboxOpen: {fileID: 8300000, guid: 6f5580a86512f9c41b5225971ecd4269, type: 3}
-  sfxTextboxClose: {fileID: 8300000, guid: d888106f2c5beba4e9e152758efdd90a, type: 3}
-  sfxChoiceOpen: {fileID: 8300000, guid: aeec19155cb07cc4585227b6a494f449, type: 3}
-  sfxChoiceConfirm: {fileID: 8300000, guid: 9cda46db48b40874681ca52032c6842e, type: 3}
-  sfxTransition: {fileID: 8300000, guid: 33b892e49db4d03409bd5ec4ec80848a, type: 3}
+  sfxTypeChars:
+  - {fileID: 8300000, guid: 2323c60b3d40d5643b2d7509613e7b7c, type: 3}
+  - {fileID: 8300000, guid: 5a0445f9a90c4434f9b4bf977d2023fe, type: 3}
+  - {fileID: 8300000, guid: 468031d07930f3e4e8c1534b6da2f295, type: 3}
+  - {fileID: 8300000, guid: 1aa6b0215189592418c6ce0ba23f30d0, type: 3}
+  - {fileID: 8300000, guid: 50c88bb819096e341beb372da9bf1465, type: 3}
+  - {fileID: 8300000, guid: 6ce1def9a4438e14da50375f8f58ecb3, type: 3}
+  - {fileID: 8300000, guid: 5d03c7b0da7c10c4dbb211966ffeceec, type: 3}
+  - {fileID: 8300000, guid: 9ac2ccf306a505a47bfd456011d7c03c, type: 3}
+  - {fileID: 8300000, guid: 9cfd97f8fcda6d34b9723168163e4e89, type: 3}
+  - {fileID: 8300000, guid: 08e2af69831478b49bb771b69ec4abfb, type: 3}
+  - {fileID: 8300000, guid: bee4c19718191ef4aaa5a6ea428de551, type: 3}
+  - {fileID: 8300000, guid: 0fe7e1a7a7c485f4a8a75e3044fda2cf, type: 3}
+  - {fileID: 8300000, guid: facf7924d63c9a94ba88695a0f5aae37, type: 3}
+  - {fileID: 8300000, guid: ed9e872289bb2cc4e81426c7608e04f2, type: 3}
+  - {fileID: 8300000, guid: 181cc6aa60fb5264f92eca28e1f5304a, type: 3}
+  - {fileID: 8300000, guid: 2690a7bee25761a4591b8503822e1df2, type: 3}
+  - {fileID: 8300000, guid: a00325d741737ee479eae6e23be90ad6, type: 3}
+  - {fileID: 8300000, guid: de6b34f52e7f12745ba26e32fafc26db, type: 3}
+  - {fileID: 8300000, guid: 88293d3dcda5ad143827c984720ac55a, type: 3}
+  - {fileID: 8300000, guid: 6691655b3b3c04148904569d5a16d9a5, type: 3}
+  sfxTypeChar: {fileID: 8300000, guid: 6691655b3b3c04148904569d5a16d9a5, type: 3}
+  sfxTextboxOpen: {fileID: 8300000, guid: 21fa63780b1cb5b4c9a853d236b860dd, type: 3}
+  sfxTextboxClose: {fileID: 8300000, guid: f7c2115cc1db1a04888be77d3f0af158, type: 3}
+  sfxChoiceOpen: {fileID: 8300000, guid: 42cff32e18db9bd44993188c3c384041, type: 3}
+  sfxChoiceConfirm: {fileID: 8300000, guid: ccffee900fd863140bd51de6329f94ec, type: 3}
+  sfxTransition: {fileID: 8300000, guid: 407985030e36780499f1f883aeca92ab, type: 3}
   confirmVolume: 1
   transitionVolume: 1
   typeMinInterval: 0.03
   typePitchJitter: 0.06
   amb1: {fileID: 0}
   amb2: {fileID: 0}
-  ambEnding1: {fileID: 8300000, guid: 9ad522e0df925fc4d97ece8369251e2f, type: 3}
-  ambEnding2: {fileID: 8300000, guid: afd947fd73c717344bc2a892e247ee62, type: 3}
+  amb3: {fileID: 0}
+  amb4: {fileID: 0}
+  amb5: {fileID: 0}
+  amb6: {fileID: 0}
+  ambEnding1: {fileID: 0}
+  ambEnding2: {fileID: 8300000, guid: 83094b63e65185d48af8893f68408c79, type: 3}
+  ambHospital: {fileID: 8300000, guid: 098df428016eb224eaa0aea915894c57, type: 3}
+  ambAlley: {fileID: 8300000, guid: e65561e3fbf675549a4c22bf3ecf77e0, type: 3}
+  ambEnding: {fileID: 8300000, guid: f57a1a60a83855d40bf5213da01b2094, type: 3}
+  ambTitle: {fileID: 8300000, guid: a7b7418e49939f3469bb10fe9ffd942d, type: 3}
   ambPreviewVolume: 0.175
   ambPreviewFadeSeconds: 2
   ambCommitFadeSeconds: 3
