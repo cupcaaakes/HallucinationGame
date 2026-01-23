@@ -298,6 +298,8 @@ public partial class Director
     [SerializeField] private GameObject resultsScreenParent;
     [SerializeField] private GameObject resultTitle;
     [SerializeField] private GameObject resultRank;
+    [SerializeField] private GameObject todayStats;
+    [SerializeField] private GameObject totalStats;
 
     Coroutine _boatCo;
 

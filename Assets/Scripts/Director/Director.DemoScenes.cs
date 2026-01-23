@@ -643,66 +643,44 @@ public partial class Director
     public System.Collections.IEnumerator ResultsScreen()
     {
         StartupScene(resultsScreenParent);
-        if(UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
+
+        // Title label
+        if (UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
-        String rankingText = "";
-        switch(UseGerman, aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup)
+
+        // Rank ID (language-independent) with localized label
+        var rankId = GetRankId(aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup);
+        string rankingText = RankLabel(rankId, UseGerman);
+
+        // Record and show stats
+        if (GAIAStats.I != null)
         {
-            case (true, true, true, true): // AI Doc, AI Crowd, Rejected from AIs
-                rankingText = "Denker";
-                break;
-            case (false, true, true, true):
-                rankingText = "Thinker";
-                break;
-            case (true, true, true, false): // AI Doc, AI Crowd, Accepted by AIs
-                rankingText = "Technikenthusiast";
-                break;
-            case (false, true, true, false):
-                rankingText = "Tech Enthusiast";
-                break;
-            case (true, true, false, true): // AI Doc, Human Crowd, Rejected from Humans
-                rankingText = "Revoluzer";
-                break;
-            case (false, true, false, true):
-                rankingText = "Revolutionary";
-                break;
-            case (true, true, false, false): // AI Doc, Human Crowd, Accepted by Humans
-                rankingText = "Brückenbauer";
-                break;
-            case (false, true, false, false):
-                rankingText = "Bridge Builder";
-                break;
-            case (true, false, true, true): // Human Doc, AI Crowd, Rejected from AIs
-                rankingText = "Zweifler";
-                break;
-            case (false, false, true, true):
-                rankingText = "Doubter";
-                break;
-            case (true, false, true, false): // Human Doc, AI Crowd, Accepted by AIs
-                rankingText = "Meinungsbildner";
-                break;
-            case (false, false, true, false):
-                rankingText = "Opinion Shaper";
-                break;
-            case (true, false, false, true): // Human Doc, Human Crowd, Rejected from Humans
-                rankingText = "Individuist";
-                break;
-            case (false, false, false, true):
-                rankingText = "Individualist";
-                break;
-            case (true, false, false, false): // Human Doc, Human Crowd, Accepted by Humans)
-                rankingText = "Humanist";
-                break;
-            case (false, false, false, false):
-                rankingText = "Humanist";
-                break;
-            default: // should never happen but y'know, just in case
-                rankingText = "Error"; 
-                break;
+            GAIAStats.I.RecordRank(rankId);
+
+            int nthOverall = GAIAStats.I.GetTotal(rankId);
+            int nthToday = GAIAStats.I.GetToday(rankId);
+
+            float pctOverall = GAIAStats.I.GetPercentOverall(rankId);
+            float pctToday = GAIAStats.I.GetPercentToday(rankId);
+
+            string todayStatsLine = UseGerman
+                ? $"Du bist heute die #{nthToday} Person mit diesem Rank.\nHeute haben {pctToday:0}% aller Spieler diesen Rank erhalten!"
+                : $"You are the #{nthToday} person today to get this rank.\nToday, {pctToday:0}% of all players got this rank!";
+
+            string totalStatsLine = UseGerman
+                ? $"Du bist insgesamt die #{nthOverall} Person mit diesem Rank.\nInsgesamt haben {pctOverall:0}% aller Spieler diesen Rank erhalten!"
+                : $"You are the #{nthOverall} person overall to get this rank.\nOverall, {pctOverall:0}% of all players got this rank!";
+
+            resultRank.GetComponent<TextMeshPro>().text = rankingText;
+            todayStats.GetComponent<TextMeshPro>().text = todayStatsLine;
+            totalStats.GetComponent<TextMeshPro>().text = totalStatsLine;
         }
-
-
-        resultRank.GetComponent<TextMeshPro>().text = rankingText;
+        else
+        {
+            resultRank.GetComponent<TextMeshPro>().text = "ERROR";
+            todayStats.GetComponent<TextMeshPro>().text = "GAIAStats";
+            totalStats.GetComponent<TextMeshPro>().text = "Is null!";
+        }
 
         yield return new WaitForSeconds(10f);
         
@@ -712,6 +690,34 @@ public partial class Director
         _activeChoice = 0;
         yield return EndAfterChoice();
     }
+
+    RankId GetRankId(bool aiDoctorChosen, bool aiCrowdChosen, bool gotRejectedFromGroup)
+    {
+        // AI Doc, AI Crowd
+        if (aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Thinker : RankId.TechEnthusiast;
+
+        // AI Doc, Human Crowd
+        if (aiDoctorChosen && !aiCrowdChosen) return gotRejectedFromGroup ? RankId.Revolutionary : RankId.BridgeBuilder;
+
+        // Human Doc, AI Crowd
+        if (!aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Doubter : RankId.OpinionShaper;
+
+        // Human Doc, Human Crowd
+        return gotRejectedFromGroup ? RankId.Individualist : RankId.Humanist;
+    }
+
+    string RankLabel(RankId r, bool de) => r switch
+    {
+        RankId.Thinker => de ? "Denker" : "Thinker",
+        RankId.TechEnthusiast => de ? "Technikenthusiast" : "Tech Enthusiast",
+        RankId.Revolutionary => de ? "Revoluzer" : "Revolutionary",
+        RankId.BridgeBuilder => de ? "Brückenbauer" : "Bridge Builder",
+        RankId.Doubter => de ? "Zweifler" : "Doubter",
+        RankId.OpinionShaper => de ? "Meinungsbildner" : "Opinion Shaper",
+        RankId.Individualist => de ? "Individuist" : "Individualist",
+        RankId.Humanist => "Humanist",
+        _ => "Error"
+    };
 
     public System.Collections.IEnumerator TitleScreen()
     {
