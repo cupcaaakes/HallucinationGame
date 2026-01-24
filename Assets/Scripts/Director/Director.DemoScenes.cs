@@ -156,6 +156,7 @@ public partial class Director
         _arrowsActive = true;
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        bubble.transform.localScale = new Vector3(2.3f, 2.5f, 1f);
         SetChoicePair(0);
         ToggleTextbox(true, 0);
         ToggleDecisionBoxes(true);
@@ -195,7 +196,7 @@ public partial class Director
         ToggleTextbox(true, 1);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 2);
-
+        bubble.transform.localScale = new Vector3(2f, 2.75f, 1f);
         SetChoicePair(1);
         ToggleDecisionBoxes(true);
     }
@@ -286,6 +287,7 @@ public partial class Director
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));
         StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0.25f, 0.5f), demonstrationTransition));
 
+        bubble.transform.localScale = new Vector3(2f, 2.5f, 1f);
         SetChoicePair(2);
         ToggleDecisionBoxes(true);
     }
@@ -333,6 +335,7 @@ public partial class Director
         float slideTransition = 3f;
         PurityTestSlide(aiPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(3);
         ToggleDecisionBoxes(true);
     }
@@ -381,6 +384,7 @@ public partial class Director
         float slideTransition = 3f;
         PurityTestSlide(humanPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(3);
         ToggleDecisionBoxes(true);
     }
@@ -598,6 +602,7 @@ public partial class Director
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
         _next[1] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(5);
         ToggleDecisionBoxes(true);
     }

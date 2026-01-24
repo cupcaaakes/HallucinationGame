@@ -37,6 +37,7 @@ public partial class Director : MonoBehaviour
         if (sceneParent) sceneParent.SetActive(true);
         if (decisionL && decisionR) ToggleDecisionBoxes(false);
         else Debug.LogError("FATAL ERROR: No decision boxes found!");
+        bubble = choiceText.transform.GetChild(0).gameObject;
         foreach (Transform child in sceneParent.transform)
         {
             child.gameObject.SetActive(false);

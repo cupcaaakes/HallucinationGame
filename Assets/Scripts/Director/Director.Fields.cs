@@ -41,6 +41,7 @@ public partial class Director
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+    private GameObject bubble;
     public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:

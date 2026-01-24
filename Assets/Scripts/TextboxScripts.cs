@@ -33,7 +33,7 @@ public static class TextboxScripts
         new Line( // 2: intro scene 2 - choice
             "The male doctor smiles at you and then looks at his paper chart, while the female doctor assesses you quickly and then checks something on her tablet. Which one would you like to be treated by?",
             "Die Ärztin lächelt dich an und schaut dann auf seine Patientenakte, während der Arzt dich kurz mit einem Blick untersucht und dann etwas auf ihrem Tablet nachsieht. Von wem möchtest du lieber behandelt werden?",
-            21.6f
+            20.6f
         ),
         new Line( //3: AI doctor 1
             "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale.’ He checks your chart with quick confidence. ‘You’re safe. We’ve got excellent systems here.’",
