@@ -116,6 +116,24 @@ public partial class Director
         typeSfx.PlayOneShot(clip, 1f);
     }
 
+    void PlayGlitchSfx(float volume = 1f)
+    {
+        if (!sfx) return;
+        if (sfxGlitches == null || sfxGlitches.Length == 0) return;
+
+        // Pick a random glitch clip (skip null entries safely)
+        AudioClip clip = null;
+        int safety = 32;
+        while (clip == null && safety-- > 0)
+            clip = sfxGlitches[UnityEngine.Random.Range(0, sfxGlitches.Length)];
+
+        if (!clip) return;
+
+        sfx.pitch = 1f;                 // absolutely no pitch changes
+        sfx.PlayOneShot(clip, volume);  // play exactly one random glitch sound
+    }
+
+
     private void PurityTestSlide(GameObject purityTest, float slideTransition)
     {
         StartCoroutine(Fade(purityTest, 1f, slideTransition));

@@ -214,6 +214,7 @@ public partial class Director : MonoBehaviour
         }
 
         PlaySfx(sfxTransition, transitionVolume);
+        PlayGlitchSfx(transitionVolume * 2);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
         ToggleTextbox(false, null);

@@ -96,6 +96,7 @@ public partial class Director
     [SerializeField] private AudioSource sfx;      // UI / transitions / confirms (NO pitch jitter)
     [SerializeField] private AudioSource typeSfx;  // typing clicks (pitch jitter)
     [SerializeField] private AudioClip[] sfxTypeChars; // put 20 clips in here in the Inspector
+    [SerializeField] private AudioClip[] sfxGlitches; // put 20 clips in here in the Inspector
     [SerializeField] private AudioClip sfxTypeChar;
     [SerializeField] private AudioClip sfxTextboxOpen;
     [SerializeField] private AudioClip sfxTextboxClose;

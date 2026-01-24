@@ -6234,6 +6234,14 @@ MonoBehaviour:
   - {fileID: 8300000, guid: de6b34f52e7f12745ba26e32fafc26db, type: 3}
   - {fileID: 8300000, guid: 88293d3dcda5ad143827c984720ac55a, type: 3}
   - {fileID: 8300000, guid: 6691655b3b3c04148904569d5a16d9a5, type: 3}
+  sfxGlitches:
+  - {fileID: 8300000, guid: 15e7bd28c59c2684b94c901121ffcff7, type: 3}
+  - {fileID: 8300000, guid: b04bd54178e308b49aba30c211628901, type: 3}
+  - {fileID: 8300000, guid: 1b23985493bed484591d1208b2e1d20e, type: 3}
+  - {fileID: 8300000, guid: cbc0421e03cbb7c4081cb672d84a166d, type: 3}
+  - {fileID: 8300000, guid: 21a5c4f3b2d80fe4aa8e73c01bf6bc80, type: 3}
+  - {fileID: 8300000, guid: a261439d57c8faf4787c919738920b36, type: 3}
+  - {fileID: 8300000, guid: 18676dbacd77967489d7a89814c3c438, type: 3}
   sfxTypeChar: {fileID: 8300000, guid: 6691655b3b3c04148904569d5a16d9a5, type: 3}
   sfxTextboxOpen: {fileID: 8300000, guid: 21fa63780b1cb5b4c9a853d236b860dd, type: 3}
   sfxTextboxClose: {fileID: 8300000, guid: f7c2115cc1db1a04888be77d3f0af158, type: 3}
