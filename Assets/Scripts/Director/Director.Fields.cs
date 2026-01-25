@@ -44,7 +44,7 @@ public partial class Director
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
     private GameObject bubble;
-    public bool UseGerman { get; private set; } = true; // default to English
+    public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:
     // - If Canvas is Screen Space Overlay: uiCamera can be null.

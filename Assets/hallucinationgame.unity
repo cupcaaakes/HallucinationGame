@@ -3070,7 +3070,7 @@ MonoBehaviour:
     todayRuns: 0
     thinkerTotal: 0
     techEnthusiastTotal: 0
-    revolutionaryTotal: 0
+    visionaryTotal: 0
     bridgeBuilderTotal: 0
     doubterTotal: 0
     opinionShaperTotal: 0
@@ -3078,7 +3078,7 @@ MonoBehaviour:
     humanistTotal: 0
     thinkerToday: 0
     techEnthusiastToday: 0
-    revolutionaryToday: 0
+    visionaryToday: 0
     bridgeBuilderToday: 0
     doubterToday: 0
     opinionShaperToday: 0
@@ -6309,9 +6309,9 @@ MonoBehaviour:
   whiteBackground: {fileID: 484065095}
   resultsBackground: {fileID: 208139327}
   resultsWhitePreset: {fileID: 2180264, guid: 57ca9613b83b46d49bcdb0ea2cb3109c, type: 2}
-  aiDoctorChosen: 0
+  aiDoctorChosen: 1
   aiCrowdChosen: 0
-  gotRejectedFromGroup: 0
+  gotRejectedFromGroup: 1
   chosenToKeep: 0
 --- !u!4 &816459073
 Transform:
@@ -6707,7 +6707,7 @@ MonoBehaviour:
   kinect: {fileID: 1264200777}
   sensorOrigin: {fileID: 1264200776}
   rootOffset: {x: 0, y: 0, z: 0}
-  handPosWeight: 2
+  handPosWeight: 1
   elbowHintWeight: 0.5
   lookWeight: 0.6
   footPosWeight: 0.873

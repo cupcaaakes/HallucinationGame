@@ -34,7 +34,7 @@ public static class ChoiceTextScripts
 
         //3: purity scenes
         new Line("Looks fine to me!", "Hätte ich kein Problem damit!", 22f),
-        new Line("I don't really think so...", "Denke nicht so wirklich...", 22f),
+        new Line("I think I would have an issue with it...", "Ich denke schon das ich ein Problem damit hätte...", 21.6f),
 
         //4: voting booth
         new Line("KEEP", "LASSEN", 22f),

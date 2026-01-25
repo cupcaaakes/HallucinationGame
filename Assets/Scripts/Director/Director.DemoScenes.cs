@@ -228,11 +228,11 @@ public partial class Director
         aiDoctorChosen = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 3);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
         ToggleTextbox(true, 5);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 7);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
@@ -249,11 +249,11 @@ public partial class Director
         aiDoctorChosen = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 4);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(12f);
         ToggleTextbox(true, 6);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
         ToggleTextbox(true, 8);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
@@ -294,9 +294,9 @@ public partial class Director
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 9);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
         ToggleTextbox(true, 10);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10.5f);
         ToggleTextbox(true, 11);
 
         float demonstrationTransition = 1.5f;
@@ -340,7 +340,7 @@ public partial class Director
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 12);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(11f);
 
 
         StartCoroutine(Fade(aiPurityCheckmark, 1f, puritySymbolTransition));
@@ -390,7 +390,7 @@ public partial class Director
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 13);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(11f);
 
         StartCoroutine(Fade(humanPurityCheckmark, 1f, puritySymbolTransition));
         StartCoroutine(MoveTo(humanPurityCheckmark, new Vector3(-1.059f, 0f, -0.423f), puritySymbolTransition));
@@ -415,7 +415,7 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 21); //AI chosen
         else ToggleTextbox(true, 24);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(AIsAfterHumanRejectionScene, aiAfterHumanRejectionSceneParent, AmbRoute.Amb2, true)
@@ -432,12 +432,12 @@ public partial class Director
         if (purityImageValue <= 3)
         {
             ToggleTextbox(true, 20);
-            yield return new WaitForSeconds(defaultTextBoxTime);
+            yield return new WaitForSeconds(11.5f);
         }
         else
         {
             ToggleTextbox(true, 22);
-            yield return new WaitForSeconds(defaultTextBoxTime);
+            yield return new WaitForSeconds(9f);
             ToggleTextbox(true, 23);
             yield return new WaitForSeconds(defaultTextBoxTime);
         }
@@ -453,9 +453,18 @@ public partial class Director
         gotRejectedFromGroup = false;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 17);
-        else ToggleTextbox(true, 19);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        if (purityImageValue <= 3)
+        {
+            ToggleTextbox(true, 17);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+        }
+        else
+        {
+            ToggleTextbox(true, 19);
+            yield return new WaitForSeconds(12f);
+        }
+        ToggleTextbox(true, 28);
+        yield return new WaitForSeconds(8.25f);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -470,7 +479,11 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         if (purityImageValue <= 3) ToggleTextbox(true, 16);
         else ToggleTextbox(true, 18);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(12f);
+        ToggleTextbox(true, 27);
+        yield return new WaitForSeconds(9f);
+        ToggleTextbox(true, 29);
+        yield return new WaitForSeconds(10f);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -484,9 +497,9 @@ public partial class Director
         ToggleTextbox(true, 25);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 27);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
         ToggleTextbox(true, 29);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -498,9 +511,9 @@ public partial class Director
         StartupScene(humanAfterAiRejectionSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 26);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
         ToggleTextbox(true, 28);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(8.25f);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -512,11 +525,11 @@ public partial class Director
         StartupScene(ponderingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 30);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(12f);
         ToggleTextbox(true, 31);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
         ToggleTextbox(true, 32);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(EndingScene, endingSceneParent, AmbRoute.Ending, true)
@@ -529,7 +542,7 @@ public partial class Director
         StartupScene(endingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 33);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.Title, true)
@@ -594,7 +607,7 @@ public partial class Director
         if (aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Thinker : RankId.TechEnthusiast;
 
         // AI Doc, Human Crowd
-        if (aiDoctorChosen && !aiCrowdChosen) return gotRejectedFromGroup ? RankId.Revolutionary : RankId.BridgeBuilder;
+        if (aiDoctorChosen && !aiCrowdChosen) return gotRejectedFromGroup ? RankId.Visionary : RankId.BridgeBuilder;
 
         // Human Doc, AI Crowd
         if (!aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Doubter : RankId.OpinionShaper;
@@ -605,9 +618,9 @@ public partial class Director
 
     string RankLabel(RankId r, bool de) => r switch
     {
-        RankId.Thinker => de ? "Denker" : "Thinker",
+        RankId.Thinker => de ? "Nachdenker" : "Thinker",
         RankId.TechEnthusiast => de ? "Technikenthusiast" : "Tech Enthusiast",
-        RankId.Revolutionary => de ? "Revoluzer" : "Revolutionary",
+        RankId.Visionary => de ? "Visionär" : "Visionary",
         RankId.BridgeBuilder => de ? "Brückenbauer" : "Bridge Builder",
         RankId.Doubter => de ? "Zweifler" : "Doubter",
         RankId.OpinionShaper => de ? "Meinungsbildner" : "Opinion Shaper",
@@ -668,7 +681,7 @@ public partial class Director
                 return false;
 
             // AI Doc, Human Crowd
-            case RankId.Revolutionary:
+            case RankId.Visionary:
                 aiDoctorChosen = true;
                 aiCrowdChosen = false;
                 gotRejectedFromGroup = false;

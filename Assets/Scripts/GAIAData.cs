@@ -7,7 +7,7 @@ public enum RankId
 {
     Thinker,
     TechEnthusiast,
-    Revolutionary,
+    Visionary,
     BridgeBuilder,
     Doubter,
     OpinionShaper,
@@ -27,7 +27,7 @@ public class GAIAData
     // TOTAL counters
     public int thinkerTotal;
     public int techEnthusiastTotal;
-    public int revolutionaryTotal;
+    public int visionaryTotal;
     public int bridgeBuilderTotal;
     public int doubterTotal;
     public int opinionShaperTotal;
@@ -37,7 +37,7 @@ public class GAIAData
     // TODAY counters
     public int thinkerToday;
     public int techEnthusiastToday;
-    public int revolutionaryToday;
+    public int visionaryToday;
     public int bridgeBuilderToday;
     public int doubterToday;
     public int opinionShaperToday;

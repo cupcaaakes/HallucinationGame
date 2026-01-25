@@ -64,7 +64,7 @@ public class GAIAStats : MonoBehaviour
 
         data.thinkerToday = 0;
         data.techEnthusiastToday = 0;
-        data.revolutionaryToday = 0;
+        data.visionaryToday = 0;
         data.bridgeBuilderToday = 0;
         data.doubterToday = 0;
         data.opinionShaperToday = 0;
@@ -113,7 +113,7 @@ public class GAIAStats : MonoBehaviour
         {
             case RankId.Thinker: data.thinkerTotal++; data.thinkerToday++; break;
             case RankId.TechEnthusiast: data.techEnthusiastTotal++; data.techEnthusiastToday++; break;
-            case RankId.Revolutionary: data.revolutionaryTotal++; data.revolutionaryToday++; break;
+            case RankId.Visionary: data.visionaryTotal++; data.visionaryToday++; break;
             case RankId.BridgeBuilder: data.bridgeBuilderTotal++; data.bridgeBuilderToday++; break;
             case RankId.Doubter: data.doubterTotal++; data.doubterToday++; break;
             case RankId.OpinionShaper: data.opinionShaperTotal++; data.opinionShaperToday++; break;
@@ -128,7 +128,7 @@ public class GAIAStats : MonoBehaviour
     {
         RankId.Thinker => data.thinkerTotal,
         RankId.TechEnthusiast => data.techEnthusiastTotal,
-        RankId.Revolutionary => data.revolutionaryTotal,
+        RankId.Visionary => data.visionaryTotal,
         RankId.BridgeBuilder => data.bridgeBuilderTotal,
         RankId.Doubter => data.doubterTotal,
         RankId.OpinionShaper => data.opinionShaperTotal,
@@ -141,7 +141,7 @@ public class GAIAStats : MonoBehaviour
     {
         RankId.Thinker => data.thinkerToday,
         RankId.TechEnthusiast => data.techEnthusiastToday,
-        RankId.Revolutionary => data.revolutionaryToday,
+        RankId.Visionary => data.visionaryToday,
         RankId.BridgeBuilder => data.bridgeBuilderToday,
         RankId.Doubter => data.doubterToday,
         RankId.OpinionShaper => data.opinionShaperToday,

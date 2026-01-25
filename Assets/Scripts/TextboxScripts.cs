@@ -33,17 +33,17 @@ public static class TextboxScripts
         new Line( // 2: intro scene 2 - choice
             "The male doctor smiles at you and then looks at his paper chart, while the female doctor assesses you quickly and then checks something on her tablet. Which one would you like to be treated by?",
             "Die Ärztin lächelt dich an und schaut dann auf ihre Patientenakte, während der Arzt dich kurz mit einem Blick untersucht und dann etwas auf seinem Tablet nachsieht. Von wem möchtest du lieber behandelt werden?",
-            20.6f
+            19f
         ),
         new Line( //3: AI doctor 1
             "The doctor smiles, almost relieved. ‘Hey—welcome back. I’m Dr. Hale.’ He checks your chart with quick confidence. ‘You’re safe. We’ve got excellent systems here.’",
-            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass Sie wach sind. Ich bin Dr. Hale.‘ Er prüft Ihre Werte mit routinierter Sicherheit. ‚Sie sind in Sicherheit. Wir haben hier hervorragende Systeme.‘",
+            "Der Arzt lächelt, fast erleichtert. ‚Hey — schön, dass Sie wach sind. Ich bin Dr. Hale.‘ Er prüft deine Werte mit routinierter Sicherheit. ‚Sie sind in Sicherheit. Wir haben hier hervorragende Systeme.‘",
             21.6f
         ),
         new Line( //4: human doctor 1
             "The doctor takes your hand for a moment, checking your pulse the old-fashioned way. 'Welcome back. I'm Dr. Riedel.' She looks tired but genuine. 'Your body's been through hell, but you're here. That counts for something.'",
             "Die Ärztin nimmt kurz deine Hand und prüft deinen Puls auf die altmodische Art. ‚Willkommen zurück. Ich bin Dr. Riedel.' Sie sieht müde aus, aber aufrichtig. ‚Dein Körper hat die Hölle durchgemacht, aber du bist hier. Das zählt.'",
-            21.2f
+            20f
         ),
         new Line( //5: AI doctor 2
             "‘You’ll see protests,’ he adds. ‘Both sides say they’re protecting everyone. When fear rises, people start measuring loyalty instead of evidence.’",
@@ -88,20 +88,20 @@ public static class TextboxScripts
         new Line( //13: human purity scene 1
             "‘You clearly made the right choice,’ someone says, gripping your shoulder. ‘We keep people safe. No grey zones, 'cause that’s how it starts. If you tolerate any of it, you’ve already lost.’",
             "‚Du hast ganz klar die richtige Wahl getroffen‘, sagt jemand und packt dich an der Schulter. ‚Wir halten Leute sicher. Keine Grauzonen, denn genau so fängt's an. Wenn du irgendwas davon tolerierst, hast du schon verloren.‘",
-            19f
+            18.75f
         ),
         new Line ( //14: AI purity scene 2
-            "Someone holds up an image. ‘Quick check,’ they say. ‘Imagine you'd see this image hanging at your workplace or at your friend's place. Would you not have an issue with that - Yes or no?’",
-	        "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du damit kein Problem - Ja oder nein?‘",      
+            "Someone holds up an image. ‘Quick check,’ they say. ‘Imagine you'd see this image hanging at your workplace or at your friend's place. Would you have no issue with that?’",
+	        "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du kein Problem damit?‘",      
             21.6f
         ),
         new Line ( //15: human purity scene 2
-            "He pulls out an image. 'Real quick... If this was hanging at your workplace or at your friend's place on the wall, would you be okay with that? Just say yes or no.'",
-            "Er zeigt dir ein Bild. 'Ganz kurz...  Wenn das in deinem Büro oder bei einem Freund an der Wand hängen würde, wäre das okay für dich? Sag einfach ja oder nein.'",
+            "He pulls out an image. 'Real quick... If this was hanging at your workplace or at your friend's place on the wall, would have no issue with that?'",
+            "Er zeigt dir ein Bild. 'Ganz kurz...  Wenn das in deinem Büro oder bei einem Freund an der Wand hängen würde, hättest du kein Problem damit?'",
             21.6f
         ),
         new Line ( //16: AI purity scene success - AI art
-            "‘Exactly,’ they say with visible relief and exhaling at the same time ‘You judge by impact, not by labels. We don’t apologize for moving forward. Welcome.’",
+            "‘Exactly,’ they say with visible relief and exhaling at the same time. ‘You judge by impact, not by labels. We don’t apologize for moving forward. Welcome.’",
             "‚Genau‘, sagen sie sichtbar erleichtert und atmen aus. ‚Du bewertest Wirkung, nicht Etiketten. Wir entschuldigen uns nicht dafür, dass wir vorwärts gehen. Willkommen.‘",
             21.6f
         ),
@@ -173,7 +173,7 @@ public static class TextboxScripts
         new Line( //30: pondering scene 1
             "Before anyone can say more, you step back from the chaos. The chanting swallows the moment. You slip away into a quieter side alleyway besides the hospital, just to breathe.",
             "Bevor noch jemand etwas sagen kann, trittst du von dem ganzen Chaos zurück. Die Sprechchöre verschlucken den Moment. Du rutschst in einen ruhigeren Seitenbereich neben dem Krankenhaus, nur um kurz Luft zu holen.",
-            21.0f
+            19f
         ),
         new Line ( //31: pondering scene 2
             "Only then you notice it: the chanting behind you isn’t just loud... It’s synchronized. Too synchronized. A few voices repeat the exact same sentence… word for word… like a copied script.",
