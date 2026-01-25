@@ -55,7 +55,6 @@ public partial class Director
         ActivateOnlyScene(sceneParent);
         ToggleDecisionBoxes(false);
         SetDecisionColliders(false);
-        titleScreenText.SetActive(false);
     }
 
     IEnumerator EndSceneWithNoChoiceMade(SceneRef scene)
@@ -101,117 +100,46 @@ public partial class Director
     // -------------------------------------------------------------------------
     void PlayTypeSfx()
     {
-        if (!typeSfx || !sfxTypeChar) return;
+        if (!typeSfx) return;
+        if (sfxTypeChars == null || sfxTypeChars.Length == 0) return;
 
         if (Time.unscaledTime < _nextTypeSfxAt) return; // throttle
         _nextTypeSfxAt = Time.unscaledTime + typeMinInterval;
 
+        // pick next clip (cycles)
+        var clip = sfxTypeChars[_typeSfxIdx];
+        _typeSfxIdx = (_typeSfxIdx + 1) % sfxTypeChars.Length;
+
+        if (!clip) return;
+
         typeSfx.pitch = 1f + UnityEngine.Random.Range(-typePitchJitter, typePitchJitter);
-        typeSfx.PlayOneShot(sfxTypeChar, 1f);
+        typeSfx.PlayOneShot(clip, 1f);
     }
 
-    // -------------------------------------------------------------------------
-    // BoatDriftForever(): moves boat to the right and adds gentle sway forever
-    // -------------------------------------------------------------------------
-    System.Collections.IEnumerator BoatDriftForever(Transform t)
+    void PlayGlitchSfx(float volume = 1f)
     {
-        if (!t) yield break;
+        if (!sfx) return;
+        if (sfxGlitches == null || sfxGlitches.Length == 0) return;
 
-        // remember whatever rotation you spawned the boat with
-        Quaternion baseRot = t.rotation;
+        // Pick a random glitch clip (skip null entries safely)
+        AudioClip clip = null;
+        int safety = 32;
+        while (clip == null && safety-- > 0)
+            clip = sfxGlitches[UnityEngine.Random.Range(0, sfxGlitches.Length)];
 
-        float elapsed = 0f;
-        float smoothRoll = 0f;
+        if (!clip) return;
 
-        while (t && t.gameObject.activeInHierarchy)
-        {
-            float dt = Time.deltaTime;
-            elapsed += dt;
-
-            // drift right at constant speed
-            t.position += Vector3.right * (boatSpeedUnitsPerSec * dt);
-
-            // amplitude eases in (0 -> 1). Clamp so it stays 1 after the ease time.
-            float amp = (boatRollEaseOutSeconds <= 0f)
-                ? 1f
-                : Mathf.Clamp01(elapsed / boatRollEaseOutSeconds);
-
-            // target roll is a sine wave in degrees
-            float targetRoll = Mathf.Sin(elapsed * (Mathf.PI * 2f) * boatRollHz) * boatRollDegrees * amp;
-
-            // damp/smooth the roll so it feels gentle
-            float k = 1f - Mathf.Exp(-boatRollDamping * dt); // framerate-independent smoothing factor
-            smoothRoll = Mathf.Lerp(smoothRoll, targetRoll, k);
-
-            t.rotation = baseRot * Quaternion.Euler(0f, smoothRoll, 0f);
-
-            yield return null;
-        }
+        sfx.pitch = 1f;                 // absolutely no pitch changes
+        sfx.PlayOneShot(clip, volume);  // play exactly one random glitch sound
     }
+
 
     private void PurityTestSlide(GameObject purityTest, float slideTransition)
     {
         StartCoroutine(Fade(purityTest, 1f, slideTransition));
         StartCoroutine(MoveTo(purityTest, Vector3.zero, slideTransition));
-
-        var cam = uiCamera ? uiCamera : Camera.main;
-        if (!cam || !purityTest) return;
-
-        var r = purityTest.GetComponent<Renderer>();
-        if (!r) return;
-
-        var mat = r.material;
-        if (!mat) return;
-
-        // grab the actual texture used by common shaders
-        Texture tex = mat.mainTexture;
-        if (!tex) tex = mat.GetTexture("_BaseMap");
-        if (!tex) tex = mat.GetTexture("_MainTex");
-        if (!tex || tex.height == 0) return;
-
-        float imgAspect = (float)tex.width / tex.height;
-
-        // We scale for the FINAL position (0,0,0), not the current animated position.
-        float viewH, viewW;
-        if (cam.orthographic)
-        {
-            viewH = cam.orthographicSize * 2f;
-            viewW = viewH * cam.aspect;
-        }
-        else
-        {
-            // depth of (0,0,0) along camera forward
-            float dist = Mathf.Abs(Vector3.Dot(-cam.transform.position, cam.transform.forward));
-            if (dist < 0.0001f) dist = 0.0001f;
-
-            viewH = 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            viewW = viewH * cam.aspect;
-        }
-
-        // Fit image inside camera view (no crop)
-        float targetW, targetH;
-        if (viewW / viewH > imgAspect)
-        {
-            targetH = viewH;
-            targetW = targetH * imgAspect;
-        }
-        else
-        {
-            targetW = viewW;
-            targetH = targetW / imgAspect;
-        }
-
-        // If parent is scaled non-uniformly, compensate so WORLD size is correct.
-        var parentScale = purityTest.transform.parent ? purityTest.transform.parent.lossyScale : Vector3.one;
-        if (Mathf.Abs(parentScale.x) < 0.0001f) parentScale.x = 1f;
-        if (Mathf.Abs(parentScale.z) < 0.0001f) parentScale.z = 1f;
-
-        // Unity Plane mesh is 10x10 in local X/Z
-        var s = purityTest.transform.localScale;
-        s.x = (targetW / 10f) / parentScale.x;
-        s.z = (targetH / 10f) / parentScale.z;
-        purityTest.transform.localScale = s;
     }
+
 
     // -------------------------------------------------------------------------
     // LanguageSelectScene():
@@ -221,31 +149,36 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator LanguageSelectScene()
     {
-        _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
-        _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.None, false);
+        _next[0] = new SceneRef(IntroScene, introSceneParent, AmbRoute.Hospital, true);
+        _next[1] = new SceneRef(IntroScene, introSceneParent, AmbRoute.Hospital, true);
 
         StartupScene(languageSceneParent);
-        StartCoroutine(Fade(doorEnglishL, 0f, 0f));
-        StartCoroutine(Fade(doorGermanR, 0f, 0f));
-        doorEnglishL.transform.position = new Vector3(decisionL.transform.position.x, 0f, 7.5f);
-        doorGermanR.transform.position = new Vector3(decisionR.transform.position.x, 0f, 7.5f);
-        doorEnglishL.transform.rotation = defaultBillboardRotation;
-        doorGermanR.transform.rotation = defaultBillboardRotation;
-        doorEnglishL.transform.localScale = new Vector3(0.2f, 0.1f, 0.1f);
-        doorGermanR.transform.localScale = new Vector3(0.2f, 0.1f, 0.1f);
+        usBox.SetActive(false);
+        deBox.SetActive(false);
 
-        float doorTransition = 3f;
+        
+        StartCoroutine(Fade(leftArrow, 0f, 0f));
+        StartCoroutine(Fade(rightArrow, 0f, 0f));
+        leftArrow.transform.position = new Vector3(decisionL.transform.position.x - 2f, 0.25f, 0f);
+        rightArrow.transform.position = new Vector3(decisionR.transform.position.x + 2f, 0.25f, 0f);
+        leftArrow.transform.rotation = defaultBillboardRotation;
+        rightArrow.transform.rotation = defaultBillboardRotation;
+        leftArrow.transform.localScale = new Vector3(-0.1f, leftArrow.transform.localScale.y, 0.1f);
+        rightArrow.transform.localScale = new Vector3(0.1f, rightArrow.transform.localScale.y, 0.1f);
 
-        StartCoroutine(Fade(doorEnglishL, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorEnglishL, new Vector3(decisionL.transform.position.x, 0f, 1f), doorTransition));
-        StartCoroutine(Fade(doorGermanR, 1f, doorTransition));
-        StartCoroutine(MoveTo(doorGermanR, new Vector3(decisionR.transform.position.x, 0f, 1f), doorTransition));
+        float demonstrationTransition = 1.5f;
+        StartCoroutine(Fade(leftArrow, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(leftArrow, new Vector3(decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
+        StartCoroutine(Fade(rightArrow, 1f, demonstrationTransition));
+        StartCoroutine(MoveTo(rightArrow, new Vector3(-decisionL.transform.position.x, 0.25f, 0f), demonstrationTransition));
+        _arrowsActive = true;
 
-        yield return new WaitForSeconds(doorTransition); // wait for door anims
-
+        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        bubble.transform.localScale = new Vector3(2.3f, 2.5f, 1f);
         SetChoicePair(0);
         ToggleTextbox(true, 0);
         ToggleDecisionBoxes(true);
+        yield break;
     }
 
     // -------------------------------------------------------------------------
@@ -256,11 +189,11 @@ public partial class Director
     // -------------------------------------------------------------------------
     public System.Collections.IEnumerator IntroScene()
     {
-        _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.None, false);
-        _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.None, false);
+        _next[0] = new SceneRef(CheckupSceneAi, checkupSceneAiParent, AmbRoute.Hospital, true);
+        _next[1] = new SceneRef(CheckupSceneHuman, checkupSceneHumanParent, AmbRoute.Hospital, true);
 
         StartupScene(introSceneParent);
-
+        _arrowsActive = false;
         StartCoroutine(Fade(introAiDoctor, 0f, 0f));
         StartCoroutine(Fade(introHumanDoctor, 0f, 0f));
         introAiDoctor.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, 0f);
@@ -278,8 +211,11 @@ public partial class Director
 
         yield return new WaitForSeconds(doctorTransition); // wait for doctor anims
 
-        SetChoicePair(1);
         ToggleTextbox(true, 1);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 2);
+        bubble.transform.localScale = new Vector3(2f, 2.75f, 1f);
+        SetChoicePair(1);
         ToggleDecisionBoxes(true);
     }
 
@@ -291,12 +227,12 @@ public partial class Director
         checkupAiDoctor.transform.localScale = introAiDoctor.transform.localScale;
         aiDoctorChosen = true;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 2);
+        ToggleTextbox(true, 3);
+        yield return new WaitForSeconds(10f);
+        ToggleTextbox(true, 5);
         yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 4);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 6);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 7);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
@@ -312,40 +248,18 @@ public partial class Director
         checkupHumanDoctor.transform.rotation = defaultBillboardRotation;
         aiDoctorChosen = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 3);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 5);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 7);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 4);
+        yield return new WaitForSeconds(12f);
+        ToggleTextbox(true, 6);
+        yield return new WaitForSeconds(10f);
+        ToggleTextbox(true, 8);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(DemonstrationScene, demonstrationSceneParent, AmbRoute.Amb2, true)
         );
         yield break;
 
-    }
-
-    public System.Collections.IEnumerator DemoEnding1()
-    {
-        StartupScene(demoEnding1Parent);
-
-        // edge positions on the z-plane
-        Vector3 rightEdge = ViewportToWorldOnZPlane(1f, 0.5f, endingPlaneZ);
-        Vector3 bottomEdge = ViewportToWorldOnZPlane(0.5f, 0f, endingPlaneZ);
-
-        if (boat)
-        {
-            _boatCo = StartCoroutine(BoatDriftForever(boat.transform));
-        }
-
-        // no choices in endings
-        ToggleDecisionBoxes(false);
-        SetDecisionColliders(false);
-
-        // start textbox AFTER reveal so typing is visible
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 1);
     }
 
     // -------------------------------------------------------------------------
@@ -379,11 +293,11 @@ public partial class Director
         demonstrationSceneHumanProtester.transform.localScale = new Vector3(0.45f, demonstrationSceneHumanProtester.transform.localScale.y, 0.35f);
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 8);
-        yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 9);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
         ToggleTextbox(true, 10);
+        yield return new WaitForSeconds(10.5f);
+        ToggleTextbox(true, 11);
 
         float demonstrationTransition = 1.5f;
         StartCoroutine(Fade(demonstrationSceneAIProtester, 1f, demonstrationTransition));
@@ -391,6 +305,7 @@ public partial class Director
         StartCoroutine(Fade(demonstrationSceneHumanProtester, 1f, demonstrationTransition));
         StartCoroutine(MoveTo(demonstrationSceneHumanProtester, new Vector3(decisionR.transform.position.x + 0.25f, 0.25f, 0.5f), demonstrationTransition));
 
+        bubble.transform.localScale = new Vector3(2f, 2.5f, 1f);
         SetChoicePair(2);
         ToggleDecisionBoxes(true);
     }
@@ -399,29 +314,46 @@ public partial class Director
     {
         StartupScene(aiPuritySceneParent);
         aiCrowdChosen = true;
+        aiPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.423f);
+        aiPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.423f);
+        aiPurityCheckmark.transform.rotation = defaultBillboardRotation;
+        aiPurityCross.transform.rotation = defaultBillboardRotation;
+        aiPurityCheckmark.transform.localScale = new Vector3(0.15f, aiPurityCheckmark.transform.localScale.y, 0.1f);
+        aiPurityCross.transform.localScale = new Vector3(0.15f, aiPurityCross.transform.localScale.y, 0.1f);
 
+        float puritySymbolTransition = 3f;
+        
         aiPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
         purityImageValue = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
         Debug.Log("Value of purity image: " + purityImageValue);
         if (purityImageValue <= 3)
         {
-            _next[0] = new SceneRef(AcceptedByAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(RejectedFromAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(AcceptedByAIsScene, acceptedToAIsSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromAIsScene, rejectedFromAIsSceneParent, AmbRoute.Amb2, true);
         }
         else
         {
-            _next[0] = new SceneRef(RejectedFromAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(AcceptedByAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(RejectedFromAIsScene, rejectedFromAIsSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByAIsScene, acceptedToAIsSceneParent, AmbRoute.Amb2, true);
         }
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 11);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 13);
+        ToggleTextbox(true, 12);
+        yield return new WaitForSeconds(11f);
+
+
+        StartCoroutine(Fade(aiPurityCheckmark, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(aiPurityCheckmark, new Vector3(-1.059f, 0f, -0.423f), puritySymbolTransition));
+        StartCoroutine(Fade(aiPurityCross, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(aiPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
+
+        purityTestActive = true;
+        ToggleTextbox(true, 14);
         float slideTransition = 3f;
         PurityTestSlide(aiPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(3);
         ToggleDecisionBoxes(true);
     }
@@ -430,31 +362,47 @@ public partial class Director
     {
         StartupScene(humanPuritySceneParent);
         aiCrowdChosen = false;
+        humanPurityCheckmark.transform.position = new Vector3(decisionL.transform.position.x - 5f, 0f, -0.423f);
+        humanPurityCross.transform.position = new Vector3(decisionR.transform.position.x + 5f, 0f, -0.423f);
+        humanPurityCheckmark.transform.rotation = defaultBillboardRotation;
+        humanPurityCross.transform.rotation = defaultBillboardRotation;
+        humanPurityCheckmark.transform.localScale = new Vector3(0.15f, humanPurityCheckmark.transform.localScale.y, 0.1f);
+        humanPurityCross.transform.localScale = new Vector3(0.15f, humanPurityCross.transform.localScale.y, 0.1f);
+
+        float puritySymbolTransition = 3f;
 
         humanPurityTestImage.transform.SetPositionAndRotation(new Vector3(0f, -10f, 0f), defaultBillboardRotation);
         purityImageValue = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex; // 0-3 are AI, 4-7 are human
         Debug.Log("Value of purity image: " + purityImageValue);
         if (purityImageValue <= 3) 
         {
-            _next[0] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(RejectedFromHumansScene, rejectedFromHumansSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByHumansScene, acceptedToHumansSceneParent, AmbRoute.Amb2, true);
             Debug.Log("BLOCK A");
         }
         else
         {
-            _next[0] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(AcceptedByHumansScene, acceptedToHumansSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromHumansScene, rejectedFromHumansSceneParent, AmbRoute.Amb2, true);
             Debug.Log("BLOCK B");
         }
 
         // start textbox AFTER reveal so typing is visible
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 12);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 14);
+        ToggleTextbox(true, 13);
+        yield return new WaitForSeconds(11f);
+
+        StartCoroutine(Fade(humanPurityCheckmark, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(humanPurityCheckmark, new Vector3(-1.059f, 0f, -0.423f), puritySymbolTransition));
+        StartCoroutine(Fade(humanPurityCross, 1f, puritySymbolTransition));
+        StartCoroutine(MoveTo(humanPurityCross, new Vector3(1.059f, 0f, -0.423f), puritySymbolTransition));
+
+        purityTestActive = true;
+        ToggleTextbox(true, 15);
         float slideTransition = 3f;
         PurityTestSlide(humanPurityTestImage, slideTransition);
         yield return new WaitForSeconds(slideTransition);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(3);
         ToggleDecisionBoxes(true);
     }
@@ -463,10 +411,11 @@ public partial class Director
     {
         StartupScene(rejectedFromHumansSceneParent);
         gotRejectedFromGroup = true;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 20);
-        else ToggleTextbox(true, 22);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        if (purityImageValue <= 3) ToggleTextbox(true, 21); //AI chosen
+        else ToggleTextbox(true, 24);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(AIsAfterHumanRejectionScene, aiAfterHumanRejectionSceneParent, AmbRoute.Amb2, true)
@@ -478,11 +427,20 @@ public partial class Director
     {
         StartupScene(rejectedFromAIsSceneParent);
         gotRejectedFromGroup = true;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 19);
-        else ToggleTextbox(true, 21);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
+        if (purityImageValue <= 3)
+        {
+            ToggleTextbox(true, 20);
+            yield return new WaitForSeconds(11.5f);
+        }
+        else
+        {
+            ToggleTextbox(true, 22);
+            yield return new WaitForSeconds(9f);
+            ToggleTextbox(true, 23);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+        }
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(HumansAfterAiRejectionScene, humanAfterAiRejectionSceneParent, AmbRoute.Amb2, true)
         );
@@ -493,12 +451,22 @@ public partial class Director
     {
         StartupScene(acceptedToHumansSceneParent);
         gotRejectedFromGroup = false;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 16);
-        else ToggleTextbox(true, 18);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        if (purityImageValue <= 3)
+        {
+            ToggleTextbox(true, 17);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+        }
+        else
+        {
+            ToggleTextbox(true, 19);
+            yield return new WaitForSeconds(12f);
+        }
+        ToggleTextbox(true, 28);
+        yield return new WaitForSeconds(8.25f);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -507,12 +475,17 @@ public partial class Director
     {
         StartupScene(acceptedToAIsSceneParent);
         gotRejectedFromGroup = false;
+        purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 15);
-        else ToggleTextbox(true, 17);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        if (purityImageValue <= 3) ToggleTextbox(true, 16);
+        else ToggleTextbox(true, 18);
+        yield return new WaitForSeconds(12f);
+        ToggleTextbox(true, 27);
+        yield return new WaitForSeconds(9f);
+        ToggleTextbox(true, 29);
+        yield return new WaitForSeconds(10f);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -523,8 +496,12 @@ public partial class Director
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 25);
         yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 27);
+        yield return new WaitForSeconds(9f);
+        ToggleTextbox(true, 29);
+        yield return new WaitForSeconds(10f);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -534,71 +511,11 @@ public partial class Director
         StartupScene(humanAfterAiRejectionSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         ToggleTextbox(true, 26);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        yield return new WaitForSeconds(9f);
+        ToggleTextbox(true, 28);
+        yield return new WaitForSeconds(8.25f);
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
-        );
-        yield break;
-    }
-
-    public System.Collections.IEnumerator VotingBoothScene()
-    {
-        StartupScene(votingBoothSceneParent);
-
-        _next[0] = new SceneRef(LeavingBoothKeepScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
-        _next[1] = new SceneRef(LeavingBoothFlagScene, leavingBoothFlagSceneParent, AmbRoute.Amb2, true);
-
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 27);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 28);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 29);
-        SetChoicePair(4);
-        ToggleDecisionBoxes(true);
-    }
-
-    public System.Collections.IEnumerator LeavingBoothKeepScene()
-    {
-        StartupScene(leavingBoothKeepSceneParent);
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 30);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 31);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
-        yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
-        );
-        yield break;
-    }
-
-    public System.Collections.IEnumerator LeavingBoothFlagScene()
-    {
-        StartupScene(leavingBoothFlagSceneParent);
-        yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (aiCrowdChosen && !gotRejectedFromGroup || !aiCrowdChosen && gotRejectedFromGroup) // if AI crowd
-        {
-            ToggleTextbox(true, 32);
-        }
-        else // if human crowd
-        {
-            ToggleTextbox(true, 33);
-        }
-        yield return new WaitForSeconds(defaultTextBoxTime);
-
-        yield return EndSceneWithNoChoiceMade(
-            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.None, false)
+            new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
         yield break;
     }
@@ -607,15 +524,15 @@ public partial class Director
     {
         StartupScene(ponderingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 34);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 35);
-        yield return new WaitForSeconds(defaultTextBoxTime);
-        ToggleTextbox(true, 36);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 30);
+        yield return new WaitForSeconds(12f);
+        ToggleTextbox(true, 31);
+        yield return new WaitForSeconds(10f);
+        ToggleTextbox(true, 32);
+        yield return new WaitForSeconds(10f);
 
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(EndingScene, endingSceneParent, AmbRoute.None, false)
+            new SceneRef(EndingScene, endingSceneParent, AmbRoute.Ending, true)
         );
         yield break;
     }
@@ -624,11 +541,11 @@ public partial class Director
     {
         StartupScene(endingSceneParent);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        ToggleTextbox(true, 37);
-        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 33);
+        yield return new WaitForSeconds(9f);
 
         yield return EndSceneWithNoChoiceMade(
-            new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.None, false)
+            new SceneRef(ResultsScreen, resultsScreenParent, AmbRoute.Title, true)
         );
         yield break;
     }
@@ -636,69 +553,47 @@ public partial class Director
     public System.Collections.IEnumerator ResultsScreen()
     {
         StartupScene(resultsScreenParent);
-        if(UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
+        player.SetActive(false);
+        whiteBackground.SetActive(false);
+        resultsBackground.SetActive(true);
+        // Title label
+        if (UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
-        String rankingText = "";
-        switch(UseGerman, aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup)
+
+        // Rank ID (language-independent) with localized label
+        var rankId = GetRankId(aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup);
+        string rankingText = RankLabel(rankId, UseGerman);
+        // Record and show stats
+        if (GAIAStats.I != null)
         {
-            case (true, true, true, true): // AI Doc, AI Crowd, Rejected from AIs
-                rankingText = "Denker";
-                break;
-            case (false, true, true, true):
-                rankingText = "Thinker";
-                break;
-            case (true, true, true, false): // AI Doc, AI Crowd, Accepted by AIs
-                rankingText = "Technikenthusiast";
-                break;
-            case (false, true, true, false):
-                rankingText = "Tech Enthusiast";
-                break;
-            case (true, true, false, true): // AI Doc, Human Crowd, Rejected from Humans
-                rankingText = "Revoluzer";
-                break;
-            case (false, true, false, true):
-                rankingText = "Revolutionary";
-                break;
-            case (true, true, false, false): // AI Doc, Human Crowd, Accepted by Humans
-                rankingText = "Brückenbauer";
-                break;
-            case (false, true, false, false):
-                rankingText = "Bridge Builder";
-                break;
-            case (true, false, true, true): // Human Doc, AI Crowd, Rejected from AIs
-                rankingText = "Zweifler";
-                break;
-            case (false, false, true, true):
-                rankingText = "Doubter";
-                break;
-            case (true, false, true, false): // Human Doc, AI Crowd, Accepted by AIs
-                rankingText = "Meinungsbildner";
-                break;
-            case (false, false, true, false):
-                rankingText = "Opinion Shaper";
-                break;
-            case (true, false, false, true): // Human Doc, Human Crowd, Rejected from Humans
-                rankingText = "Individuist";
-                break;
-            case (false, false, false, true):
-                rankingText = "Individualist";
-                break;
-            case (true, false, false, false): // Human Doc, Human Crowd, Accepted by Humans)
-                rankingText = "Humanist";
-                break;
-            case (false, false, false, false):
-                rankingText = "Humanist";
-                break;
-            default: // should never happen but y'know, just in case
-                rankingText = "Error"; 
-                break;
+            GAIAStats.I.RecordRank(rankId);
+
+            int nthOverall = GAIAStats.I.GetTotal(rankId);
+            int nthToday = GAIAStats.I.GetToday(rankId);
+
+            float pctOverall = GAIAStats.I.GetPercentOverall(rankId);
+            float pctToday = GAIAStats.I.GetPercentToday(rankId);
+
+            string todayStatsLine = UseGerman
+                ? $"Du bist heute die #{nthToday} Person mit diesem Rank.\nHeute haben {pctToday:0}% aller Spieler diesen Rank erhalten!"
+                : $"You are the #{nthToday} person today to get this rank.\nToday, {pctToday:0}% of all players got this rank!";
+
+            string totalStatsLine = UseGerman
+                ? $"Du bist insgesamt die #{nthOverall} Person mit diesem Rank.\nInsgesamt haben {pctOverall:0}% aller Spieler diesen Rank erhalten!"
+                : $"You are the #{nthOverall} person overall to get this rank.\nOverall, {pctOverall:0}% of all players got this rank!";
+
+            resultRank.GetComponent<TextMeshPro>().text = rankingText;
+            todayStats.GetComponent<TextMeshPro>().text = todayStatsLine;
+            totalStats.GetComponent<TextMeshPro>().text = totalStatsLine;
         }
-
-
-        resultRank.GetComponent<TextMeshPro>().text = rankingText;
-
+        else
+        {
+            resultRank.GetComponent<TextMeshPro>().text = "ERROR";
+            todayStats.GetComponent<TextMeshPro>().text = "GAIAStats";
+            totalStats.GetComponent<TextMeshPro>().text = "Is null!";
+        }
+        ApplyResultsWhite();
         yield return new WaitForSeconds(10f);
-        
         // both sides go to the same destination
         _next[0] = new SceneRef(TitleScreen, titleScreenParent, AmbRoute.None, false);
         _next[1] = _next[0];
@@ -706,15 +601,121 @@ public partial class Director
         yield return EndAfterChoice();
     }
 
+    RankId GetRankId(bool aiDoctorChosen, bool aiCrowdChosen, bool gotRejectedFromGroup)
+    {
+        // AI Doc, AI Crowd
+        if (aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Thinker : RankId.TechEnthusiast;
+
+        // AI Doc, Human Crowd
+        if (aiDoctorChosen && !aiCrowdChosen) return gotRejectedFromGroup ? RankId.Visionary : RankId.BridgeBuilder;
+
+        // Human Doc, AI Crowd
+        if (!aiDoctorChosen && aiCrowdChosen) return gotRejectedFromGroup ? RankId.Doubter : RankId.OpinionShaper;
+
+        // Human Doc, Human Crowd
+        return gotRejectedFromGroup ? RankId.Individualist : RankId.Humanist;
+    }
+
+    string RankLabel(RankId r, bool de) => r switch
+    {
+        RankId.Thinker => de ? "Nachdenker" : "Thinker",
+        RankId.TechEnthusiast => de ? "Technikenthusiast" : "Tech Enthusiast",
+        RankId.Visionary => de ? "Visionär" : "Visionary",
+        RankId.BridgeBuilder => de ? "Brückenbauer" : "Bridge Builder",
+        RankId.Doubter => de ? "Zweifler" : "Doubter",
+        RankId.OpinionShaper => de ? "Meinungsbildner" : "Opinion Shaper",
+        RankId.Individualist => de ? "Individuist" : "Individualist",
+        RankId.Humanist => "Humanist",
+        _ => "Error"
+    };
+
+    void ApplyResultsWhite()
+    {
+        ApplyPreset(todayStats, resultsWhitePreset);
+        ApplyPreset(totalStats, resultsWhitePreset);
+    }
+
+    static void ApplyPreset(GameObject go, Material preset)
+    {
+        if (!go || !preset) return;
+        var tmp = go.GetComponent<TMP_Text>();
+        if (!tmp) return;
+
+        // Use TMP-managed material slot (not MeshRenderer)
+        tmp.fontSharedMaterial = preset;
+        tmp.SetAllDirty(); // forces refresh
+    }
+
     public System.Collections.IEnumerator TitleScreen()
     {
         StartupScene(titleScreenParent);
-        titleScreenText.SetActive(true);
+        usBox.SetActive(true);
+        deBox.SetActive(true);
+        player.SetActive(true);
+        whiteBackground.SetActive(true);
+        resultsBackground.SetActive(false);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
         _next[1] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
+        bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(5);
         ToggleDecisionBoxes(true);
+    }
+
+    private bool TestAllResults(RankId rank)
+    {
+        switch (rank)
+        {
+            // AI Doc, AI Crowd
+            case RankId.Thinker:
+                aiDoctorChosen = true;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.TechEnthusiast:
+                aiDoctorChosen = true;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // AI Doc, Human Crowd
+            case RankId.Visionary:
+                aiDoctorChosen = true;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.BridgeBuilder:
+                aiDoctorChosen = false;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // Human Doc, AI Crowd
+            case RankId.Doubter:
+                aiDoctorChosen = false;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.OpinionShaper:
+                aiDoctorChosen = false;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // Human Doc, Human Crowd
+            case RankId.Individualist:
+                aiDoctorChosen = false;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.Humanist:
+            default:
+                return true; // bail out
+        }
     }
 }

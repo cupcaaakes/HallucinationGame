@@ -10,17 +10,33 @@ public class AzureKinectIKDriver : MonoBehaviour
     public Transform sensorOrigin;
     public Vector3 rootOffset;
 
-    [Header("IK Weights")]
-    public float handPosWeight = 1f;
-    public float elbowHintWeight = 1f;
-    public float lookWeight = 0.6f;
+    [Header("IK Weights (0..1)")]
+    [Range(0f, 1f)] public float handPosWeight = 1f;
+    [Range(0f, 1f)] public float elbowHintWeight = 1f;
+    [Range(0f, 1f)] public float lookWeight = 0.6f;
+    [Range(0f, 1f)] public float footPosWeight = 1f;
+    [Range(0f, 1f)] public float kneeHintWeight = 0.25f;
+
+    [Header("Foot offsets (optional)")]
+    public Vector3 leftFootOffset = Vector3.zero;
+    public Vector3 rightFootOffset = Vector3.zero;
 
     [Header("Fixes")]
     public bool mirror = false;
     public bool flipZ = false;
     public bool flipX = true;
+
+    [Tooltip("Smoothing for character root position.")]
     public float rootSmooth = 12f;
-    public float yawSmooth = 10f;
+
+    [Header("Leg smoothing")]
+    [Tooltip("Higher = snappier, lower = smoother.")]
+    public float footSmooth = 25f;
+    [Tooltip("Higher = snappier, lower = smoother.")]
+    public float kneeSmooth = 18f;
+
+    Vector3 _footL, _footR, _kneeL, _kneeR;
+    bool _legInit;
 
     [Header("Root Axis Lock")]
     public bool lockX = false;
@@ -34,53 +50,34 @@ public class AzureKinectIKDriver : MonoBehaviour
     [Tooltip("Extra degrees required to ENTER the raised state.")]
     public float angleHysteresis = 5f;
 
-    [Tooltip("Hand must be at least this much above the shoulder.")]
-    public float minHandAboveShoulder = 0f;
-
-    [Tooltip("Hand must be at least this far to the side.")]
-    public float minSideOffset = 0f;
-
-    [Tooltip("How much the arm is allowed to point forward/back (0 = never, 1 = always). Lower = stricter anti-salute.")]
-    [Range(0f, 1f)] public float maxForwardDot = 1f;
-
-    [Tooltip("How much the arm must point sideways (dot with body-right axis). Higher = stricter.")]
-    [Range(0f, 1f)] public float minSideDot = 0f;
-
     [Tooltip("Minimum time between logs per arm (seconds).")]
     public float gestureCooldown = 0.3f;
 
     [Header("Anti-salute filter")]
-    [Tooltip("If the arm points forward within this angle AND is roughly horizontal AND fairly straight, it will be rejected.")]
-    public float saluteForwardMaxAngle = 35f;
-    [Tooltip("How close to horizontal the arm must be to count as a salute (degrees away from perfectly horizontal).")]
-    public float saluteHorizontalMaxDelta = 25f;
-    [Tooltip("Elbow angle required to count as 'straight enough' (180 = perfectly straight).")]
-    public float saluteMinElbowAngle = 150f;
     [Tooltip("Arm must point within this many degrees of the side direction (left/right). 45° = forward becomes invalid.")]
     public float sideMaxAngle = 45f;
-
 
     public bool RightArmRaised { get; private set; }
     public bool LeftArmRaised { get; private set; }
     private float _nextRightLogTime;
     private float _nextLeftLogTime;
 
-
+    float _lockedX;
     float _lockedY;
     float _lockedZ;
     bool _lockInit;
-
 
     Animator anim;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
+
+        _lockedX = transform.position.x;
         _lockedY = transform.position.y;
         _lockedZ = transform.position.z;
         _lockInit = true;
     }
-
 
     void Update()
     {
@@ -89,11 +86,11 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         DetectArmRaiseGestures(skel);
 
+        // Root tracking (pelvis drives character position)
         Vector3 pelvisLocal = JPosLocal(skel, JointId.Pelvis);
         Vector3 pelvisWorld = (sensorOrigin != null)
             ? sensorOrigin.TransformPoint(pelvisLocal)
             : pelvisLocal;
-        pelvisWorld = LockRootAxes(pelvisWorld + rootOffset) - rootOffset;
 
         Vector3 targetPos = LockRootAxes(pelvisWorld + rootOffset);
 
@@ -104,21 +101,20 @@ public class AzureKinectIKDriver : MonoBehaviour
         );
     }
 
-
-
     void OnAnimatorIK(int layerIndex)
     {
         if (kinect == null) return;
         if (!kinect.TryGetLatestSkeleton(out var skel)) return;
 
-        // get local pelvis for offsets
+        // Pelvis reference for world conversion
         Vector3 pelvisLocal = JPosLocal(skel, JointId.Pelvis);
-        Vector3 pelvisWorld = (sensorOrigin != null)
-            ? sensorOrigin.TransformPoint(pelvisLocal)
-            : pelvisLocal;
-        pelvisWorld = transform.position - rootOffset;
 
+        // Important: pelvisWorld should match how your avatar is positioned
+        Vector3 pelvisWorld = transform.position - rootOffset;
+
+        // ---------------------------
         // HAND TARGETS
+        // ---------------------------
         Vector3 handL = WorldJointPos(skel, JointId.HandLeft, pelvisLocal, pelvisWorld);
         Vector3 handR = WorldJointPos(skel, JointId.HandRight, pelvisLocal, pelvisWorld);
 
@@ -130,7 +126,9 @@ public class AzureKinectIKDriver : MonoBehaviour
         anim.SetIKPosition(AvatarIKGoal.LeftHand, handL);
         anim.SetIKPosition(AvatarIKGoal.RightHand, handR);
 
+        // ---------------------------
         // ELBOW HINTS
+        // ---------------------------
         Vector3 elbowL = WorldJointPos(skel, JointId.ElbowLeft, pelvisLocal, pelvisWorld);
         Vector3 elbowR = WorldJointPos(skel, JointId.ElbowRight, pelvisLocal, pelvisWorld);
 
@@ -142,7 +140,64 @@ public class AzureKinectIKDriver : MonoBehaviour
         anim.SetIKHintPosition(AvatarIKHint.LeftElbow, elbowL);
         anim.SetIKHintPosition(AvatarIKHint.RightElbow, elbowR);
 
+        // ---------------------------
+        // FEET + KNEES (SMOOTHED)
+        // ---------------------------
+        bool footLValid = skel.GetJoint(JointId.FootLeft).ConfidenceLevel != JointConfidenceLevel.None;
+        bool footRValid = skel.GetJoint(JointId.FootRight).ConfidenceLevel != JointConfidenceLevel.None;
+        bool kneeLValid = skel.GetJoint(JointId.KneeLeft).ConfidenceLevel != JointConfidenceLevel.None;
+        bool kneeRValid = skel.GetJoint(JointId.KneeRight).ConfidenceLevel != JointConfidenceLevel.None;
+
+        Vector3 footLRaw = _footL;
+        Vector3 footRRaw = _footR;
+        Vector3 kneeLRaw = _kneeL;
+        Vector3 kneeRRaw = _kneeR;
+
+        if (footLValid) footLRaw = WorldJointPos(skel, JointId.FootLeft, pelvisLocal, pelvisWorld) + leftFootOffset;
+        if (footRValid) footRRaw = WorldJointPos(skel, JointId.FootRight, pelvisLocal, pelvisWorld) + rightFootOffset;
+        if (kneeLValid) kneeLRaw = WorldJointPos(skel, JointId.KneeLeft, pelvisLocal, pelvisWorld);
+        if (kneeRValid) kneeRRaw = WorldJointPos(skel, JointId.KneeRight, pelvisLocal, pelvisWorld);
+
+        if (mirror)
+        {
+            (footLRaw, footRRaw) = (footRRaw, footLRaw);
+            (kneeLRaw, kneeRRaw) = (kneeRRaw, kneeLRaw);
+        }
+
+        // Init once (prevents first-frame snapping)
+        if (!_legInit)
+        {
+            _footL = footLRaw;
+            _footR = footRRaw;
+            _kneeL = kneeLRaw;
+            _kneeR = kneeRRaw;
+            _legInit = true;
+        }
+        else
+        {
+            // Smooth (kills Kinect jitter)
+            _footL = SmoothVec(_footL, footLRaw, footSmooth);
+            _footR = SmoothVec(_footR, footRRaw, footSmooth);
+
+            _kneeL = SmoothVec(_kneeL, kneeLRaw, kneeSmooth);
+            _kneeR = SmoothVec(_kneeR, kneeRRaw, kneeSmooth);
+        }
+
+        anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, footPosWeight);
+        anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, footPosWeight);
+
+        anim.SetIKPosition(AvatarIKGoal.LeftFoot, _footL);
+        anim.SetIKPosition(AvatarIKGoal.RightFoot, _footR);
+
+        anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, kneeHintWeight);
+        anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, kneeHintWeight);
+
+        anim.SetIKHintPosition(AvatarIKHint.LeftKnee, _kneeL);
+        anim.SetIKHintPosition(AvatarIKHint.RightKnee, _kneeR);
+
+        // ---------------------------
         // HEAD LOOK TARGET
+        // ---------------------------
         Vector3 head = WorldJointPos(skel, JointId.Head, pelvisLocal, pelvisWorld);
 
         Vector3 shoulderL = WorldJointPos(skel, JointId.ShoulderLeft, pelvisLocal, pelvisWorld);
@@ -155,8 +210,8 @@ public class AzureKinectIKDriver : MonoBehaviour
         Vector3 up = (head - spine).normalized;
         Vector3 forward = Vector3.Cross(right, up).normalized;
 
-        // keep it consistent with your character's facing direction
-        if (Vector3.Dot(forward, transform.forward) < 0f) forward = -forward;
+        if (Vector3.Dot(forward, transform.forward) < 0f)
+            forward = -forward;
 
         Vector3 lookTarget = head + forward * 2f;
 
@@ -164,6 +219,9 @@ public class AzureKinectIKDriver : MonoBehaviour
         anim.SetLookAtPosition(lookTarget);
     }
 
+    // ---------------------------
+    // Joint conversion helpers
+    // ---------------------------
     Vector3 JPosLocal(Skeleton skel, JointId id)
     {
         var p = skel.GetJoint(id).Position;
@@ -191,16 +249,28 @@ public class AzureKinectIKDriver : MonoBehaviour
     {
         if (!_lockInit)
         {
+            _lockedX = transform.position.x;
             _lockedY = transform.position.y;
             _lockedZ = transform.position.z;
             _lockInit = true;
         }
 
+        if (lockX) p.x = _lockedX;
         if (lockY) p.y = _lockedY;
         if (lockZ) p.z = _lockedZ;
+
         return p;
     }
 
+    Vector3 SmoothVec(Vector3 current, Vector3 target, float smooth)
+    {
+        float t = 1f - Mathf.Exp(-smooth * Time.deltaTime);
+        return Vector3.Lerp(current, target, t);
+    }
+
+    // ---------------------------
+    // Arm “raised sideways” detection (unchanged)
+    // ---------------------------
     private void DetectArmRaiseGestures(Skeleton skel)
     {
         if (!TryGetBodyAxes(skel, out Vector3 bodyRight, out Vector3 bodyUp, out Vector3 bodyForward))
@@ -209,9 +279,6 @@ public class AzureKinectIKDriver : MonoBehaviour
         float enterAngle = armRaiseAngle + angleHysteresis;
         float exitAngle = armRaiseAngle - angleHysteresis;
 
-        // Hysteresis trick:
-        // - If currently NOT raised -> require enterAngle
-        // - If currently raised     -> allow staying raised with exitAngle
         bool rightPose = IsArmRaisedToSide(
             skel,
             JointId.ShoulderRight, JointId.ElbowRight, JointId.HandRight,
@@ -228,7 +295,6 @@ public class AzureKinectIKDriver : MonoBehaviour
             angleThreshold: LeftArmRaised ? exitAngle : enterAngle
         );
 
-        // Log ONLY on the rising edge (false -> true)
         if (rightPose && !RightArmRaised && Time.time >= _nextRightLogTime)
         {
             Debug.Log("GESTURE: Right arm raised to the side");
@@ -270,35 +336,31 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         bodyForward.Normalize();
 
-        // Re-orthonormalize up to be safe
         bodyUp = Vector3.Cross(bodyForward, bodyRight).normalized;
 
-        // Make "forward" consistent with the avatar (prevents forward/back flips)
         if (Vector3.Dot(bodyForward, transform.forward) < 0f)
             bodyForward = -bodyForward;
 
-        // Keep orthonormal basis consistent after flipping forward
         bodyUp = Vector3.Cross(bodyForward, bodyRight).normalized;
 
         return true;
     }
 
     private bool IsArmRaisedToSide(
-    Skeleton skel,
-    JointId shoulderId,
-    JointId elbowId,
-    JointId handId,
-    Vector3 bodyRight,
-    Vector3 bodyUp,
-    Vector3 bodyForward,
-    bool isRight,
-    float angleThreshold
-)
+        Skeleton skel,
+        JointId shoulderId,
+        JointId elbowId,
+        JointId handId,
+        Vector3 bodyRight,
+        Vector3 bodyUp,
+        Vector3 bodyForward,
+        bool isRight,
+        float angleThreshold
+    )
     {
         var shJ = skel.GetJoint(shoulderId);
         var haJ = skel.GetJoint(handId);
 
-        // Super tolerant: only reject if tracking is basically missing
         if (shJ.ConfidenceLevel == JointConfidenceLevel.None ||
             haJ.ConfidenceLevel == JointConfidenceLevel.None)
             return false;
@@ -312,29 +374,21 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         Vector3 handDir = handRel.normalized;
 
-        // --- 1) "Raised" check (works with bent elbows because we use SHOULDER -> HAND) ---
-        // 0 = arm down, 90 = horizontal, 180 = up
         float angleFromDown = Vector3.Angle(-bodyUp, handDir);
         if (angleFromDown < angleThreshold)
             return false;
 
-        // --- 2) Side direction check (this is what kills salutes) ---
-        // We compare only the horizontal direction ("yaw"), so raising up diagonally still works.
         Vector3 flat = Vector3.ProjectOnPlane(handDir, bodyUp);
         if (flat.sqrMagnitude < 0.0001f)
-            return false; // arm is too vertical to be a left/right gesture
+            return false;
 
         Vector3 flatDir = flat.normalized;
         Vector3 sideAxis = isRight ? bodyRight : -bodyRight;
 
         float sideYawAngle = Vector3.Angle(flatDir, sideAxis);
-
-        // If it's not pointing mostly to the side, it's not a valid choice gesture.
-        // This makes forward-ish "salute" poses invalid by construction.
         if (sideYawAngle > sideMaxAngle)
             return false;
 
         return true;
     }
-
 }

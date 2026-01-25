@@ -37,6 +37,7 @@ public partial class Director : MonoBehaviour
         if (sceneParent) sceneParent.SetActive(true);
         if (decisionL && decisionR) ToggleDecisionBoxes(false);
         else Debug.LogError("FATAL ERROR: No decision boxes found!");
+        bubble = choiceText.transform.GetChild(0).gameObject;
         foreach (Transform child in sceneParent.transform)
         {
             child.gameObject.SetActive(false);
@@ -112,11 +113,23 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     void Update()
     {
-        if (isTitleScreenActive && titleScreenText)
+        if (purityTestActive)
         {
             float t = (Mathf.Sin(Time.unscaledTime * titlePulseSpeed) + 1f) * 0.5f; // 0..1
-            float s = Mathf.Lerp(1.9f, 2.1f, t); // 0.5 -> 2
-            titleScreenText.transform.localScale = new Vector3(s, s, s);
+            float s = Mathf.Lerp(0.1f, 0.125f, t); // 0.5 -> 2
+            aiPurityCheckmark.transform.localScale = new Vector3(s, s, s);
+            aiPurityCross.transform.localScale = new Vector3(s, s, s);
+            humanPurityCheckmark.transform.localScale = new Vector3(s, s, s);
+            humanPurityCross.transform.localScale = new Vector3(s, s, s);
+        }
+
+        if (_arrowsActive)
+        {
+            float t = (Mathf.Sin(Time.unscaledTime * titlePulseSpeed) + 1f) * 0.5f; // 0..1
+            float s = Mathf.Lerp(0.1f, 0.125f, t); // 0.5 -> 2
+            leftArrow.transform.localScale = new Vector3(s, s, s);
+            rightArrow.transform.localScale = new Vector3(s, s, s);
+            leftArrow.transform.localScale = new Vector3(-leftArrow.transform.localScale.x, leftArrow.transform.localScale.y, leftArrow.transform.localScale.z);
         }
 
         if (ikDriver)
@@ -161,7 +174,7 @@ public partial class Director : MonoBehaviour
     // -------------------------------------------------------------------------
     System.Collections.IEnumerator RunGame()
     {
-        //yield return RevealScene(DemonstrationScene, demonstrationSceneParent);
+        //yield return RevealScene(EndingScene, endingSceneParent);
         yield return RevealScene(TitleScreen, titleScreenParent);
     }
 
@@ -201,6 +214,7 @@ public partial class Director : MonoBehaviour
         }
 
         PlaySfx(sfxTransition, transitionVolume);
+        PlayGlitchSfx(transitionVolume * 2);
         yield return FadeWhiteoutTo(1f, whiteoutFadeSeconds);
 
         ToggleTextbox(false, null);
@@ -216,7 +230,7 @@ public partial class Director : MonoBehaviour
         if (_boatCo != null) StopCoroutine(_boatCo);
         _boatCo = null;
 
-        if (_currentScene == LanguageSelectScene) UseGerman = (chosen == 1); // left = English, right = German
+        if (_currentScene == TitleScreen) UseGerman = (chosen == 1); // left = English, right = German
 
         // reset confirm gating for next scene
         _ending = false;
@@ -335,6 +349,10 @@ public partial class Director : MonoBehaviour
         _ambPreviewSide = -1;
         if (amb1) { amb1.Stop(); amb1.volume = 0f; }
         if (amb2) { amb2.Stop(); amb2.volume = 0f; }
+        if (amb3) { amb3.Stop(); amb3.volume = 0f; }
+        if (amb4) { amb4.Stop(); amb4.volume = 0f; }
+        if (amb5) { amb5.Stop(); amb5.volume = 0f; }
+        if (amb6) { amb6.Stop(); amb6.volume = 0f; }
 
         // Force white screen up immediately (so the jump feels intentional)
         if (whiteout)

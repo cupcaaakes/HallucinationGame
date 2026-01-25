@@ -258,7 +258,7 @@ public partial class Director
         _ringRt.anchoredPosition = new Vector2(0f, -choiceRingGapPx);
 
         if (_ringScaleCo != null) StopCoroutine(_ringScaleCo);
-        _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, Vector3.one, choiceAnimSeconds, false));
+        _ringScaleCo = StartCoroutine(ScaleTo(choiceRing.gameObject, new Vector3(1.25f, 1f, 1f), choiceAnimSeconds, false));
     }
 
 

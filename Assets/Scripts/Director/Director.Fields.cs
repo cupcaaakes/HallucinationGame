@@ -11,6 +11,8 @@ public partial class Director
 {
     [SerializeField] private AzureKinectIKDriver ikDriver;
 
+    [SerializeField] private GameObject player;
+
     // -------------------------------------------------------------------------
     // Scene objects used as "hover zones" / choices
     // (These should have Colliders so hover/trigger detection works.)
@@ -27,6 +29,9 @@ public partial class Director
 
     [SerializeField] private bool DisableInactivityTimer;
 
+    /// <summary>
+    /// 0-3 are AI, 4-7 are human
+    /// </summary>
     private int purityImageValue = 0;
 
     int _armChoice = -1;        // -1 none, 0 left, 1 right (arm-based preview)
@@ -38,6 +43,7 @@ public partial class Director
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+    private GameObject bubble;
     public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:
@@ -91,6 +97,8 @@ public partial class Director
     [Header("Audio")]
     [SerializeField] private AudioSource sfx;      // UI / transitions / confirms (NO pitch jitter)
     [SerializeField] private AudioSource typeSfx;  // typing clicks (pitch jitter)
+    [SerializeField] private AudioClip[] sfxTypeChars; // put 20 clips in here in the Inspector
+    [SerializeField] private AudioClip[] sfxGlitches; // put 20 clips in here in the Inspector
     [SerializeField] private AudioClip sfxTypeChar;
     [SerializeField] private AudioClip sfxTextboxOpen;
     [SerializeField] private AudioClip sfxTextboxClose;
@@ -105,7 +113,8 @@ public partial class Director
     [SerializeField] private float typeMinInterval = 0.03f;   // seconds between type clicks
     [SerializeField] private float typePitchJitter = 0.1f;   // small pitch variation
 
-    float _nextTypeSfxAt;
+    private float _nextTypeSfxAt;
+    private int _typeSfxIdx;
     bool _choiceWasOpen;
 
     // -------------------------------------------------------------------------
@@ -122,8 +131,16 @@ public partial class Director
     [Header("Ambiance")]
     [SerializeField] private AudioSource amb1;     // ending 1 Ambiance source
     [SerializeField] private AudioSource amb2;     // ending 2 Ambiance source
+    [SerializeField] private AudioSource amb3;
+    [SerializeField] private AudioSource amb4;
+    [SerializeField] private AudioSource amb5;
+    [SerializeField] private AudioSource amb6;
     [SerializeField] private AudioClip ambEnding1;
     [SerializeField] private AudioClip ambEnding2;
+    [SerializeField] private AudioClip ambHospital;
+    [SerializeField] private AudioClip ambAlley;
+    [SerializeField] private AudioClip ambEnding;
+    [SerializeField] private AudioClip ambTitle;
 
     [SerializeField, Range(0f, 1f)] private float ambPreviewVolume = 0.33f;
     [SerializeField] private float ambPreviewFadeSeconds = 0.25f;
@@ -134,6 +151,7 @@ public partial class Director
     bool _ambPreviewActive;
     bool _ambCommitted;
     int _ambPreviewSide = -1; // -1 none, 0 left, 1 right
+    const bool AMB_PREVIEW_ENABLED = false;
 
     // -------------------------------------------------------------------------
     // Whiteout overlay:
@@ -175,6 +193,8 @@ public partial class Director
     [SerializeField] private GameObject aiProtestersBackgroundParent;
     [SerializeField] private GameObject humanProtestersBackgroundParent;
     [SerializeField] private GameObject alleyBackgroundParent;
+    [SerializeField] private GameObject usBox;
+    [SerializeField] private GameObject deBox;
 
     // -------------------------------------------------------------------------
     // Language Select Scene: Language doors sliding in.
@@ -183,9 +203,10 @@ public partial class Director
     [SerializeField]
     private GameObject languageSceneParent;
     [SerializeField]
-    private GameObject doorEnglishL;
+    private GameObject leftArrow;
     [SerializeField]
-    private GameObject doorGermanR;
+    private GameObject rightArrow;
+    private bool _arrowsActive = false;
 
     // -------------------------------------------------------------------------
     // Intro Scene: AI vs Human doctor after waking up.
@@ -211,21 +232,6 @@ public partial class Director
     private GameObject checkupHumanDoctor;
 
     // -------------------------------------------------------------------------
-    // Ending 1: island + boat drift
-    // -------------------------------------------------------------------------
-    [Header("Demo Ending 1")]
-    [SerializeField] private GameObject demoEnding1Parent;
-    [SerializeField] private GameObject island;
-    [SerializeField] private GameObject boat;
-    [SerializeField] private GameObject woodenOverpass;
-    [SerializeField] private float endingPlaneZ = 0f;
-    [SerializeField] private float boatSpeedUnitsPerSec = 0.05f;
-    [SerializeField] private float boatRollDegrees = 4f;          // max roll angle
-    [SerializeField] private float boatRollHz = 0.20f;            // cycles per second (0.2 = 5s per cycle)
-    [SerializeField] private float boatRollEaseOutSeconds = 2.0f; // how long until sway reaches full strength
-    [SerializeField] private float boatRollDamping = 0.35f;       // higher = settles faster (smooths jitter)
-
-    // -------------------------------------------------------------------------
     // Demonstration scene
     // -------------------------------------------------------------------------
     [Header("Demonstration scene")]
@@ -234,15 +240,21 @@ public partial class Director
     [SerializeField] private GameObject demonstrationSceneAIProtester;
     [SerializeField] private GameObject demonstrationSceneHumanProtester;
 
+    private bool purityTestActive = false;
+
     [Header("AI Purity scene")]
     [SerializeField] private GameObject aiPuritySceneParent;
     [SerializeField] private GameObject aiPurityTestImage;
     [SerializeField] private GameObject aiPurityAIProtester;
+    [SerializeField] private GameObject aiPurityCheckmark;
+    [SerializeField] private GameObject aiPurityCross;
 
     [Header("Human Purity scene")]
     [SerializeField] private GameObject humanPuritySceneParent;
     [SerializeField] private GameObject humanPurityTestImage;
     [SerializeField] private GameObject humanPurityHumanProtester;
+    [SerializeField] private GameObject humanPurityCheckmark;
+    [SerializeField] private GameObject humanPurityCross;
 
     [Header("Accepted To AIs scene")]
     [SerializeField] private GameObject acceptedToAIsSceneParent;
@@ -268,15 +280,6 @@ public partial class Director
     [SerializeField] private GameObject humanAfterAiRejectionSceneParent;
     [SerializeField] private GameObject humanAfterAiRejectionSceneHumanProtester;
 
-    [Header("Voting Booth scene")]
-    [SerializeField] private GameObject votingBoothSceneParent;
-
-    [Header("Leaving Booth Keep scene")]
-    [SerializeField] private GameObject leavingBoothKeepSceneParent;
-
-    [Header("Leaving Booth Flag scene")]
-    [SerializeField] private GameObject leavingBoothFlagSceneParent;
-
     [Header("Pondering scene")]
     [SerializeField] private GameObject ponderingSceneParent;
 
@@ -287,6 +290,11 @@ public partial class Director
     [SerializeField] private GameObject resultsScreenParent;
     [SerializeField] private GameObject resultTitle;
     [SerializeField] private GameObject resultRank;
+    [SerializeField] private GameObject todayStats;
+    [SerializeField] private GameObject totalStats;
+    [SerializeField] private GameObject whiteBackground;
+    [SerializeField] private GameObject resultsBackground;
+    [SerializeField] private Material resultsWhitePreset;
 
     Coroutine _boatCo;
 
@@ -303,7 +311,11 @@ public partial class Director
     {
         None = 0,
         Amb1 = 1, // uses amb1 source / ambEnding1
-        Amb2 = 2  // uses amb2 source / ambEnding2
+        Amb2 = 2,  // uses amb2 source / ambEnding2 (protests)
+        Hospital = 3,
+        Alley = 4,
+        Ending = 5,
+        Title = 6
     }
 
     [Serializable]

@@ -68,7 +68,6 @@ public class RandomizeBillboardMaterial : MonoBehaviour
         float aspect = (float)tex.width / tex.height;
 
         var s = transform.localScale;
-        s.x = s.z * aspect; // keep Z, adjust X
         transform.localScale = s;
     }
 }
