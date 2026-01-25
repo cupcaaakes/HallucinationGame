@@ -6170,7 +6170,7 @@ MonoBehaviour:
   decisionR: {fileID: 234460517}
   speechBubble: {fileID: 381978150}
   playerTransform: {fileID: 799871864}
-  DisableInactivityTimer: 1
+  DisableInactivityTimer: 0
   textbox: {fileID: 1621188874}
   textboxText: {fileID: 496062446}
   choiceText: {fileID: 1229671853}
@@ -6710,24 +6710,22 @@ MonoBehaviour:
   handPosWeight: 2
   elbowHintWeight: 0.5
   lookWeight: 0.6
+  footPosWeight: 0.873
+  kneeHintWeight: 0.254
+  leftFootOffset: {x: 0, y: 0, z: 0}
+  rightFootOffset: {x: 0, y: 0, z: 0}
   mirror: 0
   flipZ: 1
   flipX: 1
   rootSmooth: 24
-  yawSmooth: 32
+  footSmooth: 25
+  kneeSmooth: 18
   lockX: 0
   lockY: 1
   lockZ: 1
   armRaiseAngle: 90
   angleHysteresis: 7
-  minHandAboveShoulder: 0.05
-  minSideOffset: 0.15
-  maxForwardDot: 0.35
-  minSideDot: 0.45
   gestureCooldown: 0.6
-  saluteForwardMaxAngle: 35
-  saluteHorizontalMaxDelta: 25
-  saluteMinElbowAngle: 150
   sideMaxAngle: 45
 --- !u!54 &847006727
 Rigidbody:
@@ -6786,7 +6784,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799871863}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70c3570698c398542b95aee97bfe5a60, type: 3}
   m_Name: 
