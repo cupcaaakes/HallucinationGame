@@ -541,6 +541,8 @@ public partial class Director
     {
         StartupScene(resultsScreenParent);
         player.SetActive(false);
+        whiteBackground.SetActive(false);
+        resultsBackground.SetActive(true);
         // Title label
         if (UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
@@ -548,7 +550,6 @@ public partial class Director
         // Rank ID (language-independent) with localized label
         var rankId = GetRankId(aiDoctorChosen, aiCrowdChosen, gotRejectedFromGroup);
         string rankingText = RankLabel(rankId, UseGerman);
-
         // Record and show stats
         if (GAIAStats.I != null)
         {
@@ -578,9 +579,8 @@ public partial class Director
             todayStats.GetComponent<TextMeshPro>().text = "GAIAStats";
             totalStats.GetComponent<TextMeshPro>().text = "Is null!";
         }
-
+        ApplyResultsWhite();
         yield return new WaitForSeconds(10f);
-        player.SetActive(true);
         // both sides go to the same destination
         _next[0] = new SceneRef(TitleScreen, titleScreenParent, AmbRoute.None, false);
         _next[1] = _next[0];
@@ -616,11 +616,31 @@ public partial class Director
         _ => "Error"
     };
 
+    void ApplyResultsWhite()
+    {
+        ApplyPreset(todayStats, resultsWhitePreset);
+        ApplyPreset(totalStats, resultsWhitePreset);
+    }
+
+    static void ApplyPreset(GameObject go, Material preset)
+    {
+        if (!go || !preset) return;
+        var tmp = go.GetComponent<TMP_Text>();
+        if (!tmp) return;
+
+        // Use TMP-managed material slot (not MeshRenderer)
+        tmp.fontSharedMaterial = preset;
+        tmp.SetAllDirty(); // forces refresh
+    }
+
     public System.Collections.IEnumerator TitleScreen()
     {
         StartupScene(titleScreenParent);
         usBox.SetActive(true);
         deBox.SetActive(true);
+        player.SetActive(true);
+        whiteBackground.SetActive(true);
+        resultsBackground.SetActive(false);
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
@@ -628,5 +648,61 @@ public partial class Director
         bubble.transform.localScale = new Vector3(2f, 2f, 1f);
         SetChoicePair(5);
         ToggleDecisionBoxes(true);
+    }
+
+    private bool TestAllResults(RankId rank)
+    {
+        switch (rank)
+        {
+            // AI Doc, AI Crowd
+            case RankId.Thinker:
+                aiDoctorChosen = true;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.TechEnthusiast:
+                aiDoctorChosen = true;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // AI Doc, Human Crowd
+            case RankId.Revolutionary:
+                aiDoctorChosen = true;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.BridgeBuilder:
+                aiDoctorChosen = false;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // Human Doc, AI Crowd
+            case RankId.Doubter:
+                aiDoctorChosen = false;
+                aiCrowdChosen = true;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.OpinionShaper:
+                aiDoctorChosen = false;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = true;
+                return false;
+
+            // Human Doc, Human Crowd
+            case RankId.Individualist:
+                aiDoctorChosen = false;
+                aiCrowdChosen = false;
+                gotRejectedFromGroup = false;
+                return false;
+
+            case RankId.Humanist:
+            default:
+                return true; // bail out
+        }
     }
 }
