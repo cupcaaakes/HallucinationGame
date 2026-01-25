@@ -32,7 +32,7 @@ public static class TextboxScripts
         ),
         new Line( // 2: intro scene 2 - choice
             "The male doctor smiles at you and then looks at his paper chart, while the female doctor assesses you quickly and then checks something on her tablet. Which one would you like to be treated by?",
-            "Die Ärztin lächelt dich an und schaut dann auf seine Patientenakte, während der Arzt dich kurz mit einem Blick untersucht und dann etwas auf ihrem Tablet nachsieht. Von wem möchtest du lieber behandelt werden?",
+            "Die Ärztin lächelt dich an und schaut dann auf ihre Patientenakte, während der Arzt dich kurz mit einem Blick untersucht und dann etwas auf seinem Tablet nachsieht. Von wem möchtest du lieber behandelt werden?",
             20.6f
         ),
         new Line( //3: AI doctor 1
@@ -51,18 +51,18 @@ public static class TextboxScripts
             21.6f
         ),
         new Line( //6: human doctor 2
-            "He glances at the door. 'Listen... Out there, people are causing quite the ruckus, and they're just looking for blind loyalty.'",
-            "Er blickt zur Tür. ‚Hör zu... Da draußen ist ein ziemliches Chaos. Die Leute da draußen wollen nur blinde Loyalität.'",
+            "She glances at the door. 'Listen... Out there, people are causing quite the ruckus, and they're just looking for blind loyalty.'",
+            "Sie blickt zur Tür. ‚Hör zu... Da draußen ist ein ziemliches Chaos. Die Leute da draußen wollen nur blinde Loyalität.'",
             21.6f
         ),
         new Line( //7: AI doctor 3
             "‘Go outside and look for yourself,’ he says warmly. ‘Just remember: certainty can be a costume.’ You decide to do just that.",
-            "‚Geh raus und schau es dir selbst an‘, sagt er freundlich. ‚Und denk dran: Sicherheit kann auch nur ein Kostüm sein.‘ Du entscheidest dich, genau das zu tun.",
+            "‚Gehen Sie raus und schauen es selbst an‘, sagt er freundlich. ‚Und denken Sie dran: Sicherheit kann auch nur ein Kostüm sein.‘ Du entscheidest dich, genau das zu tun.",
             21.6f
         ),
         new Line( //8: human doctor 3
     	    "She places a hand on your shoulder. 'Go see for yourself. Just trust your gut. Notice who makes you think harder... and who just makes you angrier.",
-            "Sie legt dir eine Hand auf die Schulter. ‚Geh und sieh selbst. Vertraue einfach deinem Bauchgefühl! Achte darauf, wer dich zum Nachdenken bringt... und wer dich nur wütender macht.",
+            "Sie legt dir eine Hand auf die Schulter. ‚Geh und sieh selbst. Vertraue einfach deinem Bauchgefühl! Achte darauf, wer dich zum Nachdenken bringt... und wer dich nur frustriert macht.",
             21.6f
         ),
         new Line( //9: demonstration scene 1
@@ -91,8 +91,8 @@ public static class TextboxScripts
             19f
         ),
         new Line ( //14: AI purity scene 2
-            "Someone holds up an image. ‘Quick check,’ they say. ‘Imagine you'd see this image hanging at your workplace or at your friend's place. Would you have an issue with that - Yes or no?’",
-	        "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du damit ein Problem - Ja oder nein?‘",      
+            "Someone holds up an image. ‘Quick check,’ they say. ‘Imagine you'd see this image hanging at your workplace or at your friend's place. Would you not have an issue with that - Yes or no?’",
+	        "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du damit kein Problem - Ja oder nein?‘",      
             21.6f
         ),
         new Line ( //15: human purity scene 2

@@ -11,6 +11,8 @@ public partial class Director
 {
     [SerializeField] private AzureKinectIKDriver ikDriver;
 
+    [SerializeField] private GameObject player;
+
     // -------------------------------------------------------------------------
     // Scene objects used as "hover zones" / choices
     // (These should have Colliders so hover/trigger detection works.)

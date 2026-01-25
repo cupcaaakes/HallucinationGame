@@ -25,16 +25,16 @@ public static class ChoiceTextScripts
         new Line("This is the right option. Move here to select it!", "Das ist die rechte Auswahl. Bewege dich hierhin, um sie auszuwahlen!", 21.6f),
 
         //1: intro scene
-        new Line("Oh my goodness — this is incredible news! You’re awake! Welcome back, We’ve all been rooting for you!", "Oh mein Gott – das sind unglaubliche Neuigkeiten! Du bist wach! Willkommen zurück. Wir haben alle die Daumen für dich gedrückt!", 19f),
-        new Line("Good morning! I'm glad that you woke up. We gotta check your vitals first however.", "Guten Morgen. Ich freue mich, dass Sie aufgewacht sind. Wir müssen zuerst Ihre Vitalwerte prüfen.", 20f),
+        new Line("Oh my goodness — this is incredible news! You’re awake! Welcome back, We’ve all been rooting for you!", "Oh mein Gott – das sind unglaubliche Neuigkeiten! Sie sind wach! Willkommen zurück. Wir haben alle die Daumen für Sie gedrückt!", 19f),
+        new Line("Good morning! I'm glad that you woke up. We gotta check your vitals first however.", "Guten Morgen. Ich freue mich, dass du aufgewacht bist. Wir müssen zuerst deine Vitalwerte prüfen.", 20f),
 
         //2: demonstration scene
         new Line("Move forward. End the panic.", "Vorwärts. Schluss mit der Panik.", 21.6f),
         new Line("Protect what’s real. Draw the line.", "Schützt das Echte. Zieht die Grenze.", 21.6f),
 
         //3: purity scenes
-        new Line("I like it!", "Finde ich gut!", 22f),
-        new Line("Not really a fan...", "Nicht wirklich mein Fall...", 22f),
+        new Line("Looks fine to me!", "Hätte ich kein Problem damit!", 22f),
+        new Line("I don't really think so...", "Denke nicht so wirklich...", 22f),
 
         //4: voting booth
         new Line("KEEP", "LASSEN", 22f),

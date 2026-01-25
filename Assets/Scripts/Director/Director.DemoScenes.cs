@@ -328,13 +328,13 @@ public partial class Director
         Debug.Log("Value of purity image: " + purityImageValue);
         if (purityImageValue <= 3)
         {
-            _next[0] = new SceneRef(AcceptedByAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(RejectedFromAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(AcceptedByAIsScene, acceptedToAIsSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromAIsScene, rejectedFromAIsSceneParent, AmbRoute.Amb2, true);
         }
         else
         {
-            _next[0] = new SceneRef(RejectedFromAIsScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(AcceptedByAIsScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(RejectedFromAIsScene, rejectedFromAIsSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByAIsScene, acceptedToAIsSceneParent, AmbRoute.Amb2, true);
         }
 
         // start textbox AFTER reveal so typing is visible
@@ -376,14 +376,14 @@ public partial class Director
         Debug.Log("Value of purity image: " + purityImageValue);
         if (purityImageValue <= 3) 
         {
-            _next[0] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(RejectedFromHumansScene, rejectedFromHumansSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(AcceptedByHumansScene, acceptedToHumansSceneParent, AmbRoute.Amb2, true);
             Debug.Log("BLOCK A");
         }
         else
         {
-            _next[0] = new SceneRef(AcceptedByHumansScene, humanPuritySceneParent, AmbRoute.Amb2, true);
-            _next[1] = new SceneRef(RejectedFromHumansScene, aiPuritySceneParent, AmbRoute.Amb2, true);
+            _next[0] = new SceneRef(AcceptedByHumansScene, acceptedToHumansSceneParent, AmbRoute.Amb2, true);
+            _next[1] = new SceneRef(RejectedFromHumansScene, rejectedFromHumansSceneParent, AmbRoute.Amb2, true);
             Debug.Log("BLOCK B");
         }
 
@@ -429,7 +429,11 @@ public partial class Director
         gotRejectedFromGroup = true;
         purityTestActive = false;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
-        if (purityImageValue <= 3) ToggleTextbox(true, 20);
+        if (purityImageValue <= 3)
+        {
+            ToggleTextbox(true, 20);
+            yield return new WaitForSeconds(defaultTextBoxTime);
+        }
         else
         {
             ToggleTextbox(true, 22);
@@ -482,6 +486,7 @@ public partial class Director
         ToggleTextbox(true, 27);
         yield return new WaitForSeconds(defaultTextBoxTime);
         ToggleTextbox(true, 29);
+        yield return new WaitForSeconds(defaultTextBoxTime);
         yield return EndSceneWithNoChoiceMade(
             new SceneRef(PonderingScene, ponderingSceneParent, AmbRoute.Alley, true)
         );
@@ -535,7 +540,7 @@ public partial class Director
     public System.Collections.IEnumerator ResultsScreen()
     {
         StartupScene(resultsScreenParent);
-
+        player.SetActive(false);
         // Title label
         if (UseGerman) resultTitle.GetComponent<TextMeshPro>().text = "Dein GAIA-Rank:";
         else resultTitle.GetComponent<TextMeshPro>().text = "Your GAIA Rank:";
@@ -575,7 +580,7 @@ public partial class Director
         }
 
         yield return new WaitForSeconds(10f);
-        
+        player.SetActive(true);
         // both sides go to the same destination
         _next[0] = new SceneRef(TitleScreen, titleScreenParent, AmbRoute.None, false);
         _next[1] = _next[0];
