@@ -8353,6 +8353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f77f6e47c9c421b4395ab162f6834cd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestKinectManager
+  debugText: {fileID: 1494102139}
 --- !u!1001 &1273720918
 PrefabInstance:
   m_ObjectHideFlags: 0

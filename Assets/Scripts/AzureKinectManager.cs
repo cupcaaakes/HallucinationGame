@@ -3,6 +3,7 @@ using System.Threading;
 using UnityEngine;
 using Microsoft.Azure.Kinect.Sensor;
 using Microsoft.Azure.Kinect.BodyTracking;
+using TMPro;
 
 public class KinectManager : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class KinectManager : MonoBehaviour
     private Thread worker;
     private volatile bool running;
     private readonly object skelLock = new object();
+
+    [SerializeField] private TMP_Text debugText;
 
     void Start()
     {
@@ -61,8 +64,9 @@ public class KinectManager : MonoBehaviour
         }
         catch (Exception ex)
         {
+            debugText.text = ex.ToString();
             Debug.LogError("ERROR initializing Kinect: " + ex.Message);
-            Debug.LogException(ex);
+            //Debug.LogException(ex);
         }
     }
 
