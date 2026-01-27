@@ -6714,6 +6714,7 @@ MonoBehaviour:
   kneeHintWeight: 0.254
   leftFootOffset: {x: 0, y: 0, z: 0}
   rightFootOffset: {x: 0, y: 0, z: 0}
+  enableLegIK: 0
   mirror: 0
   flipZ: 1
   flipX: 1

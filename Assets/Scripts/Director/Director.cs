@@ -366,6 +366,18 @@ public partial class Director : MonoBehaviour
         // Make sure title pulse is active again
         isTitleScreenActive = true;
 
+        // Recenter avatar when returning to title
+        if (ikDriver != null)
+        {
+            ikDriver.RecenterX(0f);
+        }
+        else if (player != null)
+        {
+            var p = player.transform.position;
+            p.x = 0f;
+            player.transform.position = p;
+        }
+
         // Restart the normal flow at the title
         StartCoroutine(RevealScene(TitleScreen, titleScreenParent));
     }

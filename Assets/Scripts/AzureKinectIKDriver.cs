@@ -21,6 +21,8 @@ public class AzureKinectIKDriver : MonoBehaviour
     public Vector3 leftFootOffset = Vector3.zero;
     public Vector3 rightFootOffset = Vector3.zero;
 
+    public bool enableLegIK = false;
+
     [Header("Fixes")]
     public bool mirror = false;
     public bool flipZ = false;
@@ -92,7 +94,12 @@ public class AzureKinectIKDriver : MonoBehaviour
             ? sensorOrigin.TransformPoint(pelvisLocal)
             : pelvisLocal;
 
-        Vector3 targetPos = LockRootAxes(pelvisWorld + rootOffset);
+        Vector3 raw = pelvisWorld + rootOffset;
+
+        raw.x = _lockedX + (raw.x - _lockedX) * 1.5f;
+
+        Vector3 targetPos = LockRootAxes(raw);
+
 
         transform.position = Vector3.Lerp(
             transform.position,
@@ -143,57 +150,70 @@ public class AzureKinectIKDriver : MonoBehaviour
         // ---------------------------
         // FEET + KNEES (SMOOTHED)
         // ---------------------------
-        bool footLValid = skel.GetJoint(JointId.FootLeft).ConfidenceLevel != JointConfidenceLevel.None;
-        bool footRValid = skel.GetJoint(JointId.FootRight).ConfidenceLevel != JointConfidenceLevel.None;
-        bool kneeLValid = skel.GetJoint(JointId.KneeLeft).ConfidenceLevel != JointConfidenceLevel.None;
-        bool kneeRValid = skel.GetJoint(JointId.KneeRight).ConfidenceLevel != JointConfidenceLevel.None;
-
-        Vector3 footLRaw = _footL;
-        Vector3 footRRaw = _footR;
-        Vector3 kneeLRaw = _kneeL;
-        Vector3 kneeRRaw = _kneeR;
-
-        if (footLValid) footLRaw = WorldJointPos(skel, JointId.FootLeft, pelvisLocal, pelvisWorld) + leftFootOffset;
-        if (footRValid) footRRaw = WorldJointPos(skel, JointId.FootRight, pelvisLocal, pelvisWorld) + rightFootOffset;
-        if (kneeLValid) kneeLRaw = WorldJointPos(skel, JointId.KneeLeft, pelvisLocal, pelvisWorld);
-        if (kneeRValid) kneeRRaw = WorldJointPos(skel, JointId.KneeRight, pelvisLocal, pelvisWorld);
-
-        if (mirror)
+        if (enableLegIK)
         {
-            (footLRaw, footRRaw) = (footRRaw, footLRaw);
-            (kneeLRaw, kneeRRaw) = (kneeRRaw, kneeLRaw);
-        }
+            bool footLValid = skel.GetJoint(JointId.FootLeft).ConfidenceLevel != JointConfidenceLevel.None;
+            bool footRValid = skel.GetJoint(JointId.FootRight).ConfidenceLevel != JointConfidenceLevel.None;
+            bool kneeLValid = skel.GetJoint(JointId.KneeLeft).ConfidenceLevel != JointConfidenceLevel.None;
+            bool kneeRValid = skel.GetJoint(JointId.KneeRight).ConfidenceLevel != JointConfidenceLevel.None;
 
-        // Init once (prevents first-frame snapping)
-        if (!_legInit)
-        {
-            _footL = footLRaw;
-            _footR = footRRaw;
-            _kneeL = kneeLRaw;
-            _kneeR = kneeRRaw;
-            _legInit = true;
+            Vector3 footLRaw = _footL;
+            Vector3 footRRaw = _footR;
+            Vector3 kneeLRaw = _kneeL;
+            Vector3 kneeRRaw = _kneeR;
+
+            if (footLValid) footLRaw = WorldJointPos(skel, JointId.FootLeft, pelvisLocal, pelvisWorld) + leftFootOffset;
+            if (footRValid) footRRaw = WorldJointPos(skel, JointId.FootRight, pelvisLocal, pelvisWorld) + rightFootOffset;
+            if (kneeLValid) kneeLRaw = WorldJointPos(skel, JointId.KneeLeft, pelvisLocal, pelvisWorld);
+            if (kneeRValid) kneeRRaw = WorldJointPos(skel, JointId.KneeRight, pelvisLocal, pelvisWorld);
+
+            if (mirror)
+            {
+                (footLRaw, footRRaw) = (footRRaw, footLRaw);
+                (kneeLRaw, kneeRRaw) = (kneeRRaw, kneeLRaw);
+            }
+
+            if (!_legInit)
+            {
+                _footL = footLRaw;
+                _footR = footRRaw;
+                _kneeL = kneeLRaw;
+                _kneeR = kneeRRaw;
+                _legInit = true;
+            }
+            else
+            {
+                _footL = SmoothVec(_footL, footLRaw, footSmooth);
+                _footR = SmoothVec(_footR, footRRaw, footSmooth);
+
+                _kneeL = SmoothVec(_kneeL, kneeLRaw, kneeSmooth);
+                _kneeR = SmoothVec(_kneeR, kneeRRaw, kneeSmooth);
+            }
+
+            anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, footPosWeight);
+            anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, footPosWeight);
+
+            anim.SetIKPosition(AvatarIKGoal.LeftFoot, _footL);
+            anim.SetIKPosition(AvatarIKGoal.RightFoot, _footR);
+
+            anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, kneeHintWeight);
+            anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, kneeHintWeight);
+
+            anim.SetIKHintPosition(AvatarIKHint.LeftKnee, _kneeL);
+            anim.SetIKHintPosition(AvatarIKHint.RightKnee, _kneeR);
         }
         else
         {
-            // Smooth (kills Kinect jitter)
-            _footL = SmoothVec(_footL, footLRaw, footSmooth);
-            _footR = SmoothVec(_footR, footRRaw, footSmooth);
+            // Ensure leg IK does nothing (so animator/base pose wins)
+            anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 0f);
+            anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, 0f);
+            anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, 0f);
+            anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, 0f);
 
-            _kneeL = SmoothVec(_kneeL, kneeLRaw, kneeSmooth);
-            _kneeR = SmoothVec(_kneeR, kneeRRaw, kneeSmooth);
+            // Optional: let it re-init smoothly if you re-enable later
+            _legInit = false;
         }
 
-        anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, footPosWeight);
-        anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, footPosWeight);
-
-        anim.SetIKPosition(AvatarIKGoal.LeftFoot, _footL);
-        anim.SetIKPosition(AvatarIKGoal.RightFoot, _footR);
-
-        anim.SetIKHintPositionWeight(AvatarIKHint.LeftKnee, kneeHintWeight);
-        anim.SetIKHintPositionWeight(AvatarIKHint.RightKnee, kneeHintWeight);
-
-        anim.SetIKHintPosition(AvatarIKHint.LeftKnee, _kneeL);
-        anim.SetIKHintPosition(AvatarIKHint.RightKnee, _kneeR);
 
         // ---------------------------
         // HEAD LOOK TARGET
@@ -345,6 +365,22 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         return true;
     }
+
+    public void RecenterX(float worldX = 0f)
+    {
+        // Move the avatar root
+        var p = transform.position;
+        p.x = worldX;
+        transform.position = p;
+
+        // Also reset the IK driver's internal X anchor
+        _lockedX = worldX;
+        _lockInit = true;
+
+        // Optional: if you ever enable leg IK, prevents smoothing from old pose
+        _legInit = false;
+    }
+
 
     private bool IsArmRaisedToSide(
         Skeleton skel,

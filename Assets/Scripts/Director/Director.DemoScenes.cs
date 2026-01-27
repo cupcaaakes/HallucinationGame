@@ -217,6 +217,7 @@ public partial class Director
         bubble.transform.localScale = new Vector3(2f, 2.75f, 1f);
         SetChoicePair(1);
         ToggleDecisionBoxes(true);
+        yield break;
     }
 
     public System.Collections.IEnumerator CheckupSceneAi()
