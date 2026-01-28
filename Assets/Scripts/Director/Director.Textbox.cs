@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using static TextboxScripts;
 using UnityEngine.UI;
+using System.Collections;
 
 // This file is part of the partial Director class.
 // It contains textbox open/close + typing logic.
@@ -45,6 +46,8 @@ public partial class Director
 
         // make sure it's active while animating open
         if (open) textbox.gameObject.SetActive(true);
+        SyncDotsBlink();
+
 
         for (float t = 0f; t < 1f; t += Time.deltaTime / Mathf.Max(0.0001f, seconds))
         {
@@ -67,6 +70,8 @@ public partial class Director
 
         // hide after closing so it doesn't block clicks etc.
         if (!open) textbox.gameObject.SetActive(false);
+
+        SyncDotsBlink();
 
         // "display whatever Text (TMP) contains" happens automatically once it's visible
     }
@@ -110,4 +115,113 @@ public partial class Director
         if (typeSfx) typeSfx.Stop();
     }
 
+
+    Coroutine _dotsBlinkCo;
+
+    bool ShouldPulseDots()
+    {
+        if (_ending) return false;
+        if (!dotsActive) return false;
+
+        // you said you still control GO on/off manually
+        if (!dots || !dots.activeInHierarchy) return false;
+
+        bool textboxActive = textbox && textbox.gameObject.activeInHierarchy;
+
+        bool decisionBoxesActive =
+            (decisionL && decisionL.activeInHierarchy) ||
+            (decisionR && decisionR.activeInHierarchy);
+
+        return textboxActive && !decisionBoxesActive;
+    }
+
+    void SyncDotsBlink()
+    {
+        if (!dots) return;
+
+        bool shouldPulse = ShouldPulseDots();
+
+        if (shouldPulse)
+        {
+            if (_dotsBlinkCo == null)
+                _dotsBlinkCo = StartCoroutine(DotsPulseLoop());
+        }
+        else
+        {
+            StopDotsPulseImmediate(resetToMax: true);
+        }
+    }
+
+    void SetDotsActive(bool active)
+    {
+        dotsActive = active;
+        SyncDotsBlink();
+    }
+
+    IEnumerator DotsPulseLoop()
+    {
+        var img = dots.GetComponent<RawImage>();
+        if (!img)
+        {
+            _dotsBlinkCo = null;
+            yield break;
+        }
+
+        // start visible immediately
+        SetDotsAlpha(img, dotsAlphaMax);
+
+        while (ShouldPulseDots())
+        {
+            // fade out over dotsBlinkInterval
+            yield return FadeDots(img, dotsAlphaMax, dotsAlphaMin, dotsBlinkInterval);
+            if (!ShouldPulseDots()) break;
+
+            // fade in over dotsBlinkInterval
+            yield return FadeDots(img, dotsAlphaMin, dotsAlphaMax, dotsBlinkInterval);
+        }
+
+        // reset
+        if (img) SetDotsAlpha(img, dotsAlphaMax);
+        _dotsBlinkCo = null;
+    }
+
+    IEnumerator FadeDots(RawImage img, float fromA, float toA, float seconds)
+    {
+        seconds = Mathf.Max(0.0001f, seconds);
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            if (!ShouldPulseDots()) yield break;
+            if (!img) yield break;
+
+            t += Time.unscaledDeltaTime / seconds;
+            float u = Mathf.Clamp01(t);
+
+            // smooth ease-in-out
+            float ease = 0.5f - 0.5f * Mathf.Cos(u * Mathf.PI);
+
+            SetDotsAlpha(img, Mathf.Lerp(fromA, toA, ease));
+            yield return null;
+        }
+    }
+
+    void SetDotsAlpha(RawImage img, float a)
+    {
+        var c = img.color;
+        c.a = a;
+        img.color = c;
+    }
+
+    void StopDotsPulseImmediate(bool resetToMax)
+    {
+        if (_dotsBlinkCo != null)
+        {
+            StopCoroutine(_dotsBlinkCo);
+            _dotsBlinkCo = null;
+        }
+
+        var img = dots ? dots.GetComponent<RawImage>() : null;
+        if (img && resetToMax) SetDotsAlpha(img, dotsAlphaMin);
+    }
 }

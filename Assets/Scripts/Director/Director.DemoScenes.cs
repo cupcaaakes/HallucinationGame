@@ -17,6 +17,8 @@ public partial class Director
         if (decisionL) decisionL.SetActive(active);
         if (decisionR) decisionR.SetActive(active);
         SetDecisionColliders(active);
+        SetDotsActive(!active);
+        SyncDotsBlink();
     }
 
     // -------------------------------------------------------------------------

@@ -43,7 +43,13 @@ public partial class Director
     public Transform textbox;
     [SerializeField] private TMP_Text textboxText;
     [SerializeField] private GameObject choiceText;
+    [SerializeField] private GameObject dots;
+    private bool dotsActive = false;
     private GameObject bubble;
+    [SerializeField] private float dotsBlinkInterval = 0.8f;
+    [SerializeField, Range(0f, 1f)] private float dotsAlphaMin = 0f;   // fully invisible
+    [SerializeField, Range(0f, 1f)] private float dotsAlphaMax = 1f;   // fully visible
+
     public bool UseGerman { get; private set; } = false; // default to English
 
     // Canvas + UI camera:
