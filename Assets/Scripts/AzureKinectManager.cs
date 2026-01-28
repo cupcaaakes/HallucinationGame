@@ -60,7 +60,7 @@ public class KinectManager : MonoBehaviour
             {
                 ColorFormat = ImageFormat.ColorMJPG,
                 ColorResolution = ColorResolution.Off,
-                DepthMode = DepthMode.NFOV_Unbinned,
+                DepthMode = DepthMode.NFOV_2x2Binned,
                 CameraFPS = FPS.FPS30,
                 SynchronizedImagesOnly = false,
                 WiredSyncMode = WiredSyncMode.Standalone

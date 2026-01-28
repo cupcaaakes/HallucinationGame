@@ -289,7 +289,7 @@ public class AzureKinectIKDriver : MonoBehaviour
     }
 
     // ---------------------------
-    // Arm “raised sideways” detection (unchanged)
+    // Arm “raised sideways” detection
     // ---------------------------
     private void DetectArmRaiseGestures(Skeleton skel)
     {
