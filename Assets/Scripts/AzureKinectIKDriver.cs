@@ -96,7 +96,7 @@ public class AzureKinectIKDriver : MonoBehaviour
 
         Vector3 raw = pelvisWorld + rootOffset;
 
-        raw.x = _lockedX + (raw.x - _lockedX) * 1.5f;
+        raw.x = _lockedX + (raw.x - _lockedX) * 1.65f;
 
         Vector3 targetPos = LockRootAxes(raw);
 

@@ -7,6 +7,8 @@ using UnityEngine.UI;
 // It contains textbox open/close + typing logic.
 public partial class Director
 {
+    Coroutine _typeTextCo;
+
     // -------------------------------------------------------------------------
     // ToggleTextbox(): small helper to animate open/close + play SFX
     // (calls the coroutine overload below)
@@ -15,7 +17,7 @@ public partial class Director
     {
         if (!textbox) return;
         PlaySfx(open ? sfxTextboxOpen : sfxTextboxClose);
-        StopCoroutine(nameof(ToggleTextbox)); // prevents stacking calls
+        StopTextboxTyping();
         StartCoroutine(ToggleTextbox(open, textBoxLine, 0.35f));
     }
 
@@ -56,7 +58,9 @@ public partial class Director
         {
             var line = TextboxScripts.Lines[textBoxLine.Value];
             textboxText.fontSize = line.fontSize;
-            yield return TypeText(line.Get(UseGerman), 45f);
+            _typeTextCo = StartCoroutine(TypeText(line.Get(UseGerman), 45f));
+            yield return _typeTextCo;
+            _typeTextCo = null;
         }
 
         textbox.localScale = to;
@@ -79,6 +83,7 @@ public partial class Director
         float delay = 1f / Mathf.Max(1f, cps);
         for (int i = 0; i <= s.Length; i++)
         {
+            if (_ending) yield break;
             textboxText.text = s.Substring(0, i);
 
             if (i > 0) // don't play for the 0th frame
@@ -91,4 +96,18 @@ public partial class Director
             yield return new WaitForSeconds(delay);
         }
     }
+
+    void StopTextboxTyping()
+    {
+        StopCoroutine(nameof(ToggleTextbox));
+
+        if (_typeTextCo != null)
+        {
+            StopCoroutine(_typeTextCo);
+            _typeTextCo = null;
+        }
+
+        if (typeSfx) typeSfx.Stop();
+    }
+
 }
