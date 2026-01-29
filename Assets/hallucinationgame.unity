@@ -6190,7 +6190,7 @@ MonoBehaviour:
   scenePrerollSeconds: 0.35
   defaultTextBoxTime: 7.5
   idleReturnEnabled: 1
-  idleReturnSeconds: 30
+  idleReturnSeconds: 15
   sfx: {fileID: 816459074}
   typeSfx: {fileID: 573238923}
   sfxTypeChars:
@@ -12586,7 +12586,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Laufe hier hier, um das Spiel auf Deutsch zu spielen!
+  m_text: Laufe hier her, um das Spiel auf Deutsch zu spielen!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

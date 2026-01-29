@@ -20,18 +20,18 @@ public static class TextboxScripts
 
     public static readonly List<Line> Lines = new()
     {
-        new Line( //0: tutorial
-            "Welcome! In GAIA, you have to make some choices. To preview your options, stretch out your arm to the side of the choice you want to check out. Once you're ready, move to either side to start!",
-            "Hallo! In GAIA musst du Entscheidungen treffen. Um deine Auswahloptionen anzuschauen, strecke deinen Arm auf die Seite aus, die du betrachten willst. Sobald du bereit bist, gehe auf eine der beiden Seiten!",
+        new Line( //0: tutorial 1
+            "Welcome! In GAIA, you have to make some choices. You can either move to the left or to the right to select an option whenever these three dots on the text box aren't visible.",
+            "Hallo! In GAIA musst du Entscheidungen treffen. Dazu kannst du entweder nach links oder nach rechts gehen, wenn die drei Punkte auf dem Textfeld nicht sichtbar sind.",
             20.6f
         ),
         new Line( //1: intro scene
             "You've woken up after a long time... On another planet. Two doctors came in to check in on you.",
-            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kommen herein, um dich zu untersuchen.",            
+            "Du bist nach langer Zeit aufgewacht... Auf einem anderen Planeten. Zwei Ärzte kommen herein, um dich zu untersuchen.",
             21.6f
         ),
         new Line( // 2: intro scene 2 - choice
-            "The male doctor smiles at you and then looks at his paper chart, while the female doctor assesses you quickly and then checks something on her tablet. Which one would you like to be treated by?",
+            "The female doctor smiles at you and then looks at her paper chart, while the male doctor assesses you quickly and then checks something on his tablet. Which one would you like to be treated by?",
             "Die Ärztin lächelt dich an und schaut dann auf ihre Patientenakte, während der Arzt dich kurz mit einem Blick untersucht und dann etwas auf seinem Tablet nachsieht. Von wem möchtest du lieber behandelt werden?",
             19f
         ),
@@ -92,7 +92,7 @@ public static class TextboxScripts
         ),
         new Line ( //14: AI purity scene 2
             "Someone holds up an image. ‘Quick check,’ they say. ‘Imagine you'd see this image hanging at your workplace or at your friend's place. Would you have no issue with that?’",
-	        "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du kein Problem damit?‘",      
+            "Einer hät ein Bild hoch. ‚Kurzer Check‘, sagen sie. ‚Stell dir vor, du siehst dieses Bild bei deinem Arbeitsplatz oder bei einem Freund. Hättest du kein Problem damit?‘",
             21.6f
         ),
         new Line ( //15: human purity scene 2
@@ -190,5 +190,15 @@ public static class TextboxScripts
             "Weiß. Stille. Du blinzelst und sitzt wieder vor deinem Rechner. Auf dem Bildschirm stehen dieselben Parolen, dieselbe Dringlichkeit, dieselbe Feindseligkeit. Oben steht: GAIA.",
             21.2f
         ),
+        new Line( //34: tutorial 2
+            "To preview your options, put one arm up like you're waving on the side you wish to preview.",
+            "Um deine Auswahloptionen anzuschauen, hebe den Arm auf der Seite hoch auf der Seite, die du dir genauer anschauen möchtest, als würdest du ihr zuwinken.",
+            21.6f
+        ),
+        new Line( //35: tutorial 3
+            "Once you're ready, move to either side to start and walk back to the middle once the scene is changing!",
+            "Sobald du bereit bist, gehe auf eine der beiden Seiten und gehe nachdem die Szene sich geändert hat zurück zur Mitte!",
+            21.6f
+        )
     };
 }

@@ -177,8 +177,12 @@ public partial class Director
 
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
         bubble.transform.localScale = new Vector3(2.3f, 2.5f, 1f);
-        SetChoicePair(0);
         ToggleTextbox(true, 0);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        SetChoicePair(0);
+        ToggleTextbox(true, 34);
+        yield return new WaitForSeconds(defaultTextBoxTime);
+        ToggleTextbox(true, 35);
         ToggleDecisionBoxes(true);
         yield break;
     }
@@ -657,11 +661,24 @@ public partial class Director
         player.SetActive(true);
         whiteBackground.SetActive(true);
         resultsBackground.SetActive(false);
+        int lastAiIndex = aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex;
+        int lastHumanIndex = humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex;
         yield return new WaitForSeconds(scenePrerollSeconds + whiteoutFadeSeconds);
+        do
+        {
+            aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().ApplyRandom();
+        }
+        while ((aiPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex == lastAiIndex));
+        do
+        {
+            humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().ApplyRandom();
+        }
+        while ((humanPurityTestImage.GetComponent<RandomizeBillboardMaterial>().LastPickedIndex == lastHumanIndex));
 
         _next[0] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
         _next[1] = new SceneRef(LanguageSelectScene, languageSceneParent, AmbRoute.None, false);
         bubble.transform.localScale = new Vector3(2f, 2f, 1f);
+        
         SetChoicePair(5);
         ToggleDecisionBoxes(true);
     }
